@@ -1,0 +1,7 @@
+mt=yes
+inc=yes
+libs=hbziparc.hbc
+libs=hblibxlsxwriter
+libs=FreeImage
+
+
