@@ -63,7 +63,7 @@
 *+               Function SP_nWinTans()
 *+               Function DebugStack()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:16 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
 *+
 *+--------------------------------------------------------------------
 
@@ -544,7 +544,7 @@ RETURN cTextRight
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function c_fmsetup()
 *+                ( hbftp.prg )   3 - static procedure ftpform()
-*+                                   1 - procedure siteform()
+*+                                   1 - static procedure siteform()
 *+                                   6 - static procedure editform()
 *+                ( hbinput.prg )   2 - function getinput()
 *+                ( modistru.prg )   1 - function showarraystru()
@@ -810,7 +810,7 @@ RETURN nColor8
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function c_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
-*+                                   1 - procedure siteform()
+*+                                   1 - static procedure siteform()
 *+                ( modistru.prg )   1 - function showarraystru()
 *+                                   1 - static procedure exportxls()
 *+                ( phone2.prg )   2 - procedure getdevicepath()
@@ -854,7 +854,7 @@ RETURN nColor9
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function c_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
-*+                                   1 - procedure siteform()
+*+                                   1 - static procedure siteform()
 *+                ( modistru.prg )   1 - function showarraystru()
 *+                                   1 - static procedure exportxls()
 *+                ( phone2.prg )   2 - procedure getdevicepath()
@@ -1047,8 +1047,7 @@ RETURN aIndexTags
 *+
 *+    Function SP_Device()
 *+
-*+    Called from ( hbdevice.prg )   2 - function maineventhandler()
-*+                                   2 - function usb_detect()
+*+    Called from ( hbdevice.prg )   2 - function usb_detect()
 *+                                   2 - procedure wait4action()
 *+
 *+--------------------------------------------------------------------
@@ -1416,8 +1415,7 @@ RETURN lAdjustTime
 *+
 *+    Function SP_lDropfiles()
 *+
-*+    Called from ( hbdevice.prg )   1 - function maineventhandler()
-*+                                   1 - function usb_detect()
+*+    Called from ( hbdevice.prg )   1 - function usb_detect()
 *+                                   2 - procedure wait4action()
 *+
 *+--------------------------------------------------------------------

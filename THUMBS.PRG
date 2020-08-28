@@ -25,7 +25,7 @@
 *+               Static Function PaintImage()
 *+               Static Procedure Rotate()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:17 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:53 am
 *+
 *+--------------------------------------------------------------------
 
@@ -293,7 +293,7 @@ PUBLIC _HMG_SYSDATA
               WIDTH nDeskWide ;
               HEIGHT MIN( nDeskHigh, nHeight ) ;
               VIRTUAL WIDTH nDeskWide + 1 ;
-              VIRTUAL HEIGHT nDeskHigh + 1 ;
+              VIRTUAL HEIGHT nHeight + 1 ;
               TITLE "Thumbs View" ;
               ICON "MYTHUMB32" ;
               ON INIT Nil ;

@@ -25,7 +25,7 @@
 *+               Function DXE_ResolveLink()
 *+               Function Userfolder()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:16 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
 *+
 *+--------------------------------------------------------------------
 
@@ -687,18 +687,41 @@ LOCAL WshShell
                Retvar := .F.
          ENDCASE
       ELSE
-         WshShell := CreateObject( "WScript.Shell" )
+         //  WshShell := CreateObject( "WScript.Shell" )
          oShell := CreateObject( "Shell.Application" )
          IF NIL <> oShell
             oFolder := oShell:NameSpace( cPath )
             IF NIL <> oFolder
-               cFile := UPPER( cFile )
+               cFile := UPPER( TRIM( cFile ) )
                oItems := oFolder:Items()
+
+               /*****************************************
+               i := oItems:ParseName(cFile)
+               IF !EMPTY(i)
+                  oItem := oItems:Item( i - 1 )
+                  oVerbs := oItem:Verbs()
+                  jMax := oVerbs:Count
+
+                  // "Properties" are always last Item
+                  oVerb := oVerbs:Item( jMax - 1 )
+                  oVerb:DoIt()                                  // call Verb
+                  Retvar := .T.
+               ENDIF
+*****************************************/
+
                iMax := oItems:Count
                FOR i := 1 TO iMax
                   oItem := oItems:Item( i - 1 )
+                  IF oItem:IsFolder
+                     LOOP
+                  ENDIF
+
                   IF !EMPTY( oItem )
-                     cName := UPPER( oItem:name )
+                     cName := UPPER( TRIM( oItem:name ) )
+                     //    cName := STRTRAN(cName,CHR(0),"")
+                     //    cName := TRIM(cName)
+                     //   IF cFile = cName .AND. LEN(TRIM(cFile)) = LEN(TRIM(cName))
+                     //   IF cName = cFile
                      IF cFile = cName
                         oVerbs := oItem:Verbs()
                         jMax := oVerbs:Count
@@ -711,17 +734,18 @@ LOCAL WshShell
                      ENDIF
                   ENDIF
                NEXT
+
                oFolder:destroy()
             ENDIF
             oShell:destroy()
-            WshShell:destroy()
+            //  WshShell:destroy()
          ENDIF
 
          // clean-up ActiveX
          oVerbs := NIL
          oFolder := NIL
          oShell := NIL
-         WshShell := NIL
+         //  WshShell := NIL
 
       ENDIF
 

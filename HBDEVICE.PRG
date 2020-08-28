@@ -4,15 +4,13 @@
 *+
 *+    Copyright(C) 1983-2020 by Auge & Ohr
 *+
-*+    Functions: Function MainEventHandler()
-*+               Function USB_Detect()
-*+               Function Drop_Detect()
+*+    Functions: Function USB_Detect()
 *+               Function OnMouseHover()
 *+               Procedure Wait4Action()
 *+               Procedure DoNothing()
 *+               Static Function GetChange2Drive()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:17 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
 *+
 *+--------------------------------------------------------------------
 
@@ -30,92 +28,6 @@ STATIC cDropForm := ""
 STATIC cDropCont := ""
 
 MEMVAR Win_1
-
-*+--------------------------------------------------------------------
-*+
-*+    Function MainEventHandler()
-*+
-*+--------------------------------------------------------------------
-*+
-FUNCTION MainEventHandler( nHWnd, nMsg, nWParam, nLParam )
-
-STATIC snHFocusMenu
-LOCAL cPanel
-LOCAL nHWndFrom
-LOCAL nRow, nCol
-LOCAL nMask, cDevice := ""
-LOCAL aFiles, nLen
-LOCAL lTracking     := .F.
-LOCAL nMainhWnd     := GetMainWindowHandle()
-
-   IF nHWnd == nMainhWnd
-
-      DO CASE
-
-            // CASE lThreatRet .AND. hb_isArray ( xRet )
-            //     //return message from Wait4Action thread
-            //     Msginfo( xRet[1], STR( xRet[2] ) )
-            //     FillCombo(.T.)
-
-         CASE nMsg == WM_DEVICECHANGE
-            DO CASE
-               CASE nWParam == DBT_DEVICEARRIVAL
-                  nMask := DeviceChangeInfo( nWParam, nLParam )
-                  IF !EMPTY( nMask ) .AND. nMask > 0
-                     cDevice := GetChange2Drive( nMask )
-                  ENDIF
-                  // send job
-                  // hb_mutexNotify( s_mtxUSB, { "INSERT", cDevice, nMask, nHWnd } )
-                  aAction := { "INSERT", cDevice, nMask }
-                  // lDevice := .T.
-                  SP_Device( .T. )
-
-               CASE nWParam == DBT_DEVICEREMOVECOMPLETE
-                  nMask := DeviceChangeInfo( nWParam, nLParam )
-                  IF !EMPTY( nMask ) .AND. nMask > 0
-                     cDevice := GetChange2Drive( nMask )
-                  ENDIF
-                  //send job
-                  // hb_mutexNotify( s_mtxUSB, { "REMOVE", cDevice, nMask, nHWnd } )
-                  aAction := { "REMOVE", cDevice, nMask }
-                  // lDevice := .T.
-                  SP_Device( .T. )
-
-            END CASE
-
-         CASE nMsg == WM_MOUSEHOVER
-            OnMouseHover()
-
-         CASE nMsg == WM_MOUSELEAVE
-            TrackMouseEvent( nHWnd, TME_LEAVE )
-
-         CASE nMsg == WM_NCMOUSEHOVER
-            OnMouseHover()
-
-         CASE nMsg == WM_NCMOUSELEAVE
-            TrackMouseEvent( nHWnd, TME_LEAVE )
-
-         CASE nMsg == WM_MOUSEMOVE
-            lTracking := TrackMouseEvent( nHWnd )
-
-         CASE nMsg == WM_DROPFILES
-            SP_lDropfiles( .T. )
-            //  MSGINFO( "WM_DROPFILES" )
-            ALTD()
-            IF !EMPTY( cDropForm ) .AND. !EMPTY( cDropCont )
-               //  SetProperty( cDropForm, cDropCont, "Value", "" )
-
-               aFiles := DragQueryFileS( nWParam )
-               nLen := LEN( aFiles )
-               IF nLen > 0
-                  AddFile2Grid( cDropForm, cDropCont, ACLONE( aFiles ) )
-               ENDIF
-            ENDIF
-
-      END CASE
-   ENDIF
-
-RETURN cDevice
 
 *+--------------------------------------------------------------------
 *+
@@ -200,45 +112,9 @@ RETURN cDevice
 
 *+--------------------------------------------------------------------
 *+
-*+    Function Drop_Detect()
-*+
-*+--------------------------------------------------------------------
-*+
-FUNCTION Drop_Detect()
-
-LOCAL nHWnd   := EventHWND()
-LOCAL nMsg    := EventMSG()
-LOCAL nWParam := EventWPARAM()
-LOCAL nLParam := EventLPARAM()
-LOCAL aFiles, nLen, i
-
-   DO CASE
-      CASE nMsg == WM_MOUSEHOVER .OR. nMsg == WM_NCMOUSEHOVER
-         MSGINFO( "WM_MOUSEHOVER" )
-
-      CASE nMsg == WM_DROPFILES
-         MSGINFO( "WM_DROPFILES" )
-
-         IF !EMPTY( cDropForm ) .AND. !EMPTY( cDropCont )
-            //  SetProperty( cDropForm, cDropCont, "Value", "" )
-
-            aFiles := DragQueryFileS( nWParam )
-            nLen := LEN( aFiles )
-            IF nLen > 0
-               AddFile2Grid( cDropForm, cDropCont, ACLONE( aFiles ) )
-            ENDIF
-         ENDIF
-
-   ENDCASE
-
-RETURN Nil
-
-*+--------------------------------------------------------------------
-*+
 *+    Function OnMouseHover()
 *+
-*+    Called from ( hbdevice.prg )   2 - function maineventhandler()
-*+                                   1 - function usb_detect()
+*+    Called from ( hbdevice.prg )   1 - function usb_detect()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -363,8 +239,7 @@ RETURN
 *+
 *+    Static Function GetChange2Drive()
 *+
-*+    Called from ( hbdevice.prg )   2 - function maineventhandler()
-*+                                   2 - function usb_detect()
+*+    Called from ( hbdevice.prg )   2 - function usb_detect()
 *+
 *+--------------------------------------------------------------------
 *+

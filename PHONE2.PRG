@@ -21,7 +21,7 @@
 *+               Static Procedure do_logfile()
 *+               Static Function IsRealDrive()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:17 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:53 am
 *+
 *+--------------------------------------------------------------------
 
@@ -98,10 +98,11 @@ PUBLIC _HMG_SYSDATA
       //              ON RELEASE do_logfile()
 
       DEFINE STATUSBAR FONT "Arial" SIZE 9
-STATUSITEM "" WIDTH 100
-         KEYBOARD WIDTH 100
-         DATE WIDTH 100
-         CLOCK WIDTH 100
+STATUSITEM ""
+         //          WIDTH 100
+         //          KEYBOARD WIDTH 100
+         //          DATE WIDTH 100
+         //          CLOCK WIDTH 100
       END STATUSBAR
 
       DEFINE TREE Tree_1 ;

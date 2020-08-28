@@ -18,7 +18,7 @@
 *+       Tables: USE (cAppFolder+"HBREG.DBF") VIA "DBFCDX" NEW EXCLUSIV
 *+               USE (datei) ALIAS "HBREG" VIA "DBFCDX" NEW EXCLUSIV
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:16 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
 *+
 *+--------------------------------------------------------------------
 

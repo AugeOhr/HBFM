@@ -6,11 +6,9 @@
 *+
 *+    Functions: Function HbFTP()
 *+               Static Procedure FTPForm()
-*+               Procedure SiteForm()
+*+               Static Procedure SiteForm()
 *+               Static Procedure EditForm()
-*+               Static Function sitemanager()
 *+               Static Function sitemanagerexit()
-*+               Static Function editsite()
 *+               Static Function ftppropcancel()
 *+               Static Function ftpdelete()
 *+               Static Function ftppropsave()
@@ -57,7 +55,7 @@
 *+
 *+       Tables: USE (cPath+"sites.dbf") ALIAS sites
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:17 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
 *+
 *+--------------------------------------------------------------------
 
@@ -121,7 +119,7 @@ STATIC aDirectory, aSubDirectory, aOldPos
 STATIC aNivel      := { 1, 1 }, aBack := { .t., .t. }, aGridWidth, nGridFocus := 1, bBlock, lBlock := .f.
 STATIC cRunCommand := "", aWinVer, aSortCol := { 2, 2 }
 
-STATIC xVersion := "v0.0.8 modify for HMG"                            // Jimmy
+STATIC xVersion := "v0.0.9 modify for HMG"                            // Jimmy
 STATIC nLast    := 0                                                  // exGauge
 STATIC xTitle   := "FTP Client "
 STATIC caItems  := {}                                                 // for ComboBox
@@ -133,6 +131,7 @@ MEMVAR _HMG_SYSDATA, _HMG_ACONTROLHANDLES, _HMG_ACONTROLCAPTION, lDebug
 MEMVAR ftpMain, sitemanager, editsitemanager                          // old FMG
 
 // *********************************************************************
+//  v0.0.9 27.08.2020  BUG
 //  v0.0.8 11.07.2020  include in HBFM
 //
 //  v0.0.7 23.06.2020  Resize
@@ -729,7 +728,7 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          COL 490
          WIDTH 100
          HEIGHT 28
-         ACTION sitemanager()
+         ACTION SiteForm()
          CAPTION "Sites"
          FONTNAME "Arial"
          FONTSIZE 9
@@ -798,8 +797,6 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
    ftpMain.Button_REN_Local.enabled := .f.
    ftpMain.Button_DEL_Local.enabled := .f.
 
-   ALTD()
-
 LocalComboImage( .T. )
    _SetWindowSizePos( "ftpMain", 0, 0, nwidth, nheight )
 
@@ -811,18 +808,13 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Procedure SiteForm()
+*+    Static Procedure SiteForm()
 *+
-*+    Called from ( hbftp.prg )   1 - static function sitemanager()
+*+    Called from ( hbftp.prg )   1 - static procedure ftpform()
 *+
 *+--------------------------------------------------------------------
 *+
-PROCEDURE SiteForm( aRect, cPath )                                    // Jimmy
-
-   //    IF !FILE( cPath+"sites.dbf" )
-   //       CreateTable(cPath, .F. )
-   //    ENDIF
-   //    USE (cPath+"sites.dbf") ALIAS sites
+STATIC PROCEDURE SiteForm()                                           // Jimmy
 
    DEFINE WINDOW sitemanager ;
               AT 0, 0 ;
@@ -905,7 +897,7 @@ PROCEDURE SiteForm( aRect, cPath )                                    // Jimmy
          WIDTH 100
          HEIGHT 28
          CAPTION "Create site..."
-         ACTION editsite( "new" )
+         ACTION EditForm( "new" )
          FONTNAME "Arial"
          FONTSIZE 9
          TOOLTIP ""
@@ -924,7 +916,7 @@ PROCEDURE SiteForm( aRect, cPath )                                    // Jimmy
          WIDTH 100
          HEIGHT 28
          CAPTION "Edit..."
-         ACTION editsite()
+         ACTION EditForm()
          FONTNAME "Arial"
          FONTSIZE 9
          TOOLTIP ""
@@ -987,8 +979,7 @@ RETURN
 *+
 *+    Static Procedure EditForm()
 *+
-*+    Called from ( hbftp.prg )   1 - procedure siteform()
-*+                                   1 - static function editsite()
+*+    Called from ( hbftp.prg )   3 - static procedure siteform()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1356,57 +1347,15 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Function sitemanager()
-*+
-*+    Called from ( hbftp.prg )   1 - static procedure ftpform()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC FUNCTION sitemanager()
-
-   SiteForm()                                                         // Jimmy
-RETURN nil
-
-*+--------------------------------------------------------------------
-*+
 *+    Static Function sitemanagerexit()
 *+
-*+    Called from ( hbftp.prg )   1 - procedure siteform()
+*+    Called from ( hbftp.prg )   1 - static procedure siteform()
 *+
 *+--------------------------------------------------------------------
 *+
 STATIC FUNCTION sitemanagerexit()
 
    RELEASE window sitemanager
-RETURN nil
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Function editsite()
-*+
-*+    Called from ( hbftp.prg )   2 - procedure siteform()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC FUNCTION editsite( xParam )
-
-PUBLIC newRecord
-
-   IF xParam = NIL
-      newRecord := .f.
-      sites->( DBGOTO( sitemanager.browse_1.value ) )
-      editsitemanager.text_1.value := sites->name
-      editsitemanager.text_2.value := sites->address
-      editsitemanager.text_3.value := sites->user
-      editsitemanager.text_4.value := desencri( sites->password )     // decript
-      editsitemanager.text_5.value := Sites->SPath
-      editsitemanager.Check_2.value := Sites->Log
-   ELSE
-      newRecord := .t.
-   ENDIF
-
-   EditForm( xParam )                                                 // Jimmy
-
 RETURN nil
 
 *+--------------------------------------------------------------------
@@ -1426,7 +1375,7 @@ RETURN nil
 *+
 *+    Static Function ftpdelete()
 *+
-*+    Called from ( hbftp.prg )   1 - procedure siteform()
+*+    Called from ( hbftp.prg )   1 - static procedure siteform()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1512,7 +1461,7 @@ RETURN nil
 *+
 *+    Static Function ftpconn2()
 *+
-*+    Called from ( hbftp.prg )   1 - procedure siteform()
+*+    Called from ( hbftp.prg )   1 - static procedure siteform()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -2587,7 +2536,6 @@ RETURN ( pala )
 *+    Static Function Desencri()
 *+
 *+    Called from ( hbftp.prg )   1 - static procedure editform()
-*+                                   1 - static function editsite()
 *+                                   1 - static function ftpconnect()
 *+
 *+--------------------------------------------------------------------

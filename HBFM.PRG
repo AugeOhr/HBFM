@@ -15,7 +15,7 @@
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:17 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
 *+
 *+--------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ REQUEST HB_CODEPAGE_RU1251
 REQUEST HB_CODEPAGE_SRWIN
 REQUEST HB_CODEPAGE_SLWIN
 
-STATIC cVersion     := "v1.17"
+STATIC cVersion     := "v1.18"
 MEMVAR _HMG_SYSDATA
 
 *+--------------------------------------------------------------------
@@ -461,6 +461,7 @@ LOCAL nLen := LEN( aDir )
 RETURN
 
 // ***************************************************************
+//  v.1.18 27.08.2020 BUG : Thumbs virtual height / HBFTP
 //  v.1.17 24.08.2020 GETICOINDEX() instead of BT_DirectoryInfo()
 //  v.1.16 23.08.2020 BT_DirectoryInfo() without Thread.
 //  v.1.15 17.08.2020 XLSX -> Export -> DBF

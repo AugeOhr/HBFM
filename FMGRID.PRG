@@ -121,7 +121,7 @@
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-25-2020 at  5:16 am
+*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:51 am
 *+
 *+--------------------------------------------------------------------
 
@@ -1942,7 +1942,7 @@ STATIC PROCEDURE DoIt( cForm, cObj )
 LOCAL hGrid
 LOCAL nIndex   := 1
 LOCAL cPath, cText, cAttr
-LOCAL cNewPath, aNewDir
+LOCAL cNewPath
 LOCAL i, iMax, nItem, aItem
 LOCAL cUser    := GETENV( "USERPROFILE" )
 
@@ -2962,9 +2962,7 @@ RETURN
 *+
 *+    Procedure AddFile2Grid()
 *+
-*+    Called from ( hbdevice.prg )   1 - function maineventhandler()
-*+                                   1 - function usb_detect()
-*+                                   1 - function drop_detect()
+*+    Called from ( hbdevice.prg )   1 - function usb_detect()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -5847,8 +5845,6 @@ RETURN 0
 *+--------------------------------------------------------------------
 *+
 *+    Function GetMainWindowHandle()
-*+
-*+    Called from ( hbdevice.prg )   1 - function maineventhandler()
 *+
 *+--------------------------------------------------------------------
 *+
