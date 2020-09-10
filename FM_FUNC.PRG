@@ -824,7 +824,11 @@ LOCAL cDisk   := DISKNAME()
 
    // Problem with "c:\hmg.3.4.4\" and function RootName( FILE_NAME )
    // add like Xbase++
+  IF Is64Bit()
+   cFullPath += "HBFM64.EXE"
+  ELSE
    cFullPath += "HBFM.EXE"
+  ENDIF
 
 RETURN cFullPath
 
