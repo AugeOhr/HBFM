@@ -157,11 +157,6 @@ LOCAL cFile    := "FMSETUP.DBF"
       ENDCASE
    NEXT
 
-*  msginfo( var2char(OS() ) , var2char(WINMAJORVERSIONNUMBER() ) )
-
-
-   //  DoShowBug()
-
    IF FILE( 'FreeImage.Dll' ) .OR. FILE( 'FreeImage64.Dll' )
       SP_lFreeImage( .T. )
    ENDIF
