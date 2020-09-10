@@ -30,7 +30,7 @@
 *+               Function ShowRowCol()
 *+               Static Function RTF_RowCol()
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  7:52 am
 *+
 *+--------------------------------------------------------------------
 
@@ -535,7 +535,8 @@ STATIC cLast    := ""
       END WINDOW
 
       cHwnd := ALLTRIM( STR( GETFORMHANDLE( 'PdfView' ) ) )
-      EXECUTE FILE 'SumatraPDF.exe' PARAMETERS '-lang ' + cNation + ' -plugin ' + cHwnd + ' ' + cPath + cfile
+      //       EXECUTE FILE 'SumatraPDF.exe' PARAMETERS '-lang ' + cNation + ' -plugin ' + cHwnd + ' ' + cPath + cfile
+      EXECUTE FILE 'SumatraPDF.exe' PARAMETERS '-lang ' + cNation + ' -plugin ' + cHwnd + ' ' + CHR( 34 ) + cPath + cfile + CHR( 34 )
 
       ON KEY ESCAPE OF &cForm ACTION Domethod( cForm, "Release" )
 

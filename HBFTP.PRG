@@ -56,7 +56,7 @@
 *+
 *+       Tables: USE (cPath+"SITES.dbf") ALIAS sites
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  7:52 am
 *+
 *+--------------------------------------------------------------------
 
@@ -1554,7 +1554,7 @@ RETURN nil
 *+
 STATIC FUNCTION ftpConnect()
 
-LOCAL bError    := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+LOCAL bError
 LOCAL lConnect  := .F.
 LOCAL cUser     := sites->user
 LOCAL cPassWord := desencri( sites->password )
@@ -1564,16 +1564,34 @@ LOCAL cProtocol := "ftp://"
 LOCAL cUrl, oError
 
    cUrl := cProtocol + ALLTRIM( cUser ) + ":" + ALLTRIM( cPassWord ) + "@" + ALLTRIM( cServer )
-   IF EMPTY( nPort )
-      oUrl := tURL() :New( cUrl )
-   ELSE
-      oUrl := tURL() :New( cUrl ) + ":" + hb_NTOS( nPort )
-   ENDIF
+   //    IF EMPTY( nPort )
+   oUrl := tURL() :New( cUrl )
+   //    ELSE
+   //       oUrl := tURL() :New( cUrl ) + ":" + hb_NTOS( nPort )
+   //    ENDIF
 
    IF EMPTY( oUrl )
       RETURN nil
    ENDIF
-   oClient := TIpClientFtp() :new( oUrl, Sites->Log )                 // PARAM .T. TO LOG
+
+   //    oUrl:cProto  := "ftp://"
+   //    oUrl:cServer := cServer
+   //    oUrl:cUserID := cUser
+   //    oUrl:cPassword := cPassword
+   IF !EMPTY( nPort )
+      oURL:nPort := nPort
+   ENDIF
+
+   bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+   BEGIN SEQUENCE
+      oClient := TIpClientFtp() :new( oUrl, Sites->Log )              // PARAM .T. TO LOG
+   RECOVER
+      ERRORBLOCK( bError )
+      MsgInfo( "can not Open() the connection, try again ", "Attention message" )
+      RETURN nil
+   END SEQUENCE
+   ERRORBLOCK( bError )
+
    IF EMPTY( oClient )
       RETURN nil
    ENDIF
@@ -1591,6 +1609,7 @@ LOCAL cUrl, oError
       ENDIF
    ENDIF
 
+   bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
    BEGIN SEQUENCE
       IF oClient:Open()
          lConnect := .T.
@@ -2977,4 +2996,4 @@ RETURN
 //
 //
 
-*+ EOF: HBFTP.PRG
+*+ EOF: HBFTP.PRG

@@ -122,7 +122,7 @@
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  7:52 am
 *+
 *+--------------------------------------------------------------------
 
@@ -140,7 +140,7 @@
 
 #include "HBFM.CH"
 
-//  #define Use_Thread .T.
+#define Use_Thread .T.
 
 #define KEYEVENTF_KEYUP    0x0002
 
@@ -321,7 +321,7 @@ PUBLIC aFontTypeHBP
       ON KEY CONTROL + S ACTION FMSETUP()
       ON KEY CONTROL + T ACTION IF( lActiveMain = .T., NewTab(), )
       ON KEY CONTROL + U ACTION IF( lActiveMain = .T., ChangeLeftRight(), )
-      //       ON KEY CONTROL + W ACTION IF( lActiveMain = .T., CloseTab( nGridFocus ) , )
+      // ON KEY CONTROL + W ACTION IF( lActiveMain = .T., CloseTab( nGridFocus ) , )
 
       ON KEY CONTROL + F4 ACTION IF( nGridFocus = 1, HeadLeft( F_NAME ), HeadRight( F_NAME ) )
       ON KEY CONTROL + F5 ACTION IF( nGridFocus = 1, HeadLeft( F_DATE ), HeadRight( F_DATE ) )
@@ -347,15 +347,12 @@ PUBLIC aFontTypeHBP
 
       ON KEY DELETE ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "DELETE" ), )
 
-      // ON KEY F10 ACTION HbFTP()
-      // ON KEY F10 ACTION HBFILTER()
-      // ON KEY F10 ACTION showCount()
-      // ON KEY F10 ACTION FreeView()
+      // ON KEY F10 ACTION Test()
 
       ON KEY F11 ACTION PreFuncMSCFolder()
 
       DEFINE STATUSBAR PARENT Win_1
-STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
+         STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
          KEYBOARD WIDTH 100
          DATE WIDTH 100
          CLOCK WIDTH 100
@@ -448,9 +445,6 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
                  PICTURE 'MYFTP32' ;
                  ACTION HbFTP(, cAppFolder )
 
-         //                  ACTION SiteForm(,cAppFolder)
-         //                  ACTION HbFTP( _GetWindowSizePos("Win_1") )
-
          BUTTON MYFTPConnect1 ;
                  ACTION NIL
          BUTTON MYFTPDisconnect1 ;
@@ -526,8 +520,6 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
          VISIBLE .T.
          TRANSPARENT .F.
          MULTILINE .F.
-         //  PICTURE nil
-         //  PICTALIGNMENT TOP
       END BUTTON
 
       DEFINE BUTTON Button_F2
@@ -671,20 +663,6 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
       //    TABSTOP .F.
       // END BUTTON
 
-      //       DEFINE LABEL PathInfo
-      //          PARENT Win_1
-      //          ROW 890 - 30
-      //          COL 0
-      //          VALUE GetVolumne( "C" ) + " " + STR( HB_DISKSPACE( "C:" ) / 1024 / 1000 / 1000 ) + " Mb free of " + LTRIM( STR( HB_DISKSPACE( "C:", HB_DISK_TOTAL ) / 1024 / 1000 / 1000 ) ) + " Mb"
-      //          WIDTH 630
-      //          HEIGHT 30
-      //          FONTNAME SP_cFontName()
-      //          FONTSIZE SP_nFontSize()
-      //          BACKCOLOR SP_nColor1()
-      //          FONTCOLOR SP_nColor2()
-      //          ALIGNMENT Right
-      //       END LABEL
-
       DEFINE TEXTBOX PathInfo
          PARENT Win_1
          ROW 890 - 30
@@ -790,7 +768,6 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
             TABSTOP .F.
             DROPPEDWIDTH 150
             ON GOTFOCUS IF( lFromKeyBoard = .T., ComboboxShowList( GetControlHandle( "ComboLeft", "WinLeft" ) ), )
-            //  ON ENTER Change2Drive( This.Name )
             OnCloseUp Change2Drive( This.Name )
          END COMBOBOX
 
@@ -912,7 +889,6 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
             TABSTOP .F.
             DROPPEDWIDTH 150
             ON GOTFOCUS IF( lFromKeyBoard = .T., ComboboxShowList( GetControlHandle( "ComboRight", "WinRight" ) ), )
-            //  ON Enter Change2Drive( This.Name )
             OnCloseUp Change2Drive( This.Name )
          END COMBOBOX
 
@@ -997,19 +973,14 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
 
    aThread[ 1 ] := hb_threadStart( HB_THREAD_INHERIT_PUBLIC, @Wait4Action() )
    // aThread[ 2 ] := hb_threadStart( HB_THREAD_INHERIT_PUBLIC, @DoNothing() )
-   // aThread[ 2 ] := hb_threadStart( HB_THREAD_INHERIT_PUBLIC, @RestoreTab() )
 
    AttachThreadInput( nMainThreadID, HMG_ThreadHBtoWinID( aThread[ 1 ] ), .T. )
    // AttachThreadInput( nMainThreadID, HMG_ThreadHBtoWinID( aThread[ 2 ] ), .T. )
 
-   //    CREATE EVENT PROCNAME OnMouseHover() HWND Win_1.HANDLE
    CREATE EVENT PROCNAME USB_Detect() HWND Win_1.HANDLE STOREINDEX nIndex
    EventProcessAllHookMessage( nIndex, .T. )
 
-   //  InstallEventHandler("MainEventHandler")
-   //  EventProcessAllHookMessage(EventCreate("OnMouseHover", Win_1.HANDLE), .T.)
-   //  EventProcessAllHookMessage(EventCreate("Tabs_EventHandler", PDFviewWnd.Tabs.HANDLE), .T.)
-
+   // accept Files drag from Explorer
    DragAcceptFiles( Win_1.HANDLE, .t. )
 
 #ENDIF
@@ -6560,4 +6531,4 @@ LOCAL cForm, cObj
    ENDIF
 RETURN
 
-*+ EOF: FMGRID.PRG
+*+ EOF: FMGRID.PRG
