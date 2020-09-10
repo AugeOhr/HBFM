@@ -9,6 +9,7 @@
 *+               Procedure RTF_Edit()
 *+               Static Procedure RTFRelease()
 *+               Function Image_Edit()
+*+               Static Procedure ImageRelease()
 *+               Procedure SlideshowEnd()
 *+               Static Procedure DoTXTResize()
 *+               Static Procedure DoRTFResize()
@@ -25,26 +26,35 @@
 *+               Static Procedure MoveInRTF()
 *+               Static Procedure FindReplTXTProc()
 *+               Static Procedure MoveInTXT()
+*+               Static Procedure OnChanged()
+*+               Function ShowRowCol()
+*+               Static Function RTF_RowCol()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:53 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
 #include "HMG.CH"
 #include "common.CH"
 
-#define BMP_INFO_WIDTH     0
-#define BMP_INFO_HEIGHT    1
-#define BMP_INFO_BITSPIXEL 2
+#define WM_USER                  1024
+#define EM_LINEINDEX             187
+#define EM_LINEFROMCHAR          201
+#define EM_SCROLLCARET           ( WM_USER + 49 )
+#define EM_EXLINEFROMCHAR        ( WM_USER + 54 )
 
-#define OFFSET_DLG 30
+#define BMP_INFO_WIDTH           0
+#define BMP_INFO_HEIGHT          1
+#define BMP_INFO_BITSPIXEL       2
 
-STATIC cLastSeek := ""
+#define OFFSET_DLG               30
 
+STATIC cLastSeek  := ""
 STATIC cReplace   := ""
 STATIC lDown      := .T.
 STATIC lWholeWord := .F.
 STATIC lMatchCase := .F.
+STATIC lChanged   := .F.
 
 MEMVAR _HMG_SYSDATA, lActiveMain
 
@@ -58,9 +68,11 @@ MEMVAR _HMG_SYSDATA, lActiveMain
 *+
 PROCEDURE TXT_Edit( cFile, lEdit )
 
-LOCAL nStartLen := 0
-LOCAL cMemo     := " "
+LOCAL nIndex := 0
+LOCAL cMemo  := " "
+
 STATIC lRunning := .F.
+
    DEFAULT lEdit TO .F.
 
    IF lRunning = .T.
@@ -68,14 +80,14 @@ STATIC lRunning := .F.
    ENDIF
    lRunning := .T.
 
-   lActiveMain = .F.
+   lActiveMain := .F.
+   lChanged := .F.
 
    SetCursorWait( "WinLeft", .T. )
    SetCursorWait( "WinRight", .T. )
    DO EVENTS
 
    cMemo := HB_MEMOREAD( cFile )
-   nStartLen := LEN( cMemo )
 
    DEFINE WINDOW TXTEdit ;
               AT 240, 384 ;
@@ -84,7 +96,7 @@ STATIC lRunning := .F.
               TITLE cFile ;
               ON SIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
               ON MAXIMIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
-              ON RELEASE TXTRelease( lEdit, cFile, nStartLen ) ;
+              ON RELEASE TXTRelease( lEdit, cFile ) ;
               BACKCOLOR SP_nColor1()
 
       DEFINE STATUSBAR PARENT TXTEdit
@@ -108,6 +120,7 @@ STATUSITEM "TXTCtrl()" WIDTH 400
          DISABLEDFONTCOLOR SP_nColor14()
          BACKCOLOR SP_nColor5()
          FONTCOLOR SP_nColor6()
+         ONCHANGE OnChanged()
       END EDITBOX
 
    END WINDOW
@@ -119,6 +132,10 @@ STATUSITEM "TXTCtrl()" WIDTH 400
    ON KEY CONTROL + F OF TXTEdit ACTION SearchText( "TXT" )
    ON KEY F3 OF TXTEdit ACTION SearchText( "TXT" )
    ON KEY ESCAPE OF TXTEdit ACTION TXTEdit.Release
+
+   CREATE EVENT PROCNAME ShowRowCol("TXTEdit","TXTCtrl") HWND TXTEdit.TXTCtrl.HANDLE STOREINDEX nIndex
+   EventProcessAllHookMessage( nIndex, .T. )
+
    CENTER WINDOW TXTEdit
    TXTEdit.TXTCtrl.setfocus()
    ACTIVATE WINDOW TXTEdit
@@ -126,6 +143,7 @@ STATUSITEM "TXTCtrl()" WIDTH 400
    cMemo := " "
    lRunning := .F.
    lActiveMain = .T.
+   EventRemove( nIndex )
 
    //   RELEASE MEMORY
 
@@ -139,17 +157,15 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE TXTRelease( lEdit, cFile, nStartLen )
-
-LOCAL nSaveLen
+STATIC PROCEDURE TXTRelease( lEdit, cFile )
 
    IF lEdit = .T.
-      nSaveLen := LEN( TXTEdit.TXTCtrl.Value )
-      IF nStartLen <> nSaveLen
-         hb_MemoWrit( cFile, TXTEdit.TXTCtrl.Value )
+      IF lChanged = .T.
+         IF msgyesno( "Save Change ?", "TXT have change" ) == .T.
+            hb_MemoWrit( cFile, TXTEdit.TXTCtrl.Value )
+         ENDIF
       ENDIF
    ENDIF
-
    TXTEdit.TXTCtrl.Value := " "
 RETURN
 
@@ -163,15 +179,17 @@ RETURN
 *+
 PROCEDURE RTF_Edit( cFile, lEdit )
 
-LOCAL nStartLen := 0
+LOCAL nIndex := 0
+
 STATIC lRunning := .F.
+
    DEFAULT lEdit TO .F.
 
    IF lRunning = .T.
       RETURN
    ENDIF
    lRunning := .T.
-   lActiveMain = .F.
+   lActiveMain := .F.
 
    SetCursorWait( "WinLeft", .T. )
    SetCursorWait( "WinRight", .T. )
@@ -184,7 +202,7 @@ STATIC lRunning := .F.
               TITLE cFile ;
               ON SIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
               ON MAXIMIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
-              ON RELEASE RTFRelease( lEdit, cFile, nStartLen ) ;
+              ON RELEASE RTFRelease( lEdit, cFile ) ;
               BACKCOLOR SP_nColor1()
 
       DEFINE STATUSBAR PARENT RTFEdit
@@ -201,6 +219,7 @@ STATUSITEM "RTFCtrl()" WIDTH 400
          VISIBLE .T.
          READONLY !lEdit
          BACKCOLOR Nil
+         ONCHANGE OnChanged()
       END RICHEDITBOX
 
    END WINDOW
@@ -209,7 +228,8 @@ STATUSITEM "RTFCtrl()" WIDTH 400
    RTFEdit.RTFCtrl.FontBackColor := IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
    RTFEdit.RTFCtrl.FontColor := IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
 
-   nStartLen := RTFEdit.RTFCtrl.GetTextLength
+   // set Flage after load RTF
+   lChanged := .F.
 
    SetCursorWait( "WinLeft", .F. )
    SetCursorWait( "WinRight", .F. )
@@ -218,12 +238,18 @@ STATUSITEM "RTFCtrl()" WIDTH 400
    ON KEY CONTROL + F OF RTFEdit ACTION SearchRTF( "RTF" )
    ON KEY F3 OF RTFEdit ACTION SearchRTF( "RTF" )
    ON KEY ESCAPE OF RTFEdit ACTION RTFEdit.Release
+
+   CREATE EVENT PROCNAME ShowRowCol("RTFEdit","RTFCtrl") HWND RTFEdit.RTFCtrl.HANDLE STOREINDEX nIndex
+   EventProcessAllHookMessage( nIndex, .T. )
+
    CENTER WINDOW RTFEdit
    RTFEdit.RTFCtrl.setfocus()
    ACTIVATE WINDOW RTFEdit
 
    lRunning := .F.
    lActiveMain = .T.
+   EventRemove( nIndex )
+
 RETURN
 
 *+--------------------------------------------------------------------
@@ -234,14 +260,15 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE RTFRelease( lEdit, cFile, nStartLen )
-
-LOCAL nSaveLen
+STATIC PROCEDURE RTFRelease( lEdit, cFile )
 
    IF lEdit = .T.
-      nSaveLen := RTFEdit.RTFCtrl.GetTextLength
-      IF nStartLen <> nSaveLen
-         RTFEdit.RTFCtrl.RTFSaveFile( cFile, .F. )
+      IF lChanged = .T.
+         IF msgyesno( "Save Change ?", "RFT have change" ) == .T.
+            RTFEdit.RTFCtrl.RTFSaveFile( cFile, .F. )
+
+            RTFEdit.RTFCtrl.VALUE := ""
+         ENDIF
       ENDIF
    ENDIF
 RETURN
@@ -289,6 +316,7 @@ STATIC lRunning := .F.
               ON INIT DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
               ON SIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
               ON MAXIMIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
+              ON RELEASE ImageRelease( cFile ) ;
               BACKCOLOR SP_nColor1()
 
       DEFINE IMAGE Image_Edit
@@ -333,24 +361,22 @@ STATIC lRunning := .F.
    ACTIVATE WINDOW ImageEdit
 
    lRunning := .F.
-   //
-   //    ELSE
-   //       ImageEdit.Image_Edit.PICTURE := cFile
-   //
-   //       nwide := ImageEdit.Image_Edit.Width
-   //       nheight := ImageEdit.Image_Edit.Height
-   //
-   //       ImageEdit.Width := nwide + 4
-   //       ImageEdit.Height := nheight + nTitlebar + ( 2 * nBorder )
-   //
-   //       CENTER WINDOW ImageEdit
-   //
-   //       ImageEdit.Show()
-   //    ENDIF
-
    lActiveMain = .T.
 
 RETURN nRet
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure ImageRelease()
+*+
+*+    Called from ( viewer.prg )   1 - function image_edit()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE ImageRelease( cFile )
+
+   Domethod( "ImageEdit", "SlideTime", "Release" )
+RETURN
 
 *+--------------------------------------------------------------------
 *+
@@ -631,8 +657,6 @@ LOCAL lRet := .F.
 
    lRet := Sumatra_FindText( fView )
 
-   ALTD()
-
 RETURN
 
 *+--------------------------------------------------------------------
@@ -854,5 +878,76 @@ LOCAL CharRowCol := TXTEdit.TXTCtrl.GetPosChar( nPos )
    ENDIF
 
 RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure OnChanged()
+*+
+*+    Called from ( viewer.prg )   1 - procedure txt_edit()
+*+                                   1 - procedure rtf_edit()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE OnChanged()
+
+   lChanged := .T.
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Function ShowRowCol()
+*+
+*+--------------------------------------------------------------------
+*+
+FUNCTION ShowRowCol( cForm, cObj )                                    // must be public
+
+LOCAL hWnd   := EventHWND()
+LOCAL nIndex := GetControlIndexByHandle( hWnd )
+LOCAL ch, cText, i, nPos, aPos, nRow := 0, nCol := 0
+
+   IF nIndex > 0 .AND. ( GetControlTypeByIndex( nIndex ) == "EDIT" .OR. ;
+              GetControlTypeByIndex( nIndex ) == "RICHEDIT" )
+
+      IF GetControlTypeByIndex( nIndex ) == "EDIT"
+         ch := GetProperty( cForm, cObj, "Value" )
+         nPos := GetProperty( cForm, cObj, "CaretPos" )
+         FOR i := 1 TO nPos
+            IF SUBSTR( ch, i, 1 ) == CHR( 13 )
+               nRow ++
+               nCol := 0
+            ELSE
+               nCol ++
+            ENDIF
+         NEXT i
+      ELSE
+         aPos := RTF_RowCol( cForm, cObj )
+         nRow := aPos[ 1 ]
+         nCol := aPos[ 2 ]
+      ENDIF
+      cText := "Row " + hb_NTOS( nRow ) + " / Col " + hb_NTOS( nCol )
+      SetProperty( cForm, "StatusBar", "Item", 1, cText )
+   ENDIF
+RETURN NIL
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function RTF_RowCol()
+*+
+*+    Called from ( viewer.prg )   1 - function showrowcol()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION RTF_RowCol( cForm, cObj )
+
+LOCAL hRtf, nRow, nCol, nSelStart := 1
+
+   hRtf := GetControlHandle( cObj, cForm )
+   //    SendMessage(hRtf,EM_SCROLLCARET,0,0)
+   nSelStart := GetProperty( cForm, cObj, "CaretPos" )
+   //   nRow := SendMessage(hRtf, EM_LINEFROMCHAR, nSelStart , 0)
+   nRow := SendMessage( hRtf, EM_EXLINEFROMCHAR, 0, nSelStart )
+   nCol := nSelStart - SendMessage( hRtf, EM_LINEINDEX, nRow, 0 )
+
+RETURN ( { nRow + 1, nCol } )
 
 *+ EOF: VIEWER.PRG

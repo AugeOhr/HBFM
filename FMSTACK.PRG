@@ -61,9 +61,11 @@
 *+               Function SP_lPbarRunning()
 *+               Function SP_aADOStruct()
 *+               Function SP_nWinTans()
+*+               Function SP_lModiStruct()
+*+               Function SP_cMainPath()
 *+               Function DebugStack()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -126,6 +128,8 @@
 #xtranslate lPbarRunning      => Stack\[SP,53]
 #xtranslate aADOStruct        => Stack\[SP,54]
 #xtranslate nWinTans          => Stack\[SP,55]
+#xtranslate lModiStruct       => Stack\[SP,56]
+#xtranslate cMainPath         => Stack\[SP,57]
 
 STATIC Stack := {}
 STATIC SP    := 0
@@ -140,7 +144,7 @@ STATIC SP    := 0
 *+
 FUNCTION SP_INIT()                                                    // init STACK
 
-   AADD( Stack, ARRAY( 55 ) )
+   AADD( Stack, ARRAY( 57 ) )
    SP ++
    aJustDelete := {}
    cGetWahl := "*.*"
@@ -197,6 +201,8 @@ FUNCTION SP_INIT()                                                    // init ST
    lPbarRunning := .F.
    aADOStruct := {}
    nWinTans := 255
+   lModiStruct := .F.
+   cMainPath := "C:\"
 
 RETURN NIL
 
@@ -533,6 +539,7 @@ RETURN cTextRight
 *+                ( fmregdb.prg )   5 - procedure regdbform()
 *+                ( fmsetup.prg )   2 - procedure fmsetup()
 *+                                   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( fmstack.prg )   1 - function debugstack()
@@ -545,11 +552,12 @@ RETURN cTextRight
 *+                                   1 - static function c_fmsetup()
 *+                ( hbftp.prg )   3 - static procedure ftpform()
 *+                                   1 - static procedure siteform()
-*+                                   6 - static procedure editform()
+*+                                   7 - static procedure editform()
 *+                ( hbinput.prg )   2 - function getinput()
 *+                ( modistru.prg )   1 - function showarraystru()
 *+                                   1 - procedure editstrurec()
 *+                                   4 - static procedure exportxls()
+*+                                   5 - procedure createnewdbf()
 *+                ( phone2.prg )   1 - procedure getdevicepath()
 *+                ( picklist.prg )   1 - procedure picklist()
 *+                ( thumbs.prg )   1 - procedure thumbs()
@@ -583,6 +591,7 @@ RETURN nColor1
 *+                ( fmregdb.prg )   4 - procedure regdbform()
 *+                ( fmsetup.prg )   1 - procedure fmsetup()
 *+                                   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                                   1 - static procedure precolorpick()
@@ -590,9 +599,10 @@ RETURN nColor1
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function c_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
-*+                                   5 - static procedure editform()
+*+                                   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
 *+                ( modistru.prg )   3 - static procedure exportxls()
+*+                                   4 - procedure createnewdbf()
 *+                ( viewer.prg )   1 - procedure dopdfhelp()
 *+
 *+--------------------------------------------------------------------
@@ -614,6 +624,7 @@ RETURN nColor2
 *+    Called from ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
@@ -638,6 +649,7 @@ RETURN nColor3
 *+    Called from ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
@@ -669,16 +681,18 @@ RETURN nColor4
 *+                ( fmregdb.prg )   4 - procedure regdbform()
 *+                ( fmsetup.prg )   1 - procedure fmsetup()
 *+                                   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbevery.prg )   3 - procedure hbevery()
 *+                ( hbfilter.prg )   4 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function c_fmsetup()
-*+                ( hbftp.prg )   4 - static procedure editform()
+*+                ( hbftp.prg )   5 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
 *+                ( modistru.prg )   4 - procedure editstrurec()
 *+                                   5 - static procedure exportxls()
+*+                                   5 - procedure createnewdbf()
 *+                ( phone2.prg )   1 - procedure getdevicepath()
 *+                ( viewer.prg )   1 - procedure txt_edit()
 *+                                   1 - procedure rtf_edit()
@@ -709,16 +723,18 @@ RETURN nColor5
 *+                ( fmregdb.prg )   4 - procedure regdbform()
 *+                ( fmsetup.prg )   1 - procedure fmsetup()
 *+                                   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbevery.prg )   3 - procedure hbevery()
 *+                ( hbfilter.prg )   4 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function c_fmsetup()
-*+                ( hbftp.prg )   4 - static procedure editform()
+*+                ( hbftp.prg )   5 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
 *+                ( modistru.prg )   4 - procedure editstrurec()
 *+                                   5 - static procedure exportxls()
+*+                                   5 - procedure createnewdbf()
 *+                ( phone2.prg )   1 - procedure getdevicepath()
 *+                ( viewer.prg )   1 - procedure txt_edit()
 *+                                   1 - procedure rtf_edit()
@@ -742,6 +758,7 @@ RETURN nColor6
 *+    Called from ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
@@ -766,6 +783,7 @@ RETURN nColor7
 *+    Called from ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
@@ -801,6 +819,7 @@ RETURN nColor8
 *+                                   1 - static procedure showhistory()
 *+                                   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( fmtool.prg )   1 - procedure funcsysfolder()
@@ -845,6 +864,7 @@ RETURN nColor9
 *+                                   1 - static procedure showhistory()
 *+                                   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( fmtool.prg )   1 - procedure funcsysfolder()
@@ -879,6 +899,7 @@ RETURN nColor10
 *+    Called from ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
@@ -904,6 +925,7 @@ RETURN nColor11
 *+                ( fmgrid.prg )   1 - procedure dualgrid()
 *+                                   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
@@ -929,6 +951,7 @@ RETURN nColor12
 *+                ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbeject.prg )   1 - procedure hbeject()
@@ -957,6 +980,7 @@ RETURN nColor13
 *+                ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
+*+                                   1 - procedure saverecord_fmse()
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
@@ -1003,8 +1027,9 @@ RETURN lDarkMode
 *+
 *+    Function SP_cInxExt()
 *+
-*+    Called from ( browser.prg )   1 - procedure browseview()
+*+    Called from ( browser.prg )   2 - procedure browseview()
 *+                                   1 - function use_mydbf()
+*+                                   1 - static procedure savecreate()
 *+                                   1 - static procedure thisdbfinfo()
 *+                                   1 - static procedure seleclang()
 *+
@@ -1149,7 +1174,7 @@ RETURN lColumnResize
 *+                ( askform.prg )   8 - function askform()
 *+                ( auswahl.prg )   3 - function auswahl()
 *+                ( browser.prg )  13 - procedure browseview()
-*+                                   3 - static procedure editdetail()
+*+                                   4 - static procedure editdetail()
 *+                                   1 - static procedure setnewindex()
 *+                                   1 - static procedure doswitchtags()
 *+                                   2 - static procedure do_modi_stru()
@@ -1176,6 +1201,7 @@ RETURN lColumnResize
 *+                ( modistru.prg )   2 - function showarraystru()
 *+                                   9 - procedure editstrurec()
 *+                                  12 - static procedure exportxls()
+*+                                  14 - procedure createnewdbf()
 *+                ( picklist.prg )   8 - procedure picklist()
 *+                ( viewer.prg )   1 - procedure txt_edit()
 *+                                   1 - procedure rtf_edit()
@@ -1198,7 +1224,7 @@ RETURN cFontName
 *+                ( askform.prg )   8 - function askform()
 *+                ( auswahl.prg )   3 - function auswahl()
 *+                ( browser.prg )  11 - procedure browseview()
-*+                                   3 - static procedure editdetail()
+*+                                   4 - static procedure editdetail()
 *+                                   1 - static procedure setnewindex()
 *+                                   1 - static procedure doswitchtags()
 *+                                   1 - function wincodepage()
@@ -1231,7 +1257,7 @@ RETURN nFontSize
 *+    Called from ( ado.prg )   2 - procedure ado_view()
 *+                ( browser.prg )   3 - procedure browseview()
 *+                                   2 - static procedure doresize()
-*+                                   1 - static procedure editdetail()
+*+                                   4 - static procedure editdetail()
 *+                                   2 - static procedure do_modi_stru()
 *+                                   8 - static procedure docreateindex()
 *+                ( fmgrid.prg )   1 - static procedure defgridleft()
@@ -1247,6 +1273,7 @@ RETURN nFontSize
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                ( modistru.prg )   2 - function showarraystru()
 *+                                   9 - procedure editstrurec()
+*+                                  14 - procedure createnewdbf()
 *+                ( viewer.prg )   1 - procedure dopdfhelp()
 *+
 *+--------------------------------------------------------------------
@@ -1524,7 +1551,7 @@ RETURN lFreeImage
 *+    Function SP_aDbfStruct()
 *+
 *+    Called from ( ado.prg )   1 - function adoxlsxwrite()
-*+                ( browser.prg )   1 - procedure browseview()
+*+                ( browser.prg )   2 - procedure browseview()
 *+                                   1 - static procedure editdetail()
 *+                ( export.prg )   1 - static function mywritesdf()
 *+                                   1 - static function mywritehbxls()
@@ -1631,6 +1658,40 @@ FUNCTION SP_nWinTans( xValue )
       nWinTans := xValue
    ENDIF
 RETURN nWinTans
+
+*+--------------------------------------------------------------------
+*+
+*+    Function SP_lModiStruct()
+*+
+*+    Called from ( browser.prg )   2 - procedure browseview()
+*+                                   1 - static procedure savecreate()
+*+
+*+--------------------------------------------------------------------
+*+
+FUNCTION SP_lModiStruct( lValue )
+
+   IF PCOUNT() > 0
+      lModiStruct := lValue
+   ENDIF
+RETURN lModiStruct
+
+*+--------------------------------------------------------------------
+*+
+*+    Function SP_cMainPath()
+*+
+*+    Called from ( browser.prg )   1 - procedure browseview()
+*+                                   1 - static procedure savecreate()
+*+                ( fmgrid.prg )   1 - procedure dualgrid()
+*+                ( thumbs.prg )   1 - procedure changedbfstructur()
+*+
+*+--------------------------------------------------------------------
+*+
+FUNCTION SP_cMainPath( cValue )
+
+   IF PCOUNT() > 0
+      cMainPath := cValue
+   ENDIF
+RETURN cMainPath
 
 *+--------------------------------------------------------------------
 *+

@@ -14,6 +14,7 @@
 *+               Static Function DbfDetail()
 *+               Function TNR2STR()
 *+               Static Procedure EditDetail()
+*+               Static Procedure ShowMemo()
 *+               Static Procedure RefreshCurrent()
 *+               Static Procedure DoChange()
 *+               Static Procedure MakeFMG()
@@ -28,7 +29,7 @@
 *+               Static Procedure DoMySwitchTags()
 *+               Static Procedure Do_Modi_Stru()
 *+               Static Procedure CalcNewBroGridSize()
-*+               Procedure DBF_EditStruRec()
+*+               Static Procedure DBF_EditStruRec()
 *+               Static Procedure SaveCreate()
 *+               Static Procedure CloseForm2()
 *+               Static Function AtInside()
@@ -47,7 +48,7 @@
 *+               Static Procedure AddNewRecord()
 *+               Static Procedure DelThisRecord()
 *+               Static Procedure ShowDelete()
-*+               Procedure BroSbar()
+*+               Static Procedure BroSbar()
 *+
 *+       Tables: USE (cDBF) VIA "DBFNTX" NEW EXCLUSIVE
 *+               USE (cDBF) VIA "DBFNTX" NEW SHARE
@@ -59,7 +60,7 @@
 *+
 *+      Indexes: INDEX ON &cKey TO &cFile ADDITIVE
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:51 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -139,17 +140,21 @@ LOCAL nPBwide    := INT( 800 / 11 )
 LOCAL aJustify   := {}
 LOCAL nWide, cWorkArea, cBroMacro, nPosi
 LOCAL lConvert   := .F.
-LOCAL cFeld
+LOCAL cFeld, cPara
+LOCAL cExt
+LOCAL cVia
+LOCAL cMemo, nRecCount := 0
+LOCAL cAppFolder := SP_cMainPath()
 
 PUBLIC aForeColorHBP
 PUBLIC aBackColorHBP
 
-   aForeColorHBP := { 255, 255, 255 }                                 //SP_nColor12()
+   aForeColorHBP := { 255, 255, 255 }                                 // SP_nColor12()
    aBackColorHBP := { 255, 0, 0 }                                     // SP_nColor9()
 
    DEFAULT lEdit TO .F.
 
-   //    IF .NOT. __MVEXIST( "Stack_Browse" )
+   //    IF .NOT. __MVEXIST( "Stack_Browse" )    // need for multi-Browse
    //       InitMultiBrowse()
    //    ENDIF
 
@@ -163,10 +168,20 @@ PUBLIC aBackColorHBP
    IF FILE( cPath + cDBF )
       USE_MYDBF( cPath + cDbf, lEdit )
       cWorkArea := ALIAS()
+      nRecCount := RECCOUNT()
+
+      cExt := SP_cInxExt()
+      IF cExt = "NTX"
+         cVia := "DBFNTX"
+      ELSE
+         cVia := "DBFCDX"
+      ENDIF
 
       lConvert := SP_lOEM2ANSI()
 
       a1Struc := DBSTRUCT()
+      SP_aDbfStruct( ACLONE( a1Struc ) )
+      ALTD()
       PickList( a1Struc )
       DO EVENTS
 
@@ -182,7 +197,6 @@ PUBLIC aBackColorHBP
          AADD( aHead, aStruc[ i ] [ DBS_NAME ] )
 
          IF lConvert = .T.
-            //  ALTD()
             // cFeld := "HB_OEMTOANSI( "+ aStruc[ i ] [ DBS_NAME ] +" )"
             // AADD( aFeld, &cFeld )
 
@@ -204,17 +218,23 @@ PUBLIC aBackColorHBP
             OTHERWISE
                IF cType = "C"
                   AADD( aJustify, GRID_JTFY_LEFT )
+               ELSEIF cType = "M"
+                  AADD( aJustify, GRID_JTFY_LEFT )
                ELSEIF cType = "N"
                   AADD( aJustify, GRID_JTFY_RIGHT )
                ENDIF
 
-               nWide := aStruc[ i ] [ DBS_LEN ]
-               IF nWide < 2
-                  nWide := 30
+               IF cType = "M"
+                  AADD( aWide, 60 )
                ELSE
-                  nWide := nWide * SP_nFontlarge()
+                  nWide := aStruc[ i ] [ DBS_LEN ]
+                  IF nWide < 2
+                     nWide := 30
+                  ELSE
+                     nWide := nWide * SP_nFontlarge()
+                  ENDIF
+                  AADD( aWide, nWide )
                ENDIF
-               AADD( aWide, nWide )
          ENDCASE
       NEXT
    ELSE
@@ -256,6 +276,8 @@ PUBLIC aBackColorHBP
       SET BROWSESYNC ON                                               // sync BROWSE with DBF ?
       SET AUTOSCROLL ON                                               // virtual dimensioned windows scrollbars
 
+      ALTD()
+
       DEFINE WINDOW &oBrowse ;
                  AT 371, 498 ;
                  WIDTH 800 ;
@@ -266,6 +288,7 @@ PUBLIC aBackColorHBP
                  ON MAXIMIZE DoResize( cBroMacro, "BrowserView", aStruc ) ;
                  ON GOTFOCUS DoFindSelf( ThisWindow.Name, cDBF ) ;
                  ON LOSTFOCUS WinTans( ThisWindow.Name, .F. ) ;
+                 ON RELEASE MultiBrowseRelease( cBroMacro, cPath, cDBF ) ;
                  BACKCOLOR SP_nColor1()
 
          DEFINE STATUSBAR PARENT oBrowse
@@ -290,7 +313,7 @@ STATUSITEM "" WIDTH 800
             TOOLTIP ""
             ON CHANGE ShowDelete( oBrowse, "BrowserView" )
             // ALLOWEDIT lEdit
-            // ALLOWAPPEND lEdit
+            ALLOWAPPEND lEdit
             // ALLOWDELETE lEdit
             LOCK IF( lEdit = .T., lShare, .F. )
             VSCROLLBAR .T.
@@ -345,7 +368,7 @@ STATUSITEM "" WIDTH 800
             COL nPBwide * 1
             WIDTH nPBwide - 2
             HEIGHT 40
-            ACTION Do_Modi_Stru( cDBF, cWorkArea )
+            ACTION Do_Modi_Stru( cPath, cDBF, cWorkArea, lEdit )
             CAPTION "F2 Struct"
             FONTNAME SP_cFontName()
             FONTSIZE SP_nFontSize()
@@ -491,10 +514,11 @@ STATUSITEM "" WIDTH 800
       //       SetProperty( oBrowse, "BrowserView", "PaintDoubleBuffer", .T. )
 
       //  ON KEY ESCAPE OF &oBrowse ACTION Domethod( cBroMacro, "Release" )
-      ON KEY ESCAPE OF &oBrowse ACTION MultiBrowseRelease( cBroMacro, cDBF )
+      //      ON KEY ESCAPE OF &oBrowse ACTION MultiBrowseRelease( cBroMacro,cPath, cDBF )
+      ON KEY ESCAPE OF &oBrowse ACTION Domethod( cBroMacro, "Release" )
 
       ON KEY F1 OF &oBrowse ACTION ThisDbfInfo( cDBF, cWorkArea )
-      ON KEY F2 OF &oBrowse ACTION Do_Modi_Stru( cDBF, cWorkArea )
+      ON KEY F2 OF &oBrowse ACTION Do_Modi_Stru( cPath, cDBF, cWorkArea, lEdit )
       ON KEY F3 OF &oBrowse ACTION EditDetail( cBroMacro, cWorkArea, cDbf, aFeld, .F. )
       IF lEdit = .T.
          ON KEY F4 OF &oBrowse ACTION EditDetail( cBroMacro, cWorkArea, cDbf, aFeld, lEdit )
@@ -523,18 +547,52 @@ STATUSITEM "" WIDTH 800
       Setproperty( oBrowse, "Button_F9", "Enabled", .F. )
 
       IF lConvert = .T.
-         //         DoDebbbuug()
+         // DoDebbbuug()
       ENDIF
 
       CENTER WINDOW &oBrowse
       //      Domethod( oBrowse, "BrowserView", "SetFocus" )
       ACTIVATE WINDOW &oBrowse
 
+      SELECT ( cWorkArea )
       IF USED()
-         SELECT ( cWorkArea )
          CLOSE
       ENDIF
 
+      IF SP_lModiStruct() = .T. .AND. FILE( cAppFolder + "DBUUUU.DBF" )
+         IF MsgYesNo( "change Structur of " + cPath + cDBF + CRLF, "modify Structure" )
+
+            //         pBarForm( "ChangeDBFStructur('" + cPath+','+cDBF+','+cVia+','+STR(nRecCount) + "')" )
+
+            cPara := cPath + ',' + cDBF + ',' + cVia + ',' + STR( nRecCount )
+            ALTD()
+            pBarForm( "ChangeDBFStructur('" + cPara + "')" )          // in THUMBS.PRG
+
+            // *********
+            // USE_MYDBF(cAppFolder+"DBUUUU.DBF")
+            // APPEND FROM (cPath+cDBF) VIA (cVia)
+            // // FOR FORproggress(oProgress,nEvery,i++) NEXT xMax VIA "DBFNTX"
+            // CLOSE
+            //
+            // FERASE(cPath+cDBF)
+            // RENAME (cAppFolder+"DBUUUU.DBF") TO (cPath+cDBF)
+            //
+            // cMemo := STRTRAN(cPath+cDBF,".DBF",".DBT")
+            // IF FILE(cMemo)
+            //    FERASE(cMemo)
+            //    RENAME (cAppFolder+"DBUUUU.DBT") TO (cMemo)
+            // ENDIF
+            //
+            // cMemo := STRTRAN(cPath+cDBF,".DBF",".FPT")
+            // IF FILE(cMemo)
+            //    FERASE(cMemo)
+            //    RENAME (cAppFolder+"DBUUUU.FPT") TO (cMemo)
+            // ENDIF
+            // *********
+
+            SP_lModiStruct( .F. )
+         ENDIF
+      ENDIF
    ENDIF
 
 RETURN
@@ -569,36 +627,34 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE MultiBrowseRelease( cName, cDBF )
+STATIC PROCEDURE MultiBrowseRelease( cBroMacro, cPath, cDBF )
 
-LOCAL nPosi, cWorkArea, cPath
+LOCAL nPosi, cWorkArea
 
-   //    MsgInfo("Name "+cName+" DBF "+cDBF)
+   //    MsgInfo("Name "+cBroMacro+" DBF "+cDBF)
 
    nPosi := ASCAN( Stack_Browse, { | e | e[ ID_InDBF ] = cDBF } )
+   //   nPosi := ASCAN( Stack_Browse, { | e | e[ ID_Browse ] = cBroMacro } )
+
    IF nPosi > 0
       nDimBrowse := nPosi
       cWorkArea := Stack_Browse[ nPosi ] [ ID_InArea ]
       //  cdbf := Stack_Browse[ nPosi ] [ ID_InDBF ]
-      cPath := Stack_Browse[ nPosi ] [ ID_InPath ]
+      //  cPath := Stack_Browse[ nPosi ] [ ID_InPath ]
 
-      //       SELECT ( cWorkArea )
-      //       MsgInfo("Alias "+ALIAS())
-      //       CLOSE (cDBF)
-      //       MsgInfo("Used "+ALIAS())
+      SELECT ( cWorkArea )
+      CLOSE( cDBF )
 
       Stack_Browse[ nPosi ] [ ID_Browse ] := ""
       Stack_Browse[ nPosi ] [ ID_InDBF ] := ""
       Stack_Browse[ nPosi ] [ ID_IdxActiv ] := .F.
 
-      //       ADEL(Stack_Browse,nPosi)
-      //       ASIZE(Stack_Browse, LEN(Stack_Browse) - 1 )
-
-      Domethod( cName, "Release" )
-
+      // ADEL(Stack_Browse,nPosi)
+      // ASIZE(Stack_Browse, LEN(Stack_Browse) - 1 )
    ELSE
-      MsgInfo( "DBF " + cDBF + "not found?" )
+      MsgInfo( "DBF " + cDBF + " not found ?" )
    ENDIF
+
 RETURN
 
 *+--------------------------------------------------------------------
@@ -710,6 +766,8 @@ RETURN
 *+    Function USE_MYDBF()
 *+
 *+    Called from ( browser.prg )   1 - procedure browseview()
+*+                ( modistru.prg )   1 - static procedure loadnewstruct()
+*+                ( thumbs.prg )   1 - procedure changedbfstructur()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -909,8 +967,6 @@ LOCAL cTest, nType, aRetVal, cDbe, cTxt, _CodePage := ""
    FSEEK( nHandle, 0, 0 )                                             // Move pointer to Start
    FREAD( nHandle, @cTxt, 30 )
    FCLOSE( nHandle )
-
-   // ALTD()
 
    cTest := SUBSTR( cTxt, 30, 1 )                                     // 0-29 / 1-30
    // look for Codepage
@@ -1113,7 +1169,7 @@ LOCAL nItemheight := 33
 LOCAL cTitle      := IF( lEdit, "Edit Record ", "View only " )
 LOCAL oBroEdit    := "BroEdit_" + STRZERO( nIndex, 2 )
 LOCAL aStruc, nMaxLen := 0
-LOCAL nRecno, xValue
+LOCAL nRecno, xValue, cRepl
 
 #IFDEF Use_DataBrowse
    nRecno := GetProperty( cBroMacro, "BrowserView", "Value" )
@@ -1140,10 +1196,6 @@ LOCAL nRecno, xValue
       cTitle += ALIAS()
    ENDIF
 
-   //      OF &cBroMacro ;
-   //      TOPMOST ;
-   //      MODAL ;
-
    DEFINE WINDOW &oBroEdit ;
               AT 0, 0 ;
               WIDTH 300 ;
@@ -1160,9 +1212,10 @@ LOCAL nRecno, xValue
          cLabel := "LABEL_" + STRZERO( i, 3 )
          cObj := "TEXT_" + STRZERO( i, 3 )
          nRow := 32 * ( i - 1 )
-         nSize := aStruc[ i ] [ DBS_LEN ] * SP_nFontlarge()
+         nSize := aStruc[ i ] [ DBS_LEN ]
+         nDec := aStruc[ i ] [ DBS_DEC ]
 
-         nMaxLen := MAX( nMaxLen, nSize )
+         nMaxLen := MAX( nMaxLen, nSize * SP_nFontlarge() )
 
          cFIELD := aStruc[ i ] [ DBS_NAME ]
 
@@ -1176,18 +1229,22 @@ LOCAL nRecno, xValue
             FONTCOLOR SP_nColor2()
          END LABEL
 
+         // need ALIAS()
          cFIELD := "FIELD->" + aStruc[ i ] [ DBS_NAME ]
 
          DO CASE
             CASE aStruc[ i ] [ DBS_TYPE ] = "C"
+
+               cRepl := REPLICATE( "!", nSize )
 
                DEFINE TEXTBOX &cObj
                   ROW nRow
                   COL 100
                   HEIGHT 30
                   FIELD &( cFIELD )
+                  VALUE &( cFIELD )
                   READONLY !lEdit
-                  WIDTH nSize
+                  WIDTH nSize * SP_nFontlarge()
                   FONTNAME SP_cFontName()
                   FONTSIZE SP_nFontSize()
                   TOOLTIP ""
@@ -1201,17 +1258,27 @@ LOCAL nRecno, xValue
                   RIGHTALIGN .F.
                   VISIBLE .T.
                   TABSTOP .T.
+                  INPUTMASK cRepl
                END TEXTBOX
 
             CASE aStruc[ i ] [ DBS_TYPE ] = "N"
+
+               IF nDec = 0
+                  cRepl := REPLICATE( "9", nSize )
+               ELSE
+                  cRepl := REPLICATE( "9", nSize - nDec - 1 )
+                  cRepl += "."
+                  cRepl += REPLICATE( "9", nDec )
+               ENDIF
 
                DEFINE TEXTBOX &cObj
                   ROW nRow
                   COL 100
                   HEIGHT 30
                   FIELD &( cFIELD )
+                  VALUE &( cFIELD )
                   READONLY !lEdit
-                  WIDTH nSize
+                  WIDTH nSize * SP_nFontlarge()
                   FONTNAME SP_cFontName()
                   FONTSIZE SP_nFontSize()
                   BACKCOLOR SP_nColor5()
@@ -1222,6 +1289,7 @@ LOCAL nRecno, xValue
                   DATATYPE NUMERIC
                   VISIBLE .T.
                   TABSTOP .T.
+                  INPUTMASK cRepl
                END TEXTBOX
 
             CASE aStruc[ i ] [ DBS_TYPE ] = "D"
@@ -1230,8 +1298,9 @@ LOCAL nRecno, xValue
                   COL 100
                   HEIGHT 30
                   FIELD &( cFIELD )
+                  VALUE &( cFIELD )
                   READONLY !lEdit
-                  WIDTH nSize
+                  WIDTH nSize * SP_nFontlarge()
                   FONTNAME SP_cFontName()
                   FONTSIZE SP_nFontSize()
                   BACKCOLOR SP_nColor5()
@@ -1252,6 +1321,7 @@ LOCAL nRecno, xValue
                   CAPTION ""
                   HEIGHT 30
                   FIELD &( cFIELD )
+                  VALUE &( cFIELD )
                   WIDTH 50
                   BACKCOLOR SP_nColor5()
                   FONTCOLOR SP_nColor6()
@@ -1262,12 +1332,27 @@ LOCAL nRecno, xValue
                   TABSTOP .T.
                END CHECKBOX
 
+            CASE aStruc[ i ] [ DBS_TYPE ] = "M"
+
+               DEFINE BUTTON &cObj
+                  ROW nRow
+                  COL 100
+                  WIDTH 100
+                  HEIGHT 30
+                  ACTION ShowMemo( cFIELD )
+                  CAPTION "Memo"
+                  FONTNAME SP_cFontName()
+                  FONTSIZE SP_nFontSize()
+                  TABSTOP .F.
+                  VISIBLE .T.
+               END BUTTON
+
          ENDCASE
 
       NEXT
    END WINDOW
 
-   nMaxLen += 100
+   nMaxLen += 140
    nMaxLen := MIN( nMaxLen, nMaxwide )
    SetProperty( oBroEdit, "Width", nMaxLen )
 
@@ -1279,22 +1364,29 @@ LOCAL nRecno, xValue
    ACTIVATE WINDOW &oBroEdit
 
    DoFindWin( cDBF )
-
-#IFDEF Use_DataBrowse
-   RefreshBrowseLine( cBroMacro, "BrowserView", aFeld )
-#ELSE
-   RefreshCurrent( cBroMacro, "BrowserView" )
-#ENDIF
-
    Domethod( oBrowse, "BrowserView", "SetFocus" )
 
 RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Procedure RefreshCurrent()
+*+    Static Procedure ShowMemo()
 *+
 *+    Called from ( browser.prg )   1 - static procedure editdetail()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE ShowMemo( cFIELD )
+
+LOCAL cText := &( cFIELD )
+   Msginfo( cText, "Memo " + cFIELD )
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure RefreshCurrent()
+*+
+*+    Called from ( browser.prg )   1 - static procedure dochange()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1320,12 +1412,19 @@ LOCAL xValue, cFeld, cPosi, nItem
    cPosi := STRTRAN( cObj, "TEXT_", "" )
    cFeld := aStruc[ VAL( cPosi ) ] [ DBS_NAME ]
    xValue := GetProperty( cForm, cObj, "VALUE" )
-   nItem := GetProperty( cBroMacro, "BrowserView", "VALUE" )
+   //    nItem := GetProperty( cBroMacro, "BrowserView", "VALUE" )
 
    IF RLOCK()
       REPLACE &( cFeld ) WITH xValue
       UNLOCK
    ENDIF
+
+#IFDEF Use_DataBrowse
+   RefreshBrowseLine( cBroMacro, "BrowserView", aStruc )
+#ELSE
+   RefreshCurrent( cBroMacro, "BrowserView" )
+#ENDIF
+
 RETURN
 
 *+--------------------------------------------------------------------
@@ -1370,7 +1469,7 @@ STATIC PROCEDURE Pre_SetNewIndex( cPath, cDBF )
 
 LOCAL cRet   := ""
 LOCAL lRet   := .F.
-LOCAL bError
+LOCAL bError, oError
 LOCAL aPara  := {}
 LOCAL i, iMax, cIndex
 LOCAL cAlias := ALIAS()
@@ -1390,7 +1489,7 @@ LOCAL nPosi, cWorkArea
    SP_GetWahl( "" )
    SetNewIndex( cPath )
    cRet := SP_GetWahl()
-   //    ALTD()
+
    IF !EMPTY( cRet )
       ORDLISTCLEAR()
       aPara := AtInside( ",", cRet )
@@ -1402,6 +1501,10 @@ LOCAL nPosi, cWorkArea
          BEGIN SEQUENCE
             SET INDEX TO &cIndex ADDITIVE
             lRet := .T.
+         RECOVER USING oError
+            ERRORBLOCK( bError )
+            MsgInfo( "Error SET INDEX TO " + cIndex + CRLF + ;
+                     oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
          END SEQUENCE
          ERRORBLOCK( bError )
       NEXT
@@ -1773,11 +1876,12 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE Do_Modi_Stru( cDbf, cWorkArea )
+STATIC PROCEDURE Do_Modi_Stru( cPath, cDbf, cWorkArea, lEdit )
 
+LOCAL aJustify  := { GRID_JTFY_LEFT, GRID_JTFY_LEFT, GRID_JTFY_LEFT, GRID_JTFY_LEFT }
 LOCAL aStruc, i, iMax, aClone
 LOCAL aCaption  := { "Name", "Type", "Len", "Dec" }
-LOCAL aWide     := { 110, 50, 60, 60 }
+LOCAL aWide     := { 110, 38, 60, 58 }
 LOCAL aItems    := {}
 LOCAL nHeight   := 0
 LOCAL nTitlebar := GETTITLEHEIGHT()
@@ -1785,6 +1889,7 @@ LOCAL oModiStr  := "ModiForn_" + STRZERO( nIndex, 2 )
 
    SELECT ( cWorkArea )
    aStruc := DBSTRUCT()
+   aClone := ACLONE( aStruc )
    iMax := LEN( aStruc )
    nHeight := ( iMax + 1 ) * 22.3
 
@@ -1795,9 +1900,9 @@ LOCAL oModiStr  := "ModiForn_" + STRZERO( nIndex, 2 )
                       aStruc[ i ] [ DBS_DEC ] } )
    NEXT
 
-   /***********************************************************************
-   ShowArrayStru(aStruc,aCaption,cDbf)
-***********************************************************************/
+   // **********************************************************************
+   //    ShowArrayStru(aStruc,aCaption,cDbf)
+   // **********************************************************************
 
    DEFINE WINDOW &oModiStr ;
               AT 0, 0 ;
@@ -1814,13 +1919,14 @@ LOCAL oModiStr  := "ModiForn_" + STRZERO( nIndex, 2 )
               BACKCOLOR SP_nColor1() ;
               ON RELEASE CloseForm2()
 
-      DEFINE TOOLBAR oTOOLBAR BUTTONSIZE 50, 50 FLAT BORDER
-         BUTTON oBtSave ;
-                 TOOLTIP "F5: create DBF" ;
-                 PICTURE "MYOKGREEN" ;
-                 ACTION SaveCreate( aStruc, aClone )
-      END TOOLBAR
-
+      IF lEdit = .T.
+         DEFINE TOOLBAR oTOOLBAR BUTTONSIZE 50, 50 FLAT BORDER
+            BUTTON oBtSave ;
+                    TOOLTIP "F5: create DBF" ;
+                    PICTURE "MYOKGREEN" ;
+                    ACTION SaveCreate( aStruc, cDbf, oModiStr )
+         END TOOLBAR
+      ENDIF
       DEFINE GRID Brow_2
          PARENT &oModiStr
          ROW 50
@@ -1834,13 +1940,19 @@ LOCAL oModiStr  := "ModiForn_" + STRZERO( nIndex, 2 )
          FONTSIZE SP_nFontlarge()
          BACKCOLOR SP_nColor9( )
          FONTCOLOR SP_nColor10()
-         ONDBLCLICK DBF_EditStruRec( ThisWindow.Name, This.Name, aStruc )
+         JUSTIFY aJustify
+         ONDBLCLICK Pre_EditStruRec( ThisWindow.Name, This.Name, aStruc )
+         ITEMCOUNT LEN( aStruc )
+         VIRTUAL .T.
+         ON QUERYDATA OnDataRequestStruct( aStruc, ThisWindow.Name, This.Name )
       END GRID
    END WINDOW
 
    CalcNewBroGridSize( iMax, oModiStr )
 
-   ON KEY F5 OF &oModiStr ACTION SaveCreate()
+   IF lEdit = .T.
+      ON KEY F5 OF &oModiStr ACTION SaveCreate( aStruc, aClone, oModiStr )
+   ENDIF
    ON KEY ESCAPE OF &oModiStr ACTION Domethod( oModiStr, "Release" )
 
    Domethod( oModiStr, "Brow_2", "setfocus" )
@@ -1880,13 +1992,11 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Procedure DBF_EditStruRec()
-*+
-*+    Called from ( browser.prg )   1 - static procedure do_modi_stru()
+*+    Static Procedure DBF_EditStruRec()
 *+
 *+--------------------------------------------------------------------
 *+
-PROCEDURE DBF_EditStruRec( cWin, cGrid, aStruc )
+STATIC PROCEDURE DBF_EditStruRec( cWin, cGrid, aStruc )               // dupe
 
    EditStruRec( aStruc )
    DoMethod( cWin, cGrid, "Refresh" )
@@ -1900,9 +2010,49 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE SaveCreate( aStruc, aClone )
+STATIC PROCEDURE SaveCreate( aStruc, aClone, oModiStr )
 
-   MsgInfo( "under Construction" )
+LOCAL ii, iMax := LEN( aStruc )
+LOCAL jj, jMax := LEN( aClone )
+LOCAL field_list := {}
+LOCAL nOld_Sel   := SELECT ()
+LOCAL cAppFolder := SP_cMainPath()
+
+   //    msginfo(cAppFolder)
+
+   // LOCAL lDiff := .F.
+   //   MsgInfo( "under Construction" )
+   //    IF iMax = jMax
+   //    ELSE
+   //    ENDIF
+
+   FOR ii := 1 TO iMax
+      AADD( field_list, { aStruc[ ii ] [ DBS_NAME ], ;
+                          aStruc[ ii ] [ DBS_TYPE ], ;
+                          aStruc[ ii ] [ DBS_LEN ], ;
+                          aStruc[ ii ] [ DBS_DEC ] } )
+   NEXT
+
+   IF FILE( cAppFolder + "DBUUUU.DBF" )
+      FERASE( cAppFolder + "DBUUUU.DBF" )
+   ENDIF
+   IF FILE( cAppFolder + "DBUUUU.DBT" )
+      FERASE( cAppFolder + "DBUUUU.DBT" )
+   ENDIF
+   IF FILE( cAppFolder + "DBUUUU.FPT" )
+      FERASE( cAppFolder + "DBUUUU.FPT" )
+   ENDIF
+   SELECT 99
+   IF SP_cInxExt() = "NTX"
+      DBCREATE( ( cAppFolder + "DBUUUU.DBF" ), field_list, "DBFNTX" )
+   ELSE
+      DBCREATE( ( cAppFolder + "DBUUUU.DBF" ), field_list, "DBFCDX" )
+   ENDIF
+   SELECT ( nOld_Sel )
+
+   SP_lModiStruct( .T. )
+
+   Domethod( oModiStr, "Release" )
 RETURN
 
 *+--------------------------------------------------------------------
@@ -1990,7 +2140,6 @@ STATIC FUNCTION NeedOEMConvert()
 LOCAL cTxt      := SP_cCodepage()
 LOCAL _CodePage := ""
 LOCAL lRet      := .F.
-   //    ALTD()
    // look for Codepage
    DO CASE
       CASE _CodePage = "DOS 437"
@@ -2047,8 +2196,6 @@ LOCAL nCol  := This.Querycolindex
 LOCAL aData := This.QueryData
 LOCAL xVal, cData
 
-   //    ALTD()
-
    IF .NOT. EMPTY( nRow )
       GOTO( nRow )
       xVal := FIELDGET( nCol )
@@ -2082,8 +2229,6 @@ STATIC PROCEDURE DoDebbbuug()
 
 LOCAL aaa, i, iMax, bbb
 LOCAL aStruc, cSeek, nPosi, cType
-
-   //    ALTD()
 
    aaa := ACLONE( _HMG_SYSDATA[ 326 ] )                               // -> Current Control Definition: "ColumnFields"
    aStruc := DBSTRUCT()
@@ -2145,6 +2290,7 @@ RETURN
 *+
 FUNCTION WinCodePage()
 
+LOCAL nItem     := 0
 LOCAL cRet      := ""
 LOCAL aLangName := { "Basque", ;
                         "Czech 852", ;
@@ -2197,8 +2343,6 @@ LOCAL aLangID := { "EU", ;
                       "SRISO", ;
                       "SR852", ;
                       "ES" }
-
-LOCAL nItem := 0
 
    DEFINE WINDOW wndSelItem ;
               AT 0, 0 ;
@@ -2486,12 +2630,16 @@ STATIC PROCEDURE CreateNewIndex( cPath, cDBF )
 LOCAL cFile  := WinNewIndex.Text_File.Value
 LOCAL cKey   := WinNewIndex.Text_Key.Value
 LOCAL lRet   := .F.
-LOCAL bError
+LOCAL bError, oError
 
    bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
    BEGIN SEQUENCE
       INDEX ON &cKey TO &cFile ADDITIVE
       lRet := .T.
+   RECOVER USING oError
+      ERRORBLOCK( bError )
+      MsgInfo( "Error INDEX ON " + cKey + " TO " + cFile + CRLF + ;
+               oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
    END SEQUENCE
    ERRORBLOCK( bError )
 
@@ -2544,32 +2692,34 @@ RETURN
 *+
 *+    Static Procedure RefreshBrowseLine()
 *+
-*+    Called from ( browser.prg )   1 - static procedure editdetail()
+*+    Called from ( browser.prg )   1 - static procedure dochange()
 *+
 *+--------------------------------------------------------------------
 *+
 STATIC PROCEDURE RefreshBrowseLine( cForm, cBrowse, aStruc )
 
-   // Refreshline(cBroMacro,aStruc)
 LOCAL i, iMax
-LOCAL cField, xValue
+LOCAL cField, cType, xValue
 LOCAL h, nIdx, nRow
-   //    local aStruc
 
    nIdx := GetControlIndex( cBrowse, cForm )
    h := GetControlHandle( cBrowse, cForm )
    nRow := LISTVIEW_GETFIRSTITEM( h )                                 // this function returns current screen row number
-   //   aStruc := _HMG_SYSDATA [ 31 ] [nIdx]   // array conainig FIELDS parameter
-   //   aStruc := _HMG_aControlRangeMin [ 31 ] [nIdx] // extended Version
 
    iMax := LEN( aStruc )
    FOR i := 1 TO iMax
-      //      cField := aStruc[ i ][DBS_NAME]
-      cField := aStruc[ i ]
+      cField := aStruc[ i ] [ DBS_NAME ]
+      cType := aStruc[ i ] [ DBS_TYPE ]
       xValue := &( cField )
-      IF VALTYPE( xValue ) == "N"
-         xValue := hb_ntos( xValue )
-      ENDIF
+
+      DO CASE
+         CASE cType == "N"
+            xValue := hb_ntos( xValue )
+         CASE cType == "D"
+            xValue := HB_VALTOSTR( xValue )
+         CASE cType == "L"
+            xValue := HB_VALTOSTR( xValue )
+      ENDCASE
       SetProperty( cForm, cBrowse, "CELL", nRow, i, xValue )
    NEXT i
 
@@ -2660,15 +2810,16 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Procedure BroSbar()
+*+    Static Procedure BroSbar()
 *+
 *+    Called from ( browser.prg )   1 - static procedure showdelete()
 *+
 *+--------------------------------------------------------------------
 *+
-PROCEDURE BroSbar( cText )
+STATIC PROCEDURE BroSbar( cText )
 
    SetProperty( oBrowse, "StatusBar", "Item", 1, cText )
+
 RETURN
 
 *+ EOF: BROWSER.PRG

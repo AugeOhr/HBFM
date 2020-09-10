@@ -6,7 +6,7 @@
 *+
 *+    Functions: Function HelpFile()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:53 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -71,6 +71,7 @@ LOCAL cText := ""
    //    cText += "SHIFT_F1    Xbase++ DLL Info" + CRLF
    cText += "SHIFT_F2    Compare Dir    " + CRLF
    cText += "SHIFT_F3    Thumbs / Slideshow" + CRLF
+   cText += "SHIFT_F4    create new DBF" + CRLF
    cText += "" + CRLF
    //    cText += "with CTRL  (press CTRL 1st) "   +CRLF
    //    cText += "----------------------------"   +CRLF

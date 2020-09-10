@@ -6,14 +6,12 @@
 *+
 *+    Functions: Function ShowArrayStru()
 *+               Static Procedure CalcNewGridSize()
-*+               Static Function OnDataRequestStruct()
+*+               Function OnDataRequestStruct()
 *+               Procedure Pre_EditStruRec()
 *+               Procedure EditStruRec()
 *+               Static Procedure SaveArray()
-*+               Static Procedure VALID_Text_1()
-*+               Static Procedure VALID_Text_2()
-*+               Static Procedure VALID_Text_3()
-*+               Static Procedure VALID_Text_4()
+*+               Static Procedure VALID_Text_Len()
+*+               Static Procedure VALID_Text_Dec()
 *+               Static Procedure MaxItemLen()
 *+               Procedure XLSexport()
 *+               Static Procedure ExportXLS()
@@ -24,11 +22,28 @@
 *+               Static Procedure OnGo_Export()
 *+               Static Procedure Export_Button()
 *+               Static Function WriteADO2SDF()
+*+               Procedure CreateNewDbf()
+*+               Static Procedure CloseForm()
+*+               Static Procedure LoadNewStruct()
+*+               Static Procedure CRE_DBUU()
+*+               Static Procedure Scatter()
+*+               Static Procedure DoAppendBlank()
+*+               Static Procedure DoEditSave()
+*+               Static Procedure DoDelRecall()
+*+               Static Procedure DoCreDBFNow()
+*+               Static Procedure DoZAPnow()
+*+               Static Procedure RefreshBrowseLine()
+*+               Static Function Check_Name()
+*+               Static Function CHECK_A2Z()
+*+               Static Function Check_Type()
+*+               Static Function Check_Len()
+*+               Static Function Check_Dec()
 *+
 *+       Tables: USE ( cExportTo ) VIA (cVIA) EXCLUSIVE
 *+               USE ( cExportTo ) VIA (cVIA) EXCLUSIVE CODEPAGE (cCodepage)
+*+               USE ("CREDBUU.DBF") VIA "DBFCDX" ALIAS "CREDBUU" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:53 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -184,13 +199,14 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Function OnDataRequestStruct()
+*+    Function OnDataRequestStruct()
 *+
-*+    Called from ( modistru.prg )   1 - function showarraystru()
+*+    Called from ( browser.prg )   1 - static procedure do_modi_stru()
+*+                ( modistru.prg )   1 - function showarraystru()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC FUNCTION OnDataRequestStruct( aData, cForm, cObj )
+FUNCTION OnDataRequestStruct( aData, cForm, cObj )
 
 LOCAL nRow                                                            // := Getproperty( cForm, cGrid_Left ,"QueryRowIndex" )
 LOCAL nCol                                                            // := Getproperty( cForm, cGrid_Left ,"Querycolindex" )
@@ -210,7 +226,8 @@ RETURN .T.
 *+
 *+    Procedure Pre_EditStruRec()
 *+
-*+    Called from ( modistru.prg )   1 - function showarraystru()
+*+    Called from ( browser.prg )   1 - static procedure do_modi_stru()
+*+                ( modistru.prg )   1 - function showarraystru()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -224,7 +241,7 @@ RETURN
 *+
 *+    Procedure EditStruRec()
 *+
-*+    Called from ( browser.prg )   1 - procedure dbf_editstrurec()
+*+    Called from ( browser.prg )   1 - static procedure dbf_editstrurec()
 *+                ( modistru.prg )   1 - procedure pre_editstrurec()
 *+
 *+--------------------------------------------------------------------
@@ -240,7 +257,7 @@ LOCAL nCol := This.CellColIndex
                  AT 0, 0 ;
                  WIDTH 213 HEIGHT 225 ;
                  TITLE "Edit Structure" ;
-                 ICON "ICOINFO" ;
+                 ICON "ICODBF" ;
                  TOPMOST ;
                  NOSIZE ;
                  NOMINIMIZE ;
@@ -264,58 +281,7 @@ LOCAL nCol := This.CellColIndex
             FONTCOLOR Nil
          END LABEL
 
-         DEFINE LABEL Label_2
-            ROW 40
-            COL 10
-            WIDTH 50
-            HEIGHT 24
-            VALUE "Type"
-            FONTNAME SP_cFontName()
-            FONTSIZE SP_nFontlarge()
-            TOOLTIP ""
-            VISIBLE .T.
-            TRANSPARENT .F.
-            ACTION Nil
-            AUTOSIZE .F.
-            BACKCOLOR Nil
-            FONTCOLOR Nil
-         END LABEL
-
-         DEFINE LABEL Label_3
-            ROW 70
-            COL 10
-            WIDTH 50
-            HEIGHT 24
-            VALUE "Len"
-            FONTNAME SP_cFontName()
-            FONTSIZE SP_nFontlarge()
-            TOOLTIP ""
-            VISIBLE .T.
-            TRANSPARENT .F.
-            ACTION Nil
-            AUTOSIZE .F.
-            BACKCOLOR Nil
-            FONTCOLOR Nil
-         END LABEL
-
-         DEFINE LABEL Label_4
-            ROW 100
-            COL 10
-            WIDTH 50
-            HEIGHT 24
-            VALUE "Dec"
-            FONTNAME SP_cFontName()
-            FONTSIZE SP_nFontlarge()
-            TOOLTIP ""
-            VISIBLE .T.
-            TRANSPARENT .F.
-            ACTION Nil
-            AUTOSIZE .F.
-            BACKCOLOR Nil
-            FONTCOLOR Nil
-         END LABEL
-
-         DEFINE TEXTBOX Text_1
+         DEFINE TEXTBOX Text_Name
             ROW 10
             COL 70
             WIDTH 120
@@ -323,7 +289,7 @@ LOCAL nCol := This.CellColIndex
             FONTNAME SP_cFontName()
             FONTSIZE SP_nFontlarge()
             TOOLTIP ""
-            ONCHANGE nil                                              // VALID_Text_1()
+            ONCHANGE nil
             ONGOTFOCUS Nil
             ONLOSTFOCUS Nil
             ONENTER Nil
@@ -343,7 +309,24 @@ LOCAL nCol := This.CellColIndex
             VALUE ""
          END TEXTBOX
 
-         DEFINE TEXTBOX Text_2
+         DEFINE LABEL Label_2
+            ROW 40
+            COL 10
+            WIDTH 50
+            HEIGHT 24
+            VALUE "Type"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontlarge()
+            TOOLTIP ""
+            VISIBLE .T.
+            TRANSPARENT .F.
+            ACTION Nil
+            AUTOSIZE .F.
+            BACKCOLOR Nil
+            FONTCOLOR Nil
+         END LABEL
+
+         DEFINE TEXTBOX Text_Type
             ROW 40
             COL 70
             WIDTH 120
@@ -351,14 +334,14 @@ LOCAL nCol := This.CellColIndex
             FONTNAME SP_cFontName()
             FONTSIZE SP_nFontlarge()
             TOOLTIP ""
-            ONCHANGE nil                                              // VALID_Text_2()
+            ONCHANGE nil
             ONGOTFOCUS Nil
             ONLOSTFOCUS Nil
-            ONENTER VALID_Text_2()
+            ONENTER Nil
             HELPID Nil
-            TABSTOP .T.
+            TABSTOP .F.
             VISIBLE .T.
-            READONLY .F.
+            READONLY .T.
             RIGHTALIGN .F.
             DISABLEDBACKCOLOR Nil
             DISABLEDFONTCOLOR Nil
@@ -371,7 +354,24 @@ LOCAL nCol := This.CellColIndex
             VALUE ""
          END TEXTBOX
 
-         DEFINE TEXTBOX Text_3
+         DEFINE LABEL Label_3
+            ROW 70
+            COL 10
+            WIDTH 50
+            HEIGHT 24
+            VALUE "Len"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontlarge()
+            TOOLTIP ""
+            VISIBLE .T.
+            TRANSPARENT .F.
+            ACTION Nil
+            AUTOSIZE .F.
+            BACKCOLOR Nil
+            FONTCOLOR Nil
+         END LABEL
+
+         DEFINE TEXTBOX Text_Len
             ROW 70
             COL 70
             WIDTH 120
@@ -379,10 +379,10 @@ LOCAL nCol := This.CellColIndex
             FONTNAME SP_cFontName()
             FONTSIZE SP_nFontlarge()
             TOOLTIP ""
-            ONCHANGE nil                                              // VALID_Text_3()
+            ONCHANGE nil                                              // VALID_Text_Len()
             ONGOTFOCUS Nil
             ONLOSTFOCUS Nil
-            ONENTER VALID_Text_3()
+            ONENTER VALID_Text_Len()
             HELPID Nil
             TABSTOP .T.
             VISIBLE .T.
@@ -400,7 +400,24 @@ LOCAL nCol := This.CellColIndex
             VALUE Nil
          END TEXTBOX
 
-         DEFINE TEXTBOX Text_4
+         DEFINE LABEL Label_4
+            ROW 100
+            COL 10
+            WIDTH 50
+            HEIGHT 24
+            VALUE "Dec"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontlarge()
+            TOOLTIP ""
+            VISIBLE .T.
+            TRANSPARENT .F.
+            ACTION Nil
+            AUTOSIZE .F.
+            BACKCOLOR Nil
+            FONTCOLOR Nil
+         END LABEL
+
+         DEFINE TEXTBOX Text_Dec
             ROW 100
             COL 70
             WIDTH 120
@@ -408,10 +425,10 @@ LOCAL nCol := This.CellColIndex
             FONTNAME SP_cFontName()
             FONTSIZE SP_nFontlarge()
             TOOLTIP ""
-            ONCHANGE nil                                              // VALID_Text_4()
+            ONCHANGE nil                                              // VALID_Text_Dec()
             ONGOTFOCUS Nil
             ONLOSTFOCUS Nil
-            ONENTER VALID_Text_4()
+            ONENTER VALID_Text_Dec()
             HELPID Nil
             TABSTOP .T.
             VISIBLE .T.
@@ -420,6 +437,7 @@ LOCAL nCol := This.CellColIndex
             DISABLEDBACKCOLOR Nil
             DISABLEDFONTCOLOR Nil
             CASECONVERT NONE
+            MAXLENGTH 2
             BACKCOLOR SP_nColor5()
             FONTCOLOR SP_nColor6()
             INPUTMASK "99"
@@ -452,10 +470,10 @@ LOCAL nCol := This.CellColIndex
 
       END WINDOW
 
-      EditStruRec.Text_1.Value := aData[ nRow ] [ DBS_NAME ]
-      EditStruRec.Text_2.Value := aData[ nRow ] [ DBS_TYPE ]
-      EditStruRec.Text_3.Value := aData[ nRow ] [ DBS_LEN ]
-      EditStruRec.Text_4.Value := aData[ nRow ] [ DBS_DEC ]
+      EditStruRec.Text_Name.Value := aData[ nRow ] [ DBS_NAME ]
+      EditStruRec.Text_Type.Value := aData[ nRow ] [ DBS_TYPE ]
+      EditStruRec.Text_Len.Value := aData[ nRow ] [ DBS_LEN ]
+      EditStruRec.Text_Dec.Value := aData[ nRow ] [ DBS_DEC ]
 
       ON KEY ESCAPE OF EditStruRec ACTION EditStruRec.Release
       CENTER WINDOW EditStruRec
@@ -475,10 +493,10 @@ RETURN
 *+
 STATIC PROCEDURE SaveArray( aData, nRow )
 
-   //   aData[nRow][ DBS_NAME] := EditStruRec.Text_1.Value
-   aData[ nRow ] [ DBS_TYPE ] := EditStruRec.Text_2.Value
-   aData[ nRow ] [ DBS_LEN ] := EditStruRec.Text_3.Value
-   aData[ nRow ] [ DBS_DEC ] := EditStruRec.Text_4.Value
+   //   aData[ nRow ] [ DBS_NAME ] := EditStruRec.Text_Name.Value
+   //   aData[ nRow ] [ DBS_TYPE ] := EditStruRec.Text_Type.Value
+   aData[ nRow ] [ DBS_LEN ] := EditStruRec.Text_Len.Value
+   aData[ nRow ] [ DBS_DEC ] := EditStruRec.Text_Dec.Value
 
    SP_aADOStruct( ACLONE( aData ) )
 
@@ -487,83 +505,84 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Procedure VALID_Text_1()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC PROCEDURE VALID_Text_1()
-
-RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Procedure VALID_Text_2()
+*+    Static Procedure VALID_Text_Len()
 *+
 *+    Called from ( modistru.prg )   1 - procedure editstrurec()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE VALID_Text_2()
+STATIC PROCEDURE VALID_Text_Len()
 
-LOCAL cType := EditStruRec.Text_2.Value
-
-   IF cType $ "CMNDL"
-   ELSE
-      MsgInfo( "only 'CMNDL' allowed" )
-      EditStruRec.Text_2.SetFocus()
-   ENDIF
-
-RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Procedure VALID_Text_3()
-*+
-*+    Called from ( modistru.prg )   1 - procedure editstrurec()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC PROCEDURE VALID_Text_3()
-
-LOCAL cType := EditStruRec.Text_2.Value
-LOCAL nLen  := EditStruRec.Text_3.Value
+LOCAL cType := EditStruRec.Text_Type.Value
+LOCAL nLen  := EditStruRec.Text_Len.Value
+LOCAL lErr  := .F.
 
    IF EMPTY( nLen )
       MsgInfo( "Len must > 0" )
-      EditStruRec.Text_3.Value := 1
-      EditStruRec.Text_3.SetFocus()
+      EditStruRec.Text_Len.Value := 1
+      EditStruRec.Text_Len.SetFocus()
       RETURN
    ENDIF
 
    DO CASE
       CASE cType = "C"
+
       CASE cType = "M"
+         IF nLen = 4 .OR. nLen = 10
+         ELSE
+            lErr := .T.
+            EditStruRec.Text_Len.Value := 10
+            EditStruRec.Text_Dec.Value := 0
+         ENDIF
+
       CASE cType = "N"
+         IF nLen > 19
+            lErr := .T.
+            EditStruRec.Text_Len.Value := 19
+            EditStruRec.Text_Dec.Value := 0
+         ENDIF
+
       CASE cType = "D"
+         IF nLen = 8 .OR. nLen = 10
+         ELSE
+            lErr := .T.
+            EditStruRec.Text_Len.Value := 8
+            EditStruRec.Text_Dec.Value := 0
+         ENDIF
+
       CASE cType = "L"
+         IF nLen <> 1
+            lErr := .T.
+            EditStruRec.Text_Len.Value := 1
+            EditStruRec.Text_Dec.Value := 0
+         ENDIF
    ENDCASE
+
+   IF lErr = .T.
+      EditStruRec.Text_Len.SetFocus()
+   ENDIF
 
 RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Procedure VALID_Text_4()
+*+    Static Procedure VALID_Text_Dec()
 *+
 *+    Called from ( modistru.prg )   1 - procedure editstrurec()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE VALID_Text_4()
+STATIC PROCEDURE VALID_Text_Dec()
 
-LOCAL cType := EditStruRec.Text_2.Value
-LOCAL nDec  := EditStruRec.Text_4.Value
+LOCAL cType := EditStruRec.Text_Type.Value
+LOCAL nDec  := EditStruRec.Text_Dec.Value
 
    IF !EMPTY( nDec )
       IF cType $ "N"
       ELSE
          MsgInfo( "only Type 'N' allowed" )
-         EditStruRec.Text_4.Value := 0
-         EditStruRec.Text_2.SetFocus()
+         EditStruRec.Text_Dec.Value := 0
+         EditStruRec.Text_Type.SetFocus()
       ENDIF
    ENDIF
 
@@ -1101,7 +1120,7 @@ LOCAL jj, nFcount, cVIA, aDbStru := SP_aADOStruct()
       CASE nItem = 1
          cExportTo := cText_Path + cText_Name + ".DBF"
          IF FILE( cExportTo )
-            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, .T. )
+            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, "Export DBF" )
                FERASE( cExportTo )
             ELSE
                Export_Button( .T. )
@@ -1144,7 +1163,7 @@ LOCAL jj, nFcount, cVIA, aDbStru := SP_aADOStruct()
       CASE nItem = 2
          cExportTo := cText_Path + cText_Name + ".XLSX"
          IF FILE( cExportTo )
-            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, .T. )
+            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, "Export XLSx" )
                FERASE( cExportTo )
             ELSE
                Export_Button( .T. )
@@ -1155,7 +1174,7 @@ LOCAL jj, nFcount, cVIA, aDbStru := SP_aADOStruct()
       CASE nItem = 3
          cExportTo := cText_Path + cText_Name + ".SDF"
          IF FILE( cExportTo )
-            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, .T. )
+            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, "Export SDF" )
                FERASE( cExportTo )
             ELSE
                Export_Button( .T. )
@@ -1267,7 +1286,862 @@ LOCAL cText_SDF  := ExportXLS.Text_SDF.value
 
 RETURN .T.
 
-//
+*+--------------------------------------------------------------------
+*+
+*+    Procedure CreateNewDbf()
+*+
+*+    Called from ( fmgrid.prg )   2 - procedure dualgrid()
+*+                                   1 - static procedure dogridkey1()
+*+                                   1 - static procedure dogridkey2()
+*+
+*+--------------------------------------------------------------------
+*+
+PROCEDURE CreateNewDbf()
+
+LOCAL aStruc, cWorkArea
+
+   IF !FILE( "CREDBUU.DBF" )
+      CRE_DBUU( "CREDBUU.DBF" )
+   ENDIF
+
+   USE ("CREDBUU.DBF") VIA "DBFCDX" ALIAS "CREDBUU" EXCLUSIVE
+
+   cWorkArea := ALIAS()
+
+   DEFINE WINDOW CreateNewDbf ;
+              AT 292, 521 ;
+              WIDTH 506 ;
+              HEIGHT 548 ;
+              TITLE "create DBF" ;
+              ICON "ICODBF" ;
+              TOPMOST ;
+              ON INIT Scatter() ;
+              ON RELEASE CloseForm() ;
+              NOSIZE ;
+              NOMAXIMIZE ;
+              NOMINIMIZE ;
+              ON PAINT Nil ;
+              BACKCOLOR SP_nColor1()
+
+      DEFINE MAIN MENU
+         DEFINE POPUP "&Load"
+            MENUITEM "load Structure from DBF" IMAGE 'MYDBF16' ACTION LoadNewStruct()
+         END POPUP
+      END MENU
+
+      DEFINE STATUSBAR FONT "Arial" SIZE 9
+STATUSITEM "" WIDTH 500
+      END STATUSBAR
+
+      DEFINE BROWSE Browse_Struct
+         ROW 10
+         COL 10
+         WIDTH 300
+         HEIGHT 430
+         VALUE 1
+         WIDTHS { 100, 60, 60, 60 }
+         HEADERS { 'Name', 'Type', 'Len', 'Dec' }
+         WORKAREA &cWorkArea
+         FIELDS { 'NAME', 'TYPE', 'LEN', 'DEC' }
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONCHANGE Scatter()
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         ONDBLCLICK Nil
+         ALLOWEDIT .F.
+         ALLOWAPPEND .T.
+         ONHEADCLICK Nil
+         ALLOWDELETE .F.
+         HELPID Nil
+         VALID Nil
+         VALIDMESSAGES Nil
+         LOCK .F.
+         VSCROLLBAR .T.
+         DYNAMICBACKCOLOR Nil
+         DYNAMICFORECOLOR Nil
+         INPUTMASK Nil
+         FORMAT Nil
+         WHEN Nil
+         INPUTITEMS Nil
+         DISPLAYITEMS Nil
+         BACKCOLOR Nil
+         FONTCOLOR Nil
+         IMAGE Nil
+         JUSTIFY Nil
+         NOLINES .F.
+         READONLYFIELDS Nil
+         HEADERIMAGES Nil
+      END BROWSE
+
+      DEFINE LABEL Label_1
+         ROW 10
+         COL 320
+         WIDTH 50
+         HEIGHT 24
+         VALUE "Name"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         HELPID Nil
+         VISIBLE .T.
+         TRANSPARENT .F.
+         ACTION Nil
+         AUTOSIZE .F.
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+      END LABEL
+
+      DEFINE TEXTBOX Text_Name
+         ROW 10
+         COL 380
+         WIDTH 100
+         HEIGHT 24
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONCHANGE nil
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         ONENTER Nil
+         HELPID Nil
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         RIGHTALIGN .F.
+         DISABLEDBACKCOLOR Nil
+         DISABLEDFONTCOLOR Nil
+         CASECONVERT NONE
+         MAXLENGTH 10
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         INPUTMASK "!!!!!!!!!!"
+         FORMAT nil
+         VALUE ""
+      END TEXTBOX
+
+      DEFINE LABEL Label_2
+         ROW 40
+         COL 320
+         WIDTH 50
+         HEIGHT 24
+         VALUE "Type"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         HELPID Nil
+         VISIBLE .T.
+         TRANSPARENT .F.
+         ACTION Nil
+         AUTOSIZE .F.
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+      END LABEL
+
+      DEFINE TEXTBOX Text_Type
+         ROW 40
+         COL 380
+         WIDTH 100
+         HEIGHT 24
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONCHANGE nil
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         ONENTER Nil
+         HELPID Nil
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         RIGHTALIGN .F.
+         DISABLEDBACKCOLOR Nil
+         DISABLEDFONTCOLOR Nil
+         CASECONVERT NONE
+         MAXLENGTH 1
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         INPUTMASK "!"
+         FORMAT nil
+         VALUE ""
+      END TEXTBOX
+
+      DEFINE LABEL Label_3
+         ROW 70
+         COL 320
+         WIDTH 50
+         HEIGHT 24
+         VALUE "Len"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         HELPID Nil
+         VISIBLE .T.
+         TRANSPARENT .F.
+         ACTION Nil
+         AUTOSIZE .F.
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+      END LABEL
+
+      DEFINE TEXTBOX Text_Len
+         ROW 70
+         COL 380
+         WIDTH 100
+         HEIGHT 24
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONCHANGE nil
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         ONENTER Nil
+         HELPID Nil
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         RIGHTALIGN .F.
+         DISABLEDBACKCOLOR Nil
+         DISABLEDFONTCOLOR Nil
+         CASECONVERT NONE
+         MAXLENGTH 3
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         INPUTMASK "999"
+         FORMAT nil
+         NUMERIC .T.
+         VALUE Nil
+      END TEXTBOX
+
+      DEFINE LABEL Label_4
+         ROW 100
+         COL 320
+         WIDTH 50
+         HEIGHT 24
+         VALUE "Dec"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         HELPID Nil
+         VISIBLE .T.
+         TRANSPARENT .F.
+         ACTION Nil
+         AUTOSIZE .F.
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+      END LABEL
+
+      DEFINE TEXTBOX Text_Dec
+         ROW 100
+         COL 380
+         WIDTH 100
+         HEIGHT 24
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONCHANGE nil
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         ONENTER Nil
+         HELPID Nil
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         RIGHTALIGN .F.
+         DISABLEDBACKCOLOR Nil
+         DISABLEDFONTCOLOR Nil
+         CASECONVERT NONE
+         MAXLENGTH 2
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         INPUTMASK "99"
+         FORMAT nil
+         NUMERIC .T.
+         VALUE Nil
+      END TEXTBOX
+
+      DEFINE BUTTON Button_Edit
+         ROW 150
+         COL 320
+         WIDTH 160
+         HEIGHT 70
+         ACTION DoEditSave()
+         CAPTION "&Save Edit"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         HELPID Nil
+         FLAT .F.
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         MULTILINE .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
+
+      DEFINE BUTTON Button_Append
+         ROW 225
+         COL 320
+         WIDTH 160
+         HEIGHT 70
+         ACTION DoAppendBlank()
+         CAPTION "&Append"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         HELPID Nil
+         FLAT .F.
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         MULTILINE .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
+
+      DEFINE BUTTON Button_Delete
+         ROW 300
+         COL 320
+         WIDTH 160
+         HEIGHT 70
+         ACTION DoZAPnow()
+         CAPTION "&Zap DBF"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         HELPID Nil
+         FLAT .F.
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         MULTILINE .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
+
+      DEFINE TEXTBOX Text_DBF
+         ROW 450
+         COL 10
+         WIDTH 300
+         HEIGHT 24
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONCHANGE Nil
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         ONENTER Nil
+         HELPID Nil
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         RIGHTALIGN .F.
+         DISABLEDBACKCOLOR Nil
+         DISABLEDFONTCOLOR Nil
+         CASECONVERT NONE
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         INPUTMASK Nil
+         FORMAT Nil
+         VALUE ""
+      END TEXTBOX
+
+      DEFINE BUTTON Button_CreDBF
+         ROW 404
+         COL 320
+         WIDTH 160
+         HEIGHT 70
+         ACTION DoCreDBFNow()
+         CAPTION "&create DBF"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         HELPID Nil
+         FLAT .F.
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         MULTILINE .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
+
+   END WINDOW
+
+   ON KEY ESCAPE OF CreateNewDbf ACTION CreateNewDbf.Release
+   ON KEY INSERT OF CreateNewDbf ACTION DoAppendBlank()
+   ON KEY DELETE OF CreateNewDbf ACTION DoDelRecall()
+
+   CENTER WINDOW CreateNewDbf
+   ACTIVATE WINDOW CreateNewDbf
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure CloseForm()
+*+
+*+    Called from ( modistru.prg )   1 - procedure createnewdbf()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE CloseForm()
+
+   IF USED()
+      CLOSE
+   ENDIF
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure LoadNewStruct()
+*+
+*+    Called from ( modistru.prg )   1 - procedure createnewdbf()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE LoadNewStruct()
+
+LOCAL ii, iMax, aStruct := {}
+LOCAL nOldSel, bError, oError
+LOCAL cTitle  := "load DBF Structure"
+LOCAL cFile   := GetFile( { { "DBF File", "*.DBF" } }, cTitle )
+
+   //   msginfo("under construction ... ")
+
+   IF !EMPTY( cFile )
+      nOldSel := SELECT ()
+      bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+      BEGIN SEQUENCE
+         USE_MYDBF( cFile )
+         aStruct := DBSTRUCT()
+         CLOSE
+      RECOVER USING oError
+         ERRORBLOCK( bError )
+         MsgInfo( "Error open " + cFile + CRLF + ;
+                  oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
+      END SEQUENCE
+      ERRORBLOCK( bError )
+      SELECT ( nOldSel )
+
+      IF !EMPTY( aStruct )
+         ZAP
+         iMax := LEN( aStruct )
+         FOR ii := 1 TO iMax
+            APPEND BLANK
+            REPLACE CREDBUU->NAME WITH aStruct[ ii ] [ DBS_NAME ]
+            REPLACE CREDBUU->TYPE WITH aStruct[ ii ] [ DBS_TYPE ]
+            REPLACE CREDBUU->LEN WITH aStruct[ ii ] [ DBS_LEN ]
+            REPLACE CREDBUU->DEC WITH aStruct[ ii ] [ DBS_DEC ]
+         NEXT
+         CreateNewDbf.Browse_Struct.Value := 1
+         DoMethod( "CreateNewDbf", "Browse_Struct", "Refresh" )
+      ENDIF
+   ENDIF
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure CRE_DBUU()
+*+
+*+    Called from ( modistru.prg )   1 - procedure createnewdbf()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE CRE_DBUU( datei )
+
+LOCAL field_list := {}
+
+   IF !FILE( datei )
+      AADD( field_list, { "NAME", "C", 10, 0 } )
+      AADD( field_list, { "TYPE", "C", 1, 0 } )
+      AADD( field_list, { "LEN", "N", 3, 0 } )
+      AADD( field_list, { "DEC", "N", 2, 0 } )
+      DBCREATE( datei, field_list, "DBFCDX" )
+   ENDIF
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure Scatter()
+*+
+*+    Called from ( modistru.prg )   2 - procedure createnewdbf()
+*+                                   1 - static procedure doappendblank()
+*+                                   1 - static procedure dozapnow()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE Scatter()
+
+   CreateNewDbf.Text_Name.Value := CREDBUU->NAME
+   CreateNewDbf.Text_Type.Value := CREDBUU->TYPE
+   CreateNewDbf.Text_Len.Value := CREDBUU->LEN
+   CreateNewDbf.Text_Dec.Value := CREDBUU->DEC
+
+   RefreshBrowseLine()
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure DoAppendBlank()
+*+
+*+    Called from ( modistru.prg )   2 - procedure createnewdbf()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE DoAppendBlank()
+
+   APPEND BLANK
+   GOTO LASTREC()
+   CreateNewDbf.Browse_Struct.Value := RECNO()
+
+   Scatter()
+
+   CreateNewDbf.Text_Name.setfocus()
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure DoEditSave()
+*+
+*+    Called from ( modistru.prg )   1 - procedure createnewdbf()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE DoEditSave()
+
+LOCAL lErr := .F.
+
+   IF .NOT. Check_Name()
+      RETURN
+   ENDIF
+   IF .NOT. Check_Type()
+      RETURN
+   ENDIF
+   IF .NOT. Check_Len()
+      RETURN
+   ENDIF
+   IF .NOT. Check_Dec()
+      RETURN
+   ENDIF
+
+   REPLACE CREDBUU->NAME WITH TRIM( CreateNewDbf.Text_Name.Value )
+   REPLACE CREDBUU->TYPE WITH CreateNewDbf.Text_Type.Value
+   REPLACE CREDBUU->LEN WITH CreateNewDbf.Text_Len.Value
+   REPLACE CREDBUU->DEC WITH CreateNewDbf.Text_Dec.Value
+
+   RefreshBrowseLine()
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure DoDelRecall()
+*+
+*+    Called from ( modistru.prg )   1 - procedure createnewdbf()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE DoDelRecall()
+
+   IF DELETED()
+      RECALL
+   ELSE
+      DELETE
+   ENDIF
+   RefreshBrowseLine()
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure DoCreDBFNow()
+*+
+*+    Called from ( modistru.prg )   1 - procedure createnewdbf()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE DoCreDBFNow()
+
+LOCAL bError, oError
+LOCAL field_list := {}
+LOCAL cDBF       := CreateNewDbf.Text_DBF.Value
+
+   IF EMPTY( cDBF )
+      msginfo( "need Name for DBF", "DBF Name missing" )
+      CreateNewDbf.Text_DBF.setfocus()
+      RETURN
+   ELSE
+      IF FILE( cDBF )
+         IF MsgYesNo( "override " + cDBF + CRLF, "create new DBF" )
+            FERASE( cDBF )
+
+            GO TOP
+            DO WHILE !EOF()
+               IF .NOT. DELETED()
+                  AADD( field_list, { CREDBUU->NAME, CREDBUU->TYPE, CREDBUU->LEN, CREDBUU->DEC } )
+               ENDIF
+               SKIP
+            ENDDO
+
+            bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+            BEGIN SEQUENCE
+               DBCREATE( cDBF, field_list, "DBFCDX" )
+               msginfo( "DBF " + cDBF + " create" )
+            RECOVER USING oError
+               ERRORBLOCK( bError )
+               MsgInfo( "create DBF " + cDBF + " fail" + CRLF + ;
+                        oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
+               CreateNewDbf.Text_DBF.setfocus()
+            END SEQUENCE
+            ERRORBLOCK( bError )
+
+         ENDIF
+      ENDIF
+
+   ENDIF
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure DoZAPnow()
+*+
+*+    Called from ( modistru.prg )   1 - procedure createnewdbf()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE DoZAPnow()
+
+   IF MsgYesNo( "ZAP DBF Strukture ?", "DBF Structure" )
+      ZAP
+      APPEND BLANK
+      CreateNewDbf.Browse_Struct.Value := RECNO()
+
+      // Browse refreshAll()
+      DoMethod( "CreateNewDbf", "Browse_Struct", "Refresh" )
+      // fill Controls
+      Scatter()
+   ENDIF
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure RefreshBrowseLine()
+*+
+*+    Called from ( modistru.prg )   1 - static procedure scatter()
+*+                                   1 - static procedure doeditsave()
+*+                                   1 - static procedure dodelrecall()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE RefreshBrowseLine()
+
+LOCAL i, iMax, cText
+LOCAL cField, xValue
+LOCAL h, nIdx, nRow
+LOCAL aStruc := DBSTRUCT()
+
+   nIdx := GetControlIndex( "Browse_Struct", "CreateNewDbf" )
+   h := GetControlHandle( "Browse_Struct", "CreateNewDbf" )
+   nRow := LISTVIEW_GETFIRSTITEM( h )                                 // this function returns current screen row number
+   //   aStruc := _HMG_SYSDATA [ 31 ] [nIdx]   // array conainig FIELDS parameter
+   //   aStruc := _HMG_aControlRangeMin [ 31 ] [nIdx] // extended Version
+
+   iMax := LEN( aStruc )
+   FOR i := 1 TO iMax
+      cField := aStruc[ i ] [ DBS_NAME ]
+      //  cField := aStruc[ i ]
+      xValue := &( cField )
+      IF VALTYPE( xValue ) == "N"
+         xValue := hb_ntos( xValue )
+      ENDIF
+      SetProperty( "CreateNewDbf", "Browse_Struct", "CELL", nRow, i, xValue )
+   NEXT i
+
+   IF DELETED()
+      cText := "Deleted Record " + hb_NTOS( RECNO() ) + "/" + hb_NTOS( RECCOUNT() )
+   ELSE
+      cText := "Record " + hb_NTOS( RECNO() ) + "/" + hb_NTOS( RECCOUNT() )
+   ENDIF
+   SetProperty( "CreateNewDbf", "StatusBar", "Item", 1, cText )
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function Check_Name()
+*+
+*+    Called from ( modistru.prg )   1 - static procedure doeditsave()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION Check_Name()
+
+LOCAL lRet  := .T.
+LOCAL cName := TRIM( CreateNewDbf.Text_Name.Value )
+
+   IF .NOT. CHECK_A2Z( cName )
+      lRet := .F.
+      CreateNewDbf.Text_Name.setfocus()
+   ENDIF
+
+RETURN lRet
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function CHECK_A2Z()
+*+
+*+    Called from ( modistru.prg )   1 - static function check_name()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION CHECK_A2Z( cName )
+
+LOCAL cSign, ii, iMax := LEN( cName )
+LOCAL lRet  := .T.
+
+   IF SUBSTR( cName, 1, 1 ) $ "1234567890"
+      msginfo( "Problem 1st sign is a Number", "Problem Alias Name" )
+      lRet := .F.
+      RETURN lRet
+   ENDIF
+
+   FOR ii := 1 TO iMax
+      cSign := SUBSTR( cName, ii, 1 )
+      IF cSign $ "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+      ELSE
+         msginfo( "ony A-Z and 0-9 allowed", "Problem FIELD Name" )
+         lRet := .F.
+         EXIT
+      ENDIF
+   NEXT
+
+RETURN lRet
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function Check_Type()
+*+
+*+    Called from ( modistru.prg )   1 - static procedure doeditsave()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION Check_Type()
+
+LOCAL lRet  := .T.
+LOCAL cType := CreateNewDbf.Text_Type.Value
+
+   IF cType $ "CMNDL"
+   ELSE
+      lRet := .F.
+      msginfo( "Problem FIELD Type. only 'CMNDL'" )
+      CreateNewDbf.Text_Type.Setfocus()
+   ENDIF
+RETURN lRet
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function Check_Len()
+*+
+*+    Called from ( modistru.prg )   1 - static procedure doeditsave()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION Check_Len()
+
+LOCAL lRet  := .T.
+LOCAL cType := CreateNewDbf.Text_Type.Value
+LOCAL nLen  := CreateNewDbf.Text_Len.Value
+LOCAL lErr  := .F.
+LOCAL cText := ""
+
+   DO CASE
+      CASE cType = "L"
+         IF nLen <> 1
+            lErr := .T.
+            cText := "logic can onyl LEN = 1"
+            CreateNewDbf.Text_Len.Value := 1
+            CreateNewDbf.Text_Dec.Value := 0
+         ENDIF
+      CASE cType = "D"
+         IF nLen = 8 .OR. nLen = 10
+         ELSE
+            lErr := .T.
+            cText := "Date can onyl LEN = 8 or 10"
+            CreateNewDbf.Text_Len.Value := 8
+            CreateNewDbf.Text_Dec.Value := 0
+         ENDIF
+
+      CASE cType = "N"
+         IF nLen > 19
+            lErr := .T.
+            cText := "numeric can max LEN = 19"
+            CreateNewDbf.Text_Len.Value := 19
+            CreateNewDbf.Text_Dec.Value := 0
+         ENDIF
+
+      CASE cType = "M"
+         IF nLen = 4 .OR. nLen = 10
+         ELSE
+            lErr := .T.
+            cText := "Memo can onyl LEN = 4 or 10"
+            CreateNewDbf.Text_Len.Value := 10
+            CreateNewDbf.Text_Dec.Value := 0
+         ENDIF
+      OTHERWISE
+
+   ENDCASE
+
+   IF lErr = .T.
+      lRet := .F.
+      msginfo( cText )
+      CreateNewDbf.Text_Len.Setfocus()
+   ENDIF
+RETURN lRet
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function Check_Dec()
+*+
+*+    Called from ( modistru.prg )   1 - static procedure doeditsave()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION Check_Dec()
+
+LOCAL lRet  := .T.
+LOCAL cType := CreateNewDbf.Text_Type.Value
+LOCAL nDec  := CreateNewDbf.Text_Dec.Value
+LOCAL lErr  := .F.
+LOCAL cText := ""
+
+   IF cType = "N"
+   ELSE
+      IF nDec <> 0
+         lErr := .T.
+         cText := "only numeric can have DEC > 0"
+         CreateNewDbf.Text_Dec.Value := 0
+      ENDIF
+   ENDIF
+
+   IF lErr = .T.
+      lRet := .F.
+      msginfo( cText )
+      CreateNewDbf.Text_Dec.Setfocus()
+   ENDIF
+
+RETURN lRet
+
 //
 //
 

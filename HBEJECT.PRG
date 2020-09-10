@@ -19,14 +19,14 @@
 *+               Static Function FillDeviceGrid()
 *+               Static Procedure SayInfo()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
 #include "HMG.ch"
 
 #include "common.ch"
-#include "os.ch"
+//  #include "os.ch"
 #include "dll.ch"
 
 #include "EJECTDLL.CH"
@@ -200,9 +200,7 @@ LOCAL lRet      := .T.
 LOCAL cAction   := GETENV( "SYSTEMROOT" ) + "\SYSTEM32\HOTPLUG.DLL"
 LOCAL cRoot     := "RUNDLL32.EXE "
 LOCAL cPath     := GETENV( "TEMP" ) + "\"
-LOCAL nVersion  := VAL( OS( OS_VERSION ) )
-
-   // CurDrive() + ":\" + CURDIR() + "\"
+LOCAL nVersion  := VAL( STRTRAN( OS(), "Windows NT ", "" ) )
 
    DEFAULT UseCDdrives TO .F.
 
@@ -217,7 +215,7 @@ LOCAL nVersion  := VAL( OS( OS_VERSION ) )
       RUN ( "Shell32,Control_RunDLL " + cAction, cRoot + "\SYSTEM32\RUNDLL32.EXE" )
 
    ELSE
-      //      cAction += ",HotPlugSafeRemovalDriveNotification Removeable Disk ("
+      // cAction += ",HotPlugSafeRemovalDriveNotification Removeable Disk ("
 
       cAction += ",HotPlugSafeRemovalDriveNotification "
       cAction += VOLINFO( cDrive + ":\" )

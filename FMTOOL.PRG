@@ -18,14 +18,13 @@
 *+               Static Procedure DoMyMSCAction()
 *+               Static Procedure RunWinMsc()
 *+               Procedure ShowProperty()
-*+               Static Procedure SHOW_FILEPROPERTIES()
 *+               Procedure SendToDeskTop()
 *+               Procedure SendToStartup()
 *+               Static Function DXE_CreateLink()
 *+               Function DXE_ResolveLink()
 *+               Function Userfolder()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -634,26 +633,17 @@ PROCEDURE ShowProperty( nNo )
 
 LOCAL cPath := ""
 LOCAL cFile := ""
+LOCAL cAttr := ""
 
-   GetPathandFile( nNo, @cPath, @cFile )
-   SHOW_FILEPROPERTIES( cPath, cFile )
-
-RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Procedure SHOW_FILEPROPERTIES()
-*+
-*+    Called from ( fmtool.prg )   1 - procedure showproperty()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC PROCEDURE SHOW_FILEPROPERTIES( cPath, cFile )
-
+   //    GetPathandFile( nNo, @cPath, @cFile, @cAttr )
+   //    SHOW_FILEPROPERTIES( cPath, cFile, cAttr )
+   //
+   // RETURN
+   //
+   // STATIC PROCEDURE SHOW_FILEPROPERTIES( cPath, cFile , cAttr )
 LOCAL bSaveError, oError
 LOCAL lSuccess
 LOCAL Retvar     := .F.
-
 LOCAL oShell
 LOCAL oFolder
 LOCAL oItems
@@ -662,10 +652,11 @@ LOCAL i, iMax
 LOCAL j, jMax
 LOCAL oVerbs
 LOCAL oVerb
-LOCAL cName    := ""
-LOCAL WshShell
+LOCAL cName      := ""
 
-   DEFAULT cFile TO ""
+   //    DEFAULT cFile TO ""
+
+   GetPathandFile( nNo, @cPath, @cFile, @cAttr )
 
    bSaveError := ERRORBLOCK( { | oError | BREAK( oError ) } )
    BEGIN SEQUENCE
@@ -687,7 +678,6 @@ LOCAL WshShell
                Retvar := .F.
          ENDCASE
       ELSE
-         //  WshShell := CreateObject( "WScript.Shell" )
          oShell := CreateObject( "Shell.Application" )
          IF NIL <> oShell
             oFolder := oShell:NameSpace( cPath )
@@ -695,33 +685,18 @@ LOCAL WshShell
                cFile := UPPER( TRIM( cFile ) )
                oItems := oFolder:Items()
 
-               /*****************************************
-               i := oItems:ParseName(cFile)
-               IF !EMPTY(i)
-                  oItem := oItems:Item( i - 1 )
-                  oVerbs := oItem:Verbs()
-                  jMax := oVerbs:Count
-
-                  // "Properties" are always last Item
-                  oVerb := oVerbs:Item( jMax - 1 )
-                  oVerb:DoIt()                                  // call Verb
-                  Retvar := .T.
-               ENDIF
-*****************************************/
-
                iMax := oItems:Count
                FOR i := 1 TO iMax
                   oItem := oItems:Item( i - 1 )
                   IF oItem:IsFolder
-                     LOOP
+                     IF "D" $ cAttr
+                     ELSE
+                        LOOP
+                     ENDIF
                   ENDIF
 
                   IF !EMPTY( oItem )
                      cName := UPPER( TRIM( oItem:name ) )
-                     //    cName := STRTRAN(cName,CHR(0),"")
-                     //    cName := TRIM(cName)
-                     //   IF cFile = cName .AND. LEN(TRIM(cFile)) = LEN(TRIM(cName))
-                     //   IF cName = cFile
                      IF cFile = cName
                         oVerbs := oItem:Verbs()
                         jMax := oVerbs:Count
@@ -738,14 +713,12 @@ LOCAL WshShell
                oFolder:destroy()
             ENDIF
             oShell:destroy()
-            //  WshShell:destroy()
          ENDIF
 
          // clean-up ActiveX
          oVerbs := NIL
          oFolder := NIL
          oShell := NIL
-         //  WshShell := NIL
 
       ENDIF
 
@@ -773,9 +746,10 @@ LOCAL cWorkingDir := C_GETSPECIALFOLDER( CSIDL_COMMON_DESKTOPDIRECTORY ) + "\"
 LOCAL cDescr      := ""
 LOCAL cPath       := ""
 LOCAL cFile       := ""
+LOCAL cAttr       := ""
 LOCAL cCmdArgs
 
-   GetPathandFile( nNo, @cPath, @cFile )
+   GetPathandFile( nNo, @cPath, @cFile, @cAttr )
 
    // ** dazu ***
 
@@ -805,9 +779,10 @@ LOCAL cWorkingDir := ""
 LOCAL cDescr      := ""
 LOCAL cPath       := ""
 LOCAL cFile       := ""
+LOCAL cAttr       := ""
 LOCAL cCmdArgs
 
-   GetPathandFile( nNo, @cPath, @cFile )
+   GetPathandFile( nNo, @cPath, @cFile, @cAttr )
 
    // ** dazu ***
 

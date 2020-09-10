@@ -36,8 +36,11 @@
 *+               Function AppFolder()
 *+               Function FT_ORIGIN()
 *+               Procedure WinTans()
+*+               Procedure CreateScreenSplash()
+*+               Static Procedure TestBreak()
+*+               Procedure StopSplash()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -61,6 +64,9 @@
 #define IMAGE_FILE_MACHINE_I386  0x14c
 #define IMAGE_FILE_MACHINE_IA64  0x200
 #define IMAGE_FILE_MACHINE_AMD64 0x8664
+
+#xtranslate END TIMER => //
+STATIC lStop := .F.
 
 MEMVAR _HMG_SYSDATA
 
@@ -421,6 +427,7 @@ RETURN cVolume
 *+                ( fmregdb.prg )   2 - static function setstartnode()
 *+                ( fmtool.prg )   2 - static procedure runwinmsc()
 *+                ( fm_func.prg )   2 - function shellopenfile()
+*+                                   1 - function appfolder()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -782,7 +789,14 @@ RETURN colLetter
 FUNCTION AppFolder()
 
 LOCAL cFile := FT_ORIGIN()
-RETURN STRTRAN( cFile, "HBFM.EXE", "" )
+LOCAL cRet
+
+   IF Is64Bit()
+      cRet := STRTRAN( cFile, "HBFM64.EXE", "" )
+   ELSE
+      cRet := STRTRAN( cFile, "HBFM.EXE", "" )
+   ENDIF
+RETURN cRet
 
 *+--------------------------------------------------------------------
 *+
@@ -850,6 +864,91 @@ LOCAL bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
       ERRORBLOCK( bError )
 
    ENDIF
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Procedure CreateScreenSplash()
+*+
+*+    Called from ( fmgrid.prg )   1 - procedure dualgrid()
+*+
+*+--------------------------------------------------------------------
+*+
+PROCEDURE CreateScreenSplash( cFormRun, aPos, aSize, cVersion, luseParameter )
+
+LOCAL hBitmap, Image_Width, Image_Height, Image_BackColor
+LOCAL nDelaySeconds   := 7
+LOCAL nAnimateSeconds := 2
+
+   IF HMG_GetImageInfo( "MYSPLASH", @Image_Width, @Image_Height, @Image_BackColor ) == .F.
+      MsgHMGError( "File Opening Error. Program Terminated" )
+   ENDIF
+
+   lStop := .F.
+
+   DEFINE WINDOW SplashForm ;
+              AT 0, 0 ;
+              WIDTH Image_Width HEIGHT Image_Height ;
+              TITLE 'DEMO4' ;
+              NOCAPTION ;
+              NOSYSMENU ;
+              NOSIZE ;
+              NOMINIMIZE ;
+              NOMAXIMIZE ;
+              TOPMOST ;
+              BACKCOLOR Image_BackColor ;
+              ON INIT &cFormRun
+
+      SET WINDOW SplashForm TRANSPARENT TO COLOR Image_BackColor
+
+      @ 10, 00 IMAGE Image_1 PICTURE "MYSPLASH" ON CLICK MsgInfo( "Splash Image" ) WIDTH Image_Width HEIGHT Image_Height // STRETCH         
+      // @ 20, 10 LABEL Label_1 VALUE "The Power of HMG" WIDTH Image_Width - 20 HEIGHT 50 TRANSPARENT CENTERALIGN FONT "Times New Roman" SIZE 36 FONTCOLOR NAVY
+      // @ 76, 10 PROGRESSBAR ProgressBar_1 RANGE 0, 1 WIDTH Image_Width - 20 HEIGHT 20
+
+      @ Image_Height - 4, 0 PROGRESSBAR ProgressBar_1 RANGE 0, 1 WIDTH Image_Width HEIGHT 3         
+      SET PROGRESSBAR ProgressBar_1 OF SplashForm ENABLE MARQUEE UPDATED 10
+      DEFINE TIMER Timer_1 INTERVAL 10 ACTION { || TestBreak( ThisWindow.Name ) }
+      //    END TIMER
+
+   END WINDOW
+
+   SetCursorWait( "SplashForm", .T. )
+
+   ON KEY ESCAPE OF SplashForm ACTION Domethod( "SplashForm", "Release" )
+   CENTER WINDOW SplashForm
+   ACTIVATE WINDOW SplashForm
+
+   SetCursorWait( "SplashForm", .F. )
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure TestBreak()
+*+
+*+    Called from ( fm_func.prg )   1 - procedure createscreensplash()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE TestBreak()
+
+   IF lStop = .T.
+      Domethod( "SplashForm", "Timer_1", "Release" )
+      Domethod( "SplashForm", "Release" )
+   ENDIF
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Procedure StopSplash()
+*+
+*+    Called from ( fmgrid.prg )   1 - procedure fill1stgrid()
+*+
+*+--------------------------------------------------------------------
+*+
+PROCEDURE StopSplash()
+
+   lStop := .T.
 RETURN
 
 *+ EOF: FM_FUNC.PRG

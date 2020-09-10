@@ -15,7 +15,7 @@
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ REQUEST HB_CODEPAGE_RU1251
 REQUEST HB_CODEPAGE_SRWIN
 REQUEST HB_CODEPAGE_SLWIN
 
-STATIC cVersion     := "v1.18"
+STATIC cVersion     := "v1.26"
 MEMVAR _HMG_SYSDATA
 
 *+--------------------------------------------------------------------
@@ -403,6 +403,7 @@ LOCAL p, field_list := {}
       REPLACE COLRESIZE WITH .F.
       REPLACE USEIMAGE WITH .T.
       REPLACE WINTANS WITH 255
+      REPLACE SKINPATH WITH GetCurrentFolder() + "\"
 
    ENDIF
 
@@ -461,6 +462,18 @@ LOCAL nLen := LEN( aDir )
 RETURN
 
 // ***************************************************************
+//  v.1.26 10.09.2020 HbFTP : include Port
+//  v.1.25 10.09.2020 BUG fix : Modi Stru
+//  v.1.24 09.09.2020 Modi Stru Validation
+//  v.1.23 08.09.2020 more Modi Stru
+//  v.1.22 07.09.2020 RECOVER USING oError
+//  v.1.21 06.09.2020 Browser : F2 -> Modi Stru -> F5 Save -> DBUUUU.DBF
+//  v.1.20 05.09.2020 SHIFT F4 -> Create new DBF
+//  v.1.19 01.09.2020 detect when "change" TXT or RTF and ask to Save it
+//                    Row / Col show in Statusbar
+//
+//  Release Github
+//
 //  v.1.18 27.08.2020 BUG : Thumbs virtual height / HBFTP
 //  v.1.17 24.08.2020 GETICOINDEX() instead of BT_DirectoryInfo()
 //  v.1.16 23.08.2020 BT_DirectoryInfo() without Thread.

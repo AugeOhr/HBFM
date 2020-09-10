@@ -53,9 +53,9 @@
 *+               Static Procedure LocalComboImage()
 *+               Static Procedure ChangeLocalDrive()
 *+
-*+       Tables: USE (cPath+"sites.dbf") ALIAS sites
+*+       Tables: USE (cPath+"SITES.dbf") ALIAS sites
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -166,17 +166,17 @@ PUBLIC ftpMain, sitemanager, editsitemanager
    ELSE
       SP_lFTPrunning( .T. )
 
-      IF !FILE( cPath + "sites.dbf" )
+      IF !FILE( cPath + "SITES.dbf" )
          CreateTable( cPath, .F. )
       ENDIF
 
-      USE (cPath+"sites.dbf") ALIAS sites
+      USE (cPath+"SITES.dbf") ALIAS sites
 
-      IF FCOUNT() < 6
+      IF FCOUNT() < 7
          copy TO Osites
          DBCLOSEALL()
          CreateTable( cPath, .T. )
-         USE (cPath+"sites.dbf") ALIAS sites
+         USE (cPath+"SITES.dbf") ALIAS sites
          APPEND FROM Osites
          FERASE( "Osites.dbf" )
       ENDIF
@@ -626,7 +626,7 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          PICTALIGNMENT TOP
       END BUTTON
 
-      DEFINE COMBOBOX Combo_2
+      DEFINE COMBOBOX Combo_Drive
          ROW 60
          COL 360
          WIDTH 60
@@ -745,7 +745,7 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          PICTALIGNMENT TOP
       END BUTTON
 
-      DEFINE COMBOBOX Combo_1
+      DEFINE COMBOBOX Combo_Sites
          ROW 10
          COL 30
          WIDTH 390
@@ -791,7 +791,7 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
 
    END WINDOW
 
-   ftpMain.combo_1.value := 1
+   ftpMain.Combo_Sites.value := 1
    ftpMain.button_Disconnect.enabled := .f.
    ftpMain.Button_MD_Local.enabled := .f.
    ftpMain.Button_REN_Local.enabled := .f.
@@ -837,7 +837,7 @@ STATIC PROCEDURE SiteForm()                                           // Jimmy
          COL 5
          WIDTH 346
          HEIGHT 233
-         VALUE 1                                                      // ftpMain.combo_1.value
+         VALUE 1                                                      // ftpMain.Combo_Sites.value
          WIDTHS { 600, 1000, 600, 200 }
          HEADERS { 'NAME', 'ADDRESS', 'USER', 'PASSWORD' }
          WORKAREA Sites
@@ -1013,8 +1013,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          OPAQUE .T.
       END FRAME
 
-      DEFINE LABEL Label_1
-         ROW 40
+      DEFINE LABEL Label_Name
+         ROW 30
          COL 20
          WIDTH 60
          HEIGHT 24
@@ -1031,8 +1031,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          FONTCOLOR SP_nColor2()
       END LABEL
 
-      DEFINE LABEL Label_2
-         ROW 70
+      DEFINE LABEL Label_Adress
+         ROW 60
          COL 20
          WIDTH 80
          HEIGHT 24
@@ -1049,7 +1049,25 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          FONTCOLOR SP_nColor2()
       END LABEL
 
-      DEFINE LABEL Label_3
+      DEFINE LABEL Label_Port                                         // Jimmy
+         ROW 90
+         COL 20
+         WIDTH 80
+         HEIGHT 24
+         VALUE "Port"
+         FONTNAME "Arial"
+         FONTSIZE 9
+         TOOLTIP ""
+         HELPID Nil
+         VISIBLE .T.
+         TRANSPARENT .F.
+         ACTION Nil
+         AUTOSIZE .F.
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+      END LABEL
+
+      DEFINE LABEL Label_User
          ROW 120
          COL 20
          WIDTH 60
@@ -1067,7 +1085,7 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          FONTCOLOR SP_nColor2()
       END LABEL
 
-      DEFINE LABEL Label_4
+      DEFINE LABEL Label_PW
          ROW 150
          COL 20
          WIDTH 60
@@ -1085,7 +1103,7 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          FONTCOLOR SP_nColor2()
       END LABEL
 
-      DEFINE LABEL Label_5
+      DEFINE LABEL Label_SPath
          ROW 180
          COL 20
          WIDTH 65
@@ -1103,8 +1121,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          FONTCOLOR SP_nColor2()
       END LABEL
 
-      DEFINE TEXTBOX Text_1
-         ROW 40
+      DEFINE TEXTBOX Text_Name
+         ROW 30
          COL 110
          WIDTH 300
          HEIGHT 24
@@ -1130,8 +1148,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          VALUE ""
       END TEXTBOX
 
-      DEFINE TEXTBOX Text_2
-         ROW 70
+      DEFINE TEXTBOX Text_Adress
+         ROW 60
          COL 110
          WIDTH 300
          HEIGHT 24
@@ -1157,7 +1175,35 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          VALUE ""
       END TEXTBOX
 
-      DEFINE TEXTBOX Text_3
+      DEFINE TEXTBOX Text_Port
+         ROW 90
+         COL 110
+         WIDTH 100
+         HEIGHT 24
+         FONTNAME "Arial"
+         FONTSIZE 9
+         TOOLTIP ""
+         ONCHANGE Nil
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         ONENTER Nil
+         HELPID Nil
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         RIGHTALIGN .F.
+         DISABLEDBACKCOLOR Nil
+         DISABLEDFONTCOLOR Nil
+         CASECONVERT NONE
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         DATATYPE NUMERIC
+         INPUTMASK "99999"
+         FORMAT Nil
+         VALUE ""
+      END TEXTBOX
+
+      DEFINE TEXTBOX Text_User
          ROW 120
          COL 110
          WIDTH 300
@@ -1184,7 +1230,7 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          VALUE ""
       END TEXTBOX
 
-      DEFINE TEXTBOX Text_4
+      DEFINE TEXTBOX Text_PW
          ROW 150
          COL 110
          WIDTH 180
@@ -1211,7 +1257,7 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          VALUE ""
       END TEXTBOX
 
-      DEFINE CHECKBOX Check_1
+      DEFINE CHECKBOX Check_MaskPW
          ROW 147
          COL 310
          WIDTH 100
@@ -1232,7 +1278,7 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          TRANSPARENT .F.
       END CHECKBOX
 
-      DEFINE TEXTBOX Text_5
+      DEFINE TEXTBOX Text_SPath
          ROW 180
          COL 110
          WIDTH 241
@@ -1259,10 +1305,10 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          VALUE "/"
       END TEXTBOX
 
-      DEFINE CHECKBOX Check_2
+      DEFINE CHECKBOX Check_Log
          ROW 177
          COL 370
-         WIDTH 49
+         WIDTH 40
          HEIGHT 28
          CAPTION "Log"
          VALUE .F.
@@ -1329,14 +1375,20 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
    IF xParam = NIL
       newRecord := .f.
       sites->( DBGOTO( sitemanager.browse_1.value ) )
-      editsitemanager.text_1.value := sites->name
-      editsitemanager.text_2.value := sites->address
-      editsitemanager.text_3.value := sites->user
-      editsitemanager.text_4.value := desencri( sites->password )     // decript
-      editsitemanager.text_5.value := Sites->SPath
-      editsitemanager.Check_2.value := Sites->Log
+      editsitemanager.Text_Name.value := sites->name
+      editsitemanager.Text_Adress.value := sites->address
+      editsitemanager.Text_User.value := sites->user
+      editsitemanager.Text_PW.value := desencri( sites->password )    // decript
+      editsitemanager.Text_SPath.value := Sites->SPath
+      editsitemanager.Check_Log.value := Sites->Log
+
+      editsitemanager.Text_Port.value := Sites->Port                  // Jimmy
+
    ELSE
       newRecord := .t.
+
+      editsitemanager.Text_User.value := "anonimous"
+      editsitemanager.Text_PW.value := "anonimous"
    ENDIF
 
    ON KEY ESCAPE OF editsitemanager ACTION editsitemanager.Release
@@ -1390,7 +1442,7 @@ LOCAL nRec := sitemanager.browse_1.value
    sites->( __dbpack() )
    IF nRec < 2
       sitemanager.browse_1.value := 1
-      ftpMain.Combo_1.value := 1
+      ftpMain.Combo_Sites.value := 1
    ELSE
       sitemanager.browse_1.value := nRec - 1
    ENDIF
@@ -1411,15 +1463,18 @@ STATIC FUNCTION ftppropsave()
    IF newRecord = .t.
       sites->( DBAPPEND() )
    ENDIF
-   IF LEFT( editsitemanager.text_5.value, 1 ) != "/"
-      editsitemanager.text_5.value := "/" + editsitemanager.text_5.value
+   IF LEFT( editsitemanager.Text_SPath.value, 1 ) != "/"
+      editsitemanager.Text_SPath.value := "/" + editsitemanager.Text_SPath.value
    ENDIF
-   sites->Name := editsitemanager.text_1.value
-   sites->Address := editsitemanager.text_2.value
-   sites->User := editsitemanager.text_3.value
-   sites->Password := encrip( editsitemanager.text_4.value )          // encript
-   sites->Spath := editsitemanager.text_5.value
-   sites->Log := editsitemanager.Check_2.value
+   sites->Name := editsitemanager.Text_Name.value
+   sites->Address := editsitemanager.Text_Adress.value
+   sites->User := editsitemanager.Text_User.value
+   sites->Password := encrip( editsitemanager.Text_PW.value )         // encript
+   sites->Spath := editsitemanager.Text_SPath.value
+   sites->Log := editsitemanager.Check_Log.value
+
+   Sites->Port := editsitemanager.Text_Port.value                     // Jimmy
+
    sitemanager.browse_1.refresh
    FillFTPCombo()
    RELEASE window editsitemanager
@@ -1436,7 +1491,7 @@ RETURN nil
 *+
 STATIC FUNCTION FillFTPCombo()
 
-   ftpMain.combo_1.refresh
+   ftpMain.Combo_Sites.refresh
 RETURN nil
 
 *+--------------------------------------------------------------------
@@ -1450,7 +1505,7 @@ RETURN nil
 STATIC FUNCTION ftpconn1()
 
    IF sites->( RECCOUNT() ) > 0
-      sites->( DBGOTO( ftpMain.combo_1.value ) )
+      sites->( DBGOTO( ftpMain.Combo_Sites.value ) )
       ftpconnect()
    ELSE
       MsgInfo( "No available sites", "Alert" )
@@ -1468,7 +1523,7 @@ RETURN nil
 STATIC FUNCTION ftpconn2()
 
    sites->( DBGOTO( sitemanager.browse_1.value ) )
-   ftpMain.combo_1.value := sitemanager.browse_1.value
+   ftpMain.Combo_Sites.value := sitemanager.browse_1.value
    ftpconnect()
    RELEASE window sitemanager
 RETURN nil
@@ -1489,12 +1544,17 @@ LOCAL lConnect  := .F.
 LOCAL cUser     := sites->user
 LOCAL cPassWord := desencri( sites->password )
 LOCAL cServer   := sites->address
+LOCAL nPort     := sites->Port
 LOCAL cProtocol := "ftp://"
-LOCAL cUrl
+LOCAL cUrl, oError
 
    cUrl := cProtocol + ALLTRIM( cUser ) + ":" + ALLTRIM( cPassWord ) + "@" + ALLTRIM( cServer )
+   IF EMPTY( nPort )
+      oUrl := tURL() :New( cUrl )
+   ELSE
+      oUrl := tURL() :New( cUrl ) + ":" + hb_NTOS( nPort )
+   ENDIF
 
-   oUrl := tURL() :New( cUrl )
    IF EMPTY( oUrl )
       RETURN nil
    ENDIF
@@ -1511,6 +1571,9 @@ LOCAL cUrl
       oClient:oUrl:cServer := cServer
       oClient:oUrl:cUserID := cUser
       oClient:oUrl:cPassword := cPassword
+      IF !EMPTY( nPort )
+         oClient:oURL:nPort := nPort
+      ENDIF
    ENDIF
 
    BEGIN SEQUENCE
@@ -1520,9 +1583,10 @@ LOCAL cUrl
          lConnect := .F.
          MsgInfo( "Connection is not opened", "Alert" )
       ENDIF
-   RECOVER
+   RECOVER USING oError
       ERRORBLOCK( bError )
-      MsgInfo( "Connection FAIL", "Alert" )
+      MsgInfo( "Connection FAIL" + CRLF + ;
+               oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
    END SEQUENCE
    ERRORBLOCK( bError )
 
@@ -2470,45 +2534,51 @@ RETURN Nil
 *+
 STATIC PROCEDURE CreateTable( cPath, Upg )
 
-LOCAL aDbf[ 6 ] [ 4 ]
+LOCAL aDbf[ 7 ] [ 4 ]
    FIELD NAME, ADDRESS, USER, PASSWORD
    IF upg
       FIELD LOG
       FIELD SPATH
+      FIELD Port                                                      // Jimmy
    ENDIF
 
    aDbf[ 1 ] [ DBS_NAME ] := "Name"
-   aDbf[ 1 ] [ DBS_TYPE ] := "Character"
+   aDbf[ 1 ] [ DBS_TYPE ] := "C"                                      //"Character"
    aDbf[ 1 ] [ DBS_LEN ] := 60
    aDbf[ 1 ] [ DBS_DEC ] := 0
    //
    aDbf[ 2 ] [ DBS_NAME ] := "Address"
-   aDbf[ 2 ] [ DBS_TYPE ] := "Character"
+   aDbf[ 2 ] [ DBS_TYPE ] := "C"                                      //"Character"
    aDbf[ 2 ] [ DBS_LEN ] := 100
    aDbf[ 2 ] [ DBS_DEC ] := 0
    //
    aDbf[ 3 ] [ DBS_NAME ] := "User"
-   aDbf[ 3 ] [ DBS_TYPE ] := "Character"
+   aDbf[ 3 ] [ DBS_TYPE ] := "C"                                      //"Character"
    aDbf[ 3 ] [ DBS_LEN ] := 60
    aDbf[ 3 ] [ DBS_DEC ] := 0
    //
    aDbf[ 4 ] [ DBS_NAME ] := "Password"
-   aDbf[ 4 ] [ DBS_TYPE ] := "Character"
+   aDbf[ 4 ] [ DBS_TYPE ] := "C"                                      //"Character"
    aDbf[ 4 ] [ DBS_LEN ] := 20
    aDbf[ 4 ] [ DBS_DEC ] := 0
 
    aDbf[ 5 ] [ DBS_NAME ] := "SPATH"
-   aDbf[ 5 ] [ DBS_TYPE ] := "Character"
+   aDbf[ 5 ] [ DBS_TYPE ] := "C"                                      //"Character"
    aDbf[ 5 ] [ DBS_LEN ] := 60
    aDbf[ 5 ] [ DBS_DEC ] := 0
    //
    aDbf[ 6 ] [ DBS_NAME ] := "Log"
-   aDbf[ 6 ] [ DBS_TYPE ] := "Logical"
+   aDbf[ 6 ] [ DBS_TYPE ] := "L"                                      //"Logical"
    aDbf[ 6 ] [ DBS_LEN ] := 1
    aDbf[ 6 ] [ DBS_DEC ] := 0
    //
 
-   DBCREATE( cPath + "Sites", aDbf )
+   aDbf[ 7 ] [ DBS_NAME ] := "Port"                                   // Jimmy
+   aDbf[ 7 ] [ DBS_TYPE ] := "N"                                      // "Numeric"
+   aDbf[ 7 ] [ DBS_LEN ] := 5
+   aDbf[ 7 ] [ DBS_DEC ] := 0
+
+   DBCREATE( ( cPath + "SITES" ), aDbf, "DBFCDX" )
 
 RETURN
 
@@ -2565,21 +2635,21 @@ LOCAL enc  := LEN( ALLTRIM( pepe ) )
 *+
 STATIC PROCEDURE ShowPassword()
 
-LOCAL cPass     := editsitemanager.Text_4.VALUE
-LOCAL lShowPass := !editsitemanager.Check_1.VALUE
+LOCAL cPass     := editsitemanager.Text_PW.VALUE
+LOCAL lShowPass := !editsitemanager.Check_MaskPW.VALUE
 
    lShowPass := .T.
    IF lShowPass
-      SendMessage( editsitemanager.Text_4.HANDLE, EM_SETPASSWORDCHAR, 0, 0 )
-      //      SetProperty("editsitemanager","Text_4","PASSWORD", .F. )
-      //      editsitemanager.Text_4.REFRESH
+      SendMessage( editsitemanager.Text_PW.HANDLE, EM_SETPASSWORDCHAR, 0, 0 )
+      //      SetProperty("editsitemanager","Text_PW","PASSWORD", .F. )
+      //      editsitemanager.Text_PW.REFRESH
    ELSE
-      //      SetProperty("editsitemanager","Text_4","PASSWORD", .T. )
-      //      editsitemanager.Text_4.REFRESH
+      //      SetProperty("editsitemanager","Text_PW","PASSWORD", .T. )
+      //      editsitemanager.Text_PW.REFRESH
 
-      //      editsitemanager.Text_4.RELEASE
+      //      editsitemanager.Text_PW.RELEASE
       //      DoEvents()
-      //      DEFINE TEXTBOX Text_4
+      //      DEFINE TEXTBOX Text_PW
       //        PARENT editsitemanager
       //        ROW    150
       //        COL    110
@@ -2756,7 +2826,7 @@ LOCAL nTitlebar  := GETTITLEHEIGHT()
    SetProperty( "ftpMain", "ProgressBar_1", "Row", ( mainHeight - nTitlebar - 22 ) )
 
    // *********
-   //    SetProperty("ftpMain","Combo_1"
+   //    SetProperty("ftpMain","Combo_Sites"
    //
    //    SetProperty("ftpMain","Button_Connect"
    //    SetProperty("ftpMain","Button_Disconnect"
@@ -2834,19 +2904,19 @@ LOCAL nStart, i, ii, iiMax, xVal, nDrive := 1
    DEFAULT lRefresh TO .F.
 
    IF lRefresh = .T.
-      Domethod( "ftpMain", "Combo_2", "hide" )
-      Domethod( "ftpMain", "Combo_2", "DeleteAllItems" )
+      Domethod( "ftpMain", "Combo_Drive", "hide" )
+      Domethod( "ftpMain", "Combo_Drive", "DeleteAllItems" )
 
       iiMax := LEN( caItems )
       FOR ii := 1 TO iiMax
          xVal := caItems[ ii ]
-         ftpMain.Combo_2.AddItem( xVal )
+         ftpMain.Combo_Drive.AddItem( xVal )
       NEXT
    ENDIF
 
    //  nDrive := ASCAN( aDrives, { | e | e[ 2 ] = SUBSTR( SP_LWTextLeft(), 1, 1 ) } )
-   SetProperty( "ftpMain", "Combo_2", "VALUE", nDrive )
-   Domethod( "ftpMain", "Combo_2", "show" )
+   SetProperty( "ftpMain", "Combo_Drive", "VALUE", nDrive )
+   Domethod( "ftpMain", "Combo_Drive", "show" )
 
 RETURN
 
@@ -2865,8 +2935,8 @@ LOCAL nPosi, cDrive
 LOCAL cChoise := ""
 LOCAL hGrid
 
-   nVALUE := GetProperty( "ftpMain", "Combo_2", "VALUE" )
-   aItem := GetProperty( "ftpMain", "Combo_2", "ITEM", nVALUE )
+   nVALUE := GetProperty( "ftpMain", "Combo_Drive", "VALUE" )
+   aItem := GetProperty( "ftpMain", "Combo_Drive", "ITEM", nVALUE )
    ALTD()
    IF !EMPTY( aItem ) .AND. !EMPTY( aItem[ 2 ] )
       cChoise := aItem[ 2 ]

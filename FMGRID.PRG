@@ -78,7 +78,7 @@
 *+               Static Procedure GridGotFocus()
 *+               Static Procedure WatchDirSwitch()
 *+               Static Procedure ItemMark()
-*+               Procedure ItemUnMark()
+*+               Static Procedure ItemUnMark()
 *+               Static Procedure UnMarkAll()
 *+               Static Procedure RunCMDBox()
 *+               Static Procedure ReleaseDelKey()
@@ -118,10 +118,11 @@
 *+               Procedure SetCHild()
 *+               Static Function HL_IsFolderExist()
 *+               Static Procedure ChangeFolder()
+*+               Static Procedure DoFolderSize()
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:51 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -139,7 +140,7 @@
 
 #include "HBFM.CH"
 
-#define Use_Thread .T.
+//  #define Use_Thread .T.
 
 #define KEYEVENTF_KEYUP    0x0002
 
@@ -236,6 +237,8 @@ PUBLIC aForeColorHBP
 PUBLIC aBackColorHBP
 PUBLIC aFontTypeHBP
 
+   SP_cMainPath( cAppFolder )
+
    aForeColorHBP := SP_nColor12()
    aBackColorHBP := SP_nColor9()
    aFontTypeHBP := ARRAY FONT SP_cFontName() SIZE SP_nFontSize() BOLD ITALIC
@@ -329,6 +332,7 @@ PUBLIC aFontTypeHBP
 
       ON KEY SHIFT + F2 ACTION IF( lActiveMain = .T., CompareDir(), )
       ON KEY SHIFT + F3 ACTION Slideshow()
+      ON KEY SHIFT + F4 ACTION CreateNewDbf()
 
       ON KEY F1 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ) .OR. HMG_VirtualKeyIsPressed( VK_CONTROL ),, HelpFile() )
       ON KEY F2 ACTION PreFuncSysFolder()
@@ -370,7 +374,7 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
                  ACTION CompareDir()
 
          BUTTON MYHISTORY ;
-                 TOOLTIP 'List of last visit Folder' ;
+                 TOOLTIP 'F9 List of last visit Folder' ;
                  PICTURE "MYHISTORY" ;
                  ACTION ShowHistory()
 
@@ -400,7 +404,7 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
                  ACTION HBEJECT()
 
          BUTTON MYDEVICE ;
-                 TOOLTIP 'call Device SmartPhone' ;
+                 TOOLTIP 'Device SmartPhone' ;
                  PICTURE "MYPHONE" ;
                  SEPARATOR ;
                  ACTION DoDevice()
@@ -440,7 +444,7 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
                  ACTION NIL
 
          BUTTON MYFTP ;
-                 TOOLTIP 'FTP' ;
+                 TOOLTIP 'FTP transfer' ;
                  PICTURE 'MYFTP32' ;
                  ACTION HbFTP(, cAppFolder )
 
@@ -464,7 +468,7 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
                  ACTION NIL
 
          BUTTON MYREG ;
-                 TOOLTIP 'Registry DB' ;
+                 TOOLTIP 'Registry Database' ;
                  SEPARATOR ;
                  PICTURE 'MYREG' ;
                  ACTION RegDBForm()
@@ -558,7 +562,7 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
          COL nPBwide * 3
          WIDTH nPBwide - 2
          HEIGHT nPBheigh
-         ACTION DataViewer( .T. )
+         ACTION IF( HMG_VirtualKeyIsPressed( VK_SHIFT ), CreateNewDbf(), DataViewer( .T. ) )
          CAPTION "F4 edit DBF"
          FONTNAME SP_cFontName()
          FONTSIZE SP_nFontSize()
@@ -1752,7 +1756,7 @@ RETURN ACLONE( aData )
 *+
 *+--------------------------------------------------------------------
 *+
-PROCEDURE GetPathAndFile( nNo, cPath, cFile )                         // called from fmtool.prg
+PROCEDURE GetPathAndFile( nNo, cPath, cFile, cAttr )                  // called from fmtool.prg
 
 LOCAL cForm, cObj
 LOCAL aItem, iMax, nItem
@@ -1783,7 +1787,8 @@ LOCAL aData
    ENDIF
 
    cPath := GridGetPath( cForm, cObj )
-   cFile := TRIM( aData[ nItem ] [ F_NAME ] ) + CHR( 0 )
+   cFile := TRIM( aData[ nItem ] [ F_NAME ] )                         // + CHR( 0 )
+   cAttr := aData[ nItem ] [ F_ATTR ]
 
 RETURN
 
@@ -2162,6 +2167,7 @@ RETURN nDescend
 *+                                   1 - static function changefattr()
 *+                                   1 - static procedure slideshow()
 *+                                   1 - static procedure dodevice()
+*+                                   1 - static procedure dofoldersize()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -2585,6 +2591,10 @@ STATIC nLast      := 1
 
          CASE xKey == VK_F2 .AND. HMG_VirtualKeyIsPressed( VK_SHIFT )
             CompareDir()
+         CASE xKey == VK_F3 .AND. HMG_VirtualKeyIsPressed( VK_SHIFT )
+            Slideshow()
+         CASE xKey == VK_F4 .AND. HMG_VirtualKeyIsPressed( VK_SHIFT )
+            CreateNewDbf()
 
          CASE xKey == VK_F1 .AND. HMG_VirtualKeyIsPressed( VK_ALT )
             OpenCombo( "LEFT", "KEY" )
@@ -2633,6 +2643,9 @@ STATIC nLast      := 1
             DoAuswahl( 1, "SUBTRACT" )
          CASE xKey == VK_MULTIPLY
             DoReverseMark( 1 )
+
+            //          CASE xKey == VK_SPACE
+            //             DoFolderSize(1)
 
          CASE xKey == VK_ESCAPE
             // hm
@@ -2711,6 +2724,11 @@ STATIC nLast      := 1
 
          CASE xKey == VK_F2 .AND. HMG_VirtualKeyIsPressed( VK_SHIFT )
             CompareDir()
+         CASE xKey == VK_F3 .AND. HMG_VirtualKeyIsPressed( VK_SHIFT )
+            Slideshow()
+         CASE xKey == VK_F4 .AND. HMG_VirtualKeyIsPressed( VK_SHIFT )
+            CreateNewDbf()
+
          CASE xKey == VK_F1 .AND. HMG_VirtualKeyIsPressed( VK_ALT )
             OpenCombo( "LEFT", "KEY" )
          CASE xKey == VK_F2 .AND. HMG_VirtualKeyIsPressed( VK_ALT )
@@ -3846,7 +3864,7 @@ RETURN
 *+
 STATIC PROCEDURE InfoGridChange1( aData, nSide )
 
-LOCAL cText, aItem, nItem, nSum := 0
+LOCAL cText, aItem, nItem, nSum := 0, oError
 LOCAL bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
 
 STATIC aOld := {}
@@ -3868,6 +3886,9 @@ STATIC aOld := {}
          cText := aDir_Left[ nItem, F_NAME ]
          SbarText( cText )
       ENDIF
+   RECOVER USING oError
+      ERRORBLOCK( bError )
+      MsgInfo( oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
    END SEQUENCE
    ERRORBLOCK( bError )
 
@@ -3883,7 +3904,7 @@ RETURN
 *+
 STATIC PROCEDURE InfoGridChange2( aData, nSide )
 
-LOCAL cText, aItem, nItem, nSum := 0
+LOCAL cText, aItem, nItem, nSum := 0, oError
 LOCAL bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
 STATIC aOld  := {}
 
@@ -3904,6 +3925,9 @@ STATIC aOld  := {}
          cText := aDir_Right[ nItem, F_NAME ]
          SbarText( cText )
       ENDIF
+   RECOVER USING oError
+      ERRORBLOCK( bError )
+      MsgInfo( oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
    END SEQUENCE
    ERRORBLOCK( bError )
 RETURN
@@ -4823,7 +4847,7 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Procedure ItemUnMark()
+*+    Static Procedure ItemUnMark()
 *+
 *+    Called from ( fmgrid.prg )   1 - static procedure zipit()
 *+                                   2 - static procedure comparedir()
@@ -4831,7 +4855,7 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-PROCEDURE ItemUnMark( hGrid, nPos, nState, nMask )
+STATIC PROCEDURE ItemUnMark( hGrid, nPos, nState, nMask )
 
    DEFAULT nState TO hb_BitOr( LVIS_SELECTED, LVIS_FOCUSED )
    DEFAULT nMask TO hb_BitOr( LVIS_SELECTED, LVIS_FOCUSED )
@@ -4902,7 +4926,7 @@ RETURN
 *+
 STATIC PROCEDURE RunCMDBox()
 
-LOCAL cNewPath
+LOCAL cNewPath, oError
 LOCAL cValue   := Win_1.CMDBox.Value
 LOCAL bError   := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
 LOCAL cCMD     := "CMD.EXE "
@@ -4914,6 +4938,9 @@ LOCAL cCommand := GETENV( "COMSPEC" ) + " /C "
       BEGIN SEQUENCE
          EXECUTE FILE( cCommand + CHR( 34 ) + cValue + CHR( 34 ) ) WAIT
          lRet := .T.
+      RECOVER USING oError
+         ERRORBLOCK( bError )
+         MsgInfo( oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
       END SEQUENCE
       ERRORBLOCK( bError )
       SP_lDirWatch( .T. )
@@ -5663,6 +5690,8 @@ RETURN Nil
 *+    Static Procedure Slideshow()
 *+
 *+    Called from ( fmgrid.prg )   5 - procedure dualgrid()
+*+                                   1 - static procedure dogridkey1()
+*+                                   1 - static procedure dogridkey2()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -6361,9 +6390,9 @@ RETURN
 *+
 *+    Called from ( ado.prg )  10 - static function getxlsgrid()
 *+                                   8 - function adoxlsxwrite()
+*+                ( fm_func.prg )   2 - procedure createscreensplash()
 *+                ( modistru.prg )   2 - static procedure maxitemlen()
 *+                ( thumbs.prg )   4 - procedure thumbs()
-*+                                   2 - procedure createscreensplash()
 *+                ( viewer.prg )   4 - procedure txt_edit()
 *+                                   4 - procedure rtf_edit()
 *+                                   4 - function image_edit()
@@ -6493,6 +6522,42 @@ LOCAL cForm, cObj
    ENDCASE
    FillWithDir( cForm, cObj, cDirName, "TREEDN" )
 
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure DoFolderSize()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE DoFolderSize( nForm )
+
+LOCAL aItem, nItem, cPath, cText, cAttr
+LOCAL cForm, cObj
+
+   DO CASE
+      CASE nForm = 1
+         cForm := "WinLeft"
+         cObj := cGrid_Left
+      CASE nForm = 2
+         cForm := "WinRight"
+         cObj := cGrid_Right
+   ENDCASE
+
+   aItem := GetProperty( cForm, cObj, "Value" )
+   nItem := aItem[ 1 ]
+
+   cPath := GridGetPath( cForm, cObj )
+   cText := GetProperty( cForm, cObj, "CELL", nItem, F_NAME )
+   cAttr := GetProperty( cForm, cObj, "CELL", nItem, F_ATTR )
+
+   IF cText = "." .AND. LEN( cText ) = 1
+   ELSEIF cText = ".." .AND. "D" $ cAttr
+   ELSE
+      IF "D" $ cAttr
+
+      ENDIF
+   ENDIF
 RETURN
 
 *+ EOF: FMGRID.PRG

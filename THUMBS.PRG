@@ -19,13 +19,13 @@
 *+               Static Procedure Paint_Frame_Color()
 *+               Static Procedure TroggleMark()
 *+               Static Procedure Form_ONGOTFOCUS()
-*+               Procedure CreateScreenSplash()
-*+               Static Procedure TestBreak()
-*+               Procedure StopSplash()
 *+               Static Function PaintImage()
 *+               Static Procedure Rotate()
+*+               Procedure ChangeDBFStructur()
+*+               Function FORproggress()
+*+               Static Function AtInside()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:53 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -83,7 +83,6 @@
 
 STATIC aMark     := {}
 STATIC cShowForm := ""
-STATIC lStop     := .F.
 STATIC nHandle
 STATIC cLastPath := ""
 
@@ -97,7 +96,8 @@ MEMVAR _HMG_SYSDATA
 *+
 *+    Function pBarForm()
 *+
-*+    Called from ( fmgrid.prg )   1 - static procedure dataviewer()
+*+    Called from ( browser.prg )   1 - procedure browseview()
+*+                ( fmgrid.prg )   1 - static procedure dataviewer()
 *+                                   1 - static procedure slideshow()
 *+
 *+--------------------------------------------------------------------
@@ -315,7 +315,6 @@ PUBLIC _HMG_SYSDATA
       @  2, 200 BUTTON DelMark CAPTION "&DelMark" PICTURE "MYUNCHECK16" LEFT ACTION DelAllMark( aDir ) TOOLTIP "un-mark all item" WIDTH 90 HEIGHT 46 NOTABSTOP         
       @  2, 300 BUTTON ViewPic CAPTION "F3 &View" PICTURE "" LEFT ACTION DoShow( cPath, aDir ) TOOLTIP "view full-Size" WIDTH 90 HEIGHT 46 NOTABSTOP                   
 
-      ALTD()
       //  SetCursorWait("Win_1",.T.)
       SetCursorWait( "WinLeft", .T. )
       SetCursorWait( "WinRight", .T. )
@@ -603,6 +602,7 @@ RETURN
 *+                ( phone2.prg )   2 - static procedure dotreerecursiv()
 *+                                   2 - static procedure docopysingle()
 *+                ( thumbs.prg )   2 - procedure thumbs()
+*+                                   1 - function forproggress()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -837,91 +837,6 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Procedure CreateScreenSplash()
-*+
-*+    Called from ( fmgrid.prg )   1 - procedure dualgrid()
-*+
-*+--------------------------------------------------------------------
-*+
-PROCEDURE CreateScreenSplash( cFormRun, aPos, aSize, cVersion, luseParameter )
-
-LOCAL hBitmap, Image_Width, Image_Height, Image_BackColor
-LOCAL nDelaySeconds   := 7
-LOCAL nAnimateSeconds := 2
-
-   IF HMG_GetImageInfo( "MYSPLASH", @Image_Width, @Image_Height, @Image_BackColor ) == .F.
-      MsgHMGError( "File Opening Error. Program Terminated" )
-   ENDIF
-
-   lStop := .F.
-
-   DEFINE WINDOW SplashForm ;
-              AT 0, 0 ;
-              WIDTH Image_Width HEIGHT Image_Height ;
-              TITLE 'DEMO4' ;
-              NOCAPTION ;
-              NOSYSMENU ;
-              NOSIZE ;
-              NOMINIMIZE ;
-              NOMAXIMIZE ;
-              TOPMOST ;
-              BACKCOLOR Image_BackColor ;
-              ON INIT &cFormRun
-
-      SET WINDOW SplashForm TRANSPARENT TO COLOR Image_BackColor
-
-      @ 10, 00 IMAGE Image_1 PICTURE "MYSPLASH" ON CLICK MsgInfo( "Splash Image" ) WIDTH Image_Width HEIGHT Image_Height // STRETCH         
-      // @ 20, 10 LABEL Label_1 VALUE "The Power of HMG" WIDTH Image_Width - 20 HEIGHT 50 TRANSPARENT CENTERALIGN FONT "Times New Roman" SIZE 36 FONTCOLOR NAVY
-      // @ 76, 10 PROGRESSBAR ProgressBar_1 RANGE 0, 1 WIDTH Image_Width - 20 HEIGHT 20
-
-      @ Image_Height - 4, 0 PROGRESSBAR ProgressBar_1 RANGE 0, 1 WIDTH Image_Width HEIGHT 3         
-      SET PROGRESSBAR ProgressBar_1 OF SplashForm ENABLE MARQUEE UPDATED 10
-      DEFINE TIMER Timer_1 INTERVAL 10 ACTION { || TestBreak( ThisWindow.Name ) }
-   END TIMER
-
-   END WINDOW
-
-   SetCursorWait( "SplashForm", .T. )
-
-   ON KEY ESCAPE OF SplashForm ACTION Domethod( "SplashForm", "Release" )
-   CENTER WINDOW SplashForm
-   ACTIVATE WINDOW SplashForm
-
-   SetCursorWait( "SplashForm", .F. )
-
-RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Procedure TestBreak()
-*+
-*+    Called from ( thumbs.prg )   1 - procedure createscreensplash()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC PROCEDURE TestBreak()
-
-   IF lStop = .T.
-      Domethod( "SplashForm", "Timer_1", "Release" )
-      Domethod( "SplashForm", "Release" )
-   ENDIF
-RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Procedure StopSplash()
-*+
-*+    Called from ( fmgrid.prg )   1 - procedure fill1stgrid()
-*+
-*+--------------------------------------------------------------------
-*+
-PROCEDURE StopSplash()
-
-   lStop := .T.
-RETURN
-
-*+--------------------------------------------------------------------
-*+
 *+    Static Function PaintImage()
 *+
 *+--------------------------------------------------------------------
@@ -995,5 +910,112 @@ LOCAL handle, clone, new_handle
    ENDIF
 
 RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Procedure ChangeDBFStructur()
+*+
+*+--------------------------------------------------------------------
+*+
+PROCEDURE ChangeDBFStructur( cIn )
+
+LOCAL cAppFolder := SP_cMainPath()
+LOCAL cPath, cDBF, cVia, cMax, aToken
+LOCAL cMemo, nEvery, i := 0, nMax, oError
+LOCAL bError, lError := .T.
+
+   aToken := AtInside( ",", cIn )
+   cPath := aToken[ 1 ]
+   cDBF := UPPER( aToken[ 2 ] )
+   cVia := aToken[ 3 ]
+   cMax := aToken[ 4 ]
+
+   nMax := VAL( cMax )
+   nEvery := ROUND( nMax / 100, 0 )
+   IF EMPTY( nEvery )
+      nEvery := 1
+   ENDIF
+
+   USE_MYDBF( cAppFolder + "DBUUUU.DBF" )
+   bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+   BEGIN SEQUENCE
+      APPEND FROM ( cPath + cDBF ) FOR FORproggress( nMax, nEvery, i ++ ) VIA( cVia )
+      lError := .F.
+   RECOVER USING oError
+      ERRORBLOCK( bError )
+      MsgInfo( "Error APPEND FROM " + ( cPath + cDBF ) + CRLF + ;
+               oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
+   END SEQUENCE
+   ERRORBLOCK( bError )
+   CLOSE
+
+   IF lError = .T.
+      MsgInfo( "Error while APPEND FROM " + cPath + cDBF, "change Structure" )
+   ELSE
+      FERASE( cPath + cDBF )
+      RENAME( cAppFolder + "DBUUUU.DBF" ) TO ( cPath + cDBF )
+
+      cMemo := STRTRAN( cPath + cDBF, ".DBF", ".DBT" )
+      IF FILE( cMemo )
+         FERASE( cMemo )
+         RENAME( cAppFolder + "DBUUUU.DBT" ) TO ( cMemo )
+      ENDIF
+
+      cMemo := STRTRAN( cPath + cDBF, ".DBF", ".FPT" )
+      IF FILE( cMemo )
+         FERASE( cMemo )
+         RENAME( cAppFolder + "DBUUUU.FPT" ) TO ( cMemo )
+      ENDIF
+   ENDIF
+
+   Domethod( "Pbar_Form", "ProgressBar_1", "Release" )
+   Domethod( "Pbar_Form", "Release" )
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Function FORproggress()
+*+
+*+    Called from ( thumbs.prg )   1 - procedure changedbfstructur()
+*+
+*+--------------------------------------------------------------------
+*+
+FUNCTION FORproggress( nMax, nEvery, nValue )
+
+   IF ( ( nValue ) % ( nEvery ) ) == 0
+      SetProperty( "Pbar_Form", "ProgressBar_1", "Value", CalcPos( nValue, nMax ) )
+   ENDIF
+RETURN .T.
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function AtInside()
+*+
+*+    Called from ( thumbs.prg )   1 - procedure changedbfstructur()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION AtInside( cMarker, cText )
+
+LOCAL nPos := 1
+LOCAL nIst := 0
+LOCAL aRet := {}
+
+   DO WHILE .T.
+      nPos := AT( cMarker, cText )
+      IF nPos > 0
+         nIst ++
+         AADD( aRet, LTRIM( SUBSTR( cText, 1, ( nPos - 1 ) ) ) )
+         cText := SUBSTR( cText, ( nPos + 1 ), LEN( cText ) - nPos )
+      ELSE
+         //          IF nIst > 0
+         AADD( aRet, LTRIM( cText ) )
+         //          ENDIF
+         EXIT
+      ENDIF
+   ENDDO
+
+RETURN aRet
 
 *+ EOF: THUMBS.PRG

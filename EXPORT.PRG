@@ -15,7 +15,7 @@
 *+               Static Function MyWriteSDF()
 *+               Static Function MyWriteHBXLS()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:51 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -452,7 +452,7 @@ LOCAL cExportTo  := ""
       CASE nItem = 2
          cExportTo := cText_Path + cText_Name + ".XLSX"
          IF FILE( cExportTo )
-            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, .T. )
+            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, "Export XLSx" )
                FERASE( cExportTo )
             ELSE
                Export_Button( .T. )
@@ -475,7 +475,7 @@ LOCAL cExportTo  := ""
       CASE nItem = 3
          cExportTo := cText_Path + cText_Name + ".SDF"
          IF FILE( cExportTo )
-            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, .T. )
+            IF MsgYesNo( "Overwrite: " + cExportTo + CRLF, "Export SDF" )
                FERASE( cExportTo )
             ELSE
                Export_Button( .T. )

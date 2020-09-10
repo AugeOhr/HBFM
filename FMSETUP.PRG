@@ -21,7 +21,7 @@
 *+
 *+       Tables: USE (cFile) NEW ALIAS "FMSETUP" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -198,7 +198,7 @@ PROCEDURE PaintDisplay_Fmse()
    @ 180, 120 LABEL Label_19 VALUE "large" WIDTH 50 HEIGHT 24 BACKCOLOR aColorBG FONTCOLOR aColorFG FONT SP_cFontName() SIZE SP_nFontsmall() ToolTip ""
    @ 210, 120 LABEL Label_20 VALUE "small" WIDTH 50 HEIGHT 24 BACKCOLOR aColorBG FONTCOLOR aColorFG FONT SP_cFontName() SIZE SP_nFontsmall() ToolTip ""
 
-   @ 270 + 30, 20 LABEL Label_13 VALUE "SKINPATH" WIDTH 120 HEIGHT 24 BACKCOLOR aColorBG FONTCOLOR aColorFG FONT SP_cFontName() SIZE SP_nFontsmall() ToolTip ""
+   @ 270 + 30, 20 LABEL Label_13 VALUE "Sumatra.EXE" WIDTH 120 HEIGHT 24 BACKCOLOR aColorBG FONTCOLOR aColorFG FONT SP_cFontName() SIZE SP_nFontsmall() ToolTip ""
    @ 300 + 30, 20 LABEL Label_14 VALUE "LWLPATH" WIDTH 120 HEIGHT 24 BACKCOLOR aColorBG FONTCOLOR aColorFG FONT SP_cFontName() SIZE SP_nFontsmall() ToolTip ""
    @ 330 + 30, 20 LABEL Label_15 VALUE "LWRPATH" WIDTH 120 HEIGHT 24 BACKCOLOR aColorBG FONTCOLOR aColorFG FONT SP_cFontName() SIZE SP_nFontsmall() ToolTip ""
    @ 360 + 30, 20 LABEL Label_16 VALUE "EDITTEXT" WIDTH 120 HEIGHT 24 BACKCOLOR aColorBG FONTCOLOR aColorFG FONT SP_cFontName() SIZE SP_nFontsmall() ToolTip ""
@@ -434,6 +434,21 @@ PROCEDURE SaveRecord_Fmse
       // Win_Fmse.StatusBar.Item( 1 ) := 'Save Record'
 
       SP_nWinTans( Win_Fmse.TextBox_WT.Value )
+
+      SP_nCOLOR7( Win_Fmse.Label_Color01.BackColor )
+      SP_nCOLOR5( Win_Fmse.Label_Color02.BackColor )
+      SP_nCOLOR1( Win_Fmse.Label_Color03.BackColor )
+      SP_nCOLOR11( Win_Fmse.Label_Color04.BackColor )
+      SP_nCOLOR13( Win_Fmse.Label_Color05.BackColor )
+      SP_nCOLOR9( Win_Fmse.Label_Color06.BackColor )
+      SP_nCOLOR3( Win_Fmse.Label_Color07.BackColor )
+      SP_nCOLOR8( Win_Fmse.Label_Color08.BackColor )
+      SP_nCOLOR6( Win_Fmse.Label_Color09.BackColor )
+      SP_nCOLOR2( Win_Fmse.Label_Color10.BackColor )
+      SP_nCOLOR12( Win_Fmse.Label_Color11.BackColor )
+      SP_nCOLOR14( Win_Fmse.Label_Color12.BackColor )
+      SP_nCOLOR10( Win_Fmse.Label_Color13.BackColor )
+      SP_nCOLOR4( Win_Fmse.Label_Color14.BackColor )
 
       Win_Fmse.Release
    ENDIF
