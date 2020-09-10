@@ -15,7 +15,7 @@
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
 *+
 *+--------------------------------------------------------------------
 
@@ -156,6 +156,9 @@ LOCAL cFile    := "FMSETUP.DBF"
             // ***************************************************
       ENDCASE
    NEXT
+
+*  msginfo( var2char(OS() ) , var2char(WINMAJORVERSIONNUMBER() ) )
+
 
    //  DoShowBug()
 
@@ -596,4 +599,4 @@ RETURN
 //  v.0.10 23.01.2020 Alpha 1 Release F5 F7 F8 - DragDrop
 // ***************************************************************
 
-*+ EOF: HBFM.PRG
+*+ EOF: HBFM.PRG

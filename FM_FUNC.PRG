@@ -40,7 +40,7 @@
 *+               Static Procedure TestBreak()
 *+               Procedure StopSplash()
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
 *+
 *+--------------------------------------------------------------------
 
@@ -428,6 +428,7 @@ RETURN cVolume
 *+                ( fmtool.prg )   2 - static procedure runwinmsc()
 *+                ( fm_func.prg )   2 - function shellopenfile()
 *+                                   1 - function appfolder()
+*+                                   1 - function ft_origin()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -824,11 +825,11 @@ LOCAL cDisk   := DISKNAME()
 
    // Problem with "c:\hmg.3.4.4\" and function RootName( FILE_NAME )
    // add like Xbase++
-  IF Is64Bit()
-   cFullPath += "HBFM64.EXE"
-  ELSE
-   cFullPath += "HBFM.EXE"
-  ENDIF
+   IF Is64Bit()
+      cFullPath += "HBFM64.EXE"
+   ELSE
+      cFullPath += "HBFM.EXE"
+   ENDIF
 
 RETURN cFullPath
 

@@ -19,7 +19,7 @@
 *+               Static Function FillDeviceGrid()
 *+               Static Procedure SayInfo()
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
 *+
 *+--------------------------------------------------------------------
 
@@ -200,7 +200,8 @@ LOCAL lRet      := .T.
 LOCAL cAction   := GETENV( "SYSTEMROOT" ) + "\SYSTEM32\HOTPLUG.DLL"
 LOCAL cRoot     := "RUNDLL32.EXE "
 LOCAL cPath     := GETENV( "TEMP" ) + "\"
-LOCAL nVersion  := VAL( STRTRAN( OS(), "Windows NT ", "" ) )
+*LOCAL nVersion  := VAL( STRTRAN( OS(), "Windows NT ", "" ) )
+LOCAL nVersion  := WINMAJORVERSIONNUMBER()
 
    DEFAULT UseCDdrives TO .F.
 
@@ -209,7 +210,8 @@ LOCAL nVersion  := VAL( STRTRAN( OS(), "Windows NT ", "" ) )
       RETURN .F.
    ENDIF
 
-   IF nVersion < VERSION_VISTA
+*  IF nVersion < VERSION_VISTA
+   IF .NOT. HMG_IsWinVistaOrLater()
       cAction := "hotplug.dll"
       cRoot := GETENV( "SYSTEMROOT" )
       RUN ( "Shell32,Control_RunDLL " + cAction, cRoot + "\SYSTEM32\RUNDLL32.EXE" )

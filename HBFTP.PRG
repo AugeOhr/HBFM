@@ -6,6 +6,7 @@
 *+
 *+    Functions: Function HbFTP()
 *+               Static Procedure FTPForm()
+*+               Static Procedure FTPFormExit()
 *+               Static Procedure SiteForm()
 *+               Static Procedure EditForm()
 *+               Static Function sitemanagerexit()
@@ -50,12 +51,12 @@
 *+               Static Function VAR2CHAR()
 *+               Static Procedure DoReSizeMain()
 *+               Static Procedure FillLocalCombo()
-*+               Static Procedure LocalComboImage()
+*+               Static Procedure LoadComboImage()
 *+               Static Procedure ChangeLocalDrive()
 *+
 *+       Tables: USE (cPath+"SITES.dbf") ALIAS sites
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
 *+
 *+--------------------------------------------------------------------
 
@@ -119,11 +120,12 @@ STATIC aDirectory, aSubDirectory, aOldPos
 STATIC aNivel      := { 1, 1 }, aBack := { .t., .t. }, aGridWidth, nGridFocus := 1, bBlock, lBlock := .f.
 STATIC cRunCommand := "", aWinVer, aSortCol := { 2, 2 }
 
-STATIC xVersion := "v0.0.9 modify for HMG"                            // Jimmy
-STATIC nLast    := 0                                                  // exGauge
-STATIC xTitle   := "FTP Client "
-STATIC caItems  := {}                                                 // for ComboBox
-STATIC acImage  := {}                                                 // Image Combobox
+STATIC xVersion   := "v0.1.0 modify for HMG"                          // Jimmy
+STATIC nLast      := 0                                                // exGauge
+STATIC xTitle     := "FTP Client "
+STATIC caItems    := {}                                               // for ComboBox
+STATIC acImage    := {}                                               // Image Combobox
+STATIC lIsConnect := .F.
 
 MEMVAR lfirst, oClient, oUrl
 MEMVAR newRecord
@@ -131,6 +133,7 @@ MEMVAR _HMG_SYSDATA, _HMG_ACONTROLHANDLES, _HMG_ACONTROLCAPTION, lDebug
 MEMVAR ftpMain, sitemanager, editsitemanager                          // old FMG
 
 // *********************************************************************
+//  v0.1.0 09.09.2020  add FTP Port
 //  v0.0.9 27.08.2020  BUG
 //  v0.0.8 11.07.2020  include in HBFM
 //
@@ -260,10 +263,6 @@ RETURN nil
 *+
 STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
 
-   // TOPMOST ;
-   // NOMAXIMIZE ;
-   // MAIN ;
-
    DEFINE WINDOW ftpMain ;
               AT 140, 412 ;
               WIDTH 900 ;
@@ -271,7 +270,7 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
               TITLE xTitle + xVersion ;
               ICON "ICOFTP" ;
               ON INIT initgrid() ;
-              ON RELEASE Nil ;
+              ON RELEASE FTPFormExit() ;
               ON SIZE DoReSizeMain() ;
               ON MAXIMIZE DoReSizeMain() ;
               ON MINIMIZE Nil ;
@@ -287,8 +286,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          VALUE 1
          WIDTHS aGridWidth
          HEADERS { '', '[Name]', 'Size', 'Date', 'Time' }
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE { || IF( lfirst,, CurrentDirectory( 1 ) ) }
          ONGOTFOCUS { || CurrentDirectory( 1 ) }
@@ -333,8 +332,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          VALUE 0
          WIDTHS { 26, 150, 80, 80, 70, 90 }
          HEADERS { '', '[Name]', 'Size', 'Date', 'Time', 'Attributes' }
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -376,8 +375,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          WIDTH 400
          HEIGHT 24
          VALUE ""
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -395,8 +394,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 44
          ACTION FTPUP()
          CAPTION ""
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP "Upload files to FTP - server"
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -417,8 +416,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 44
          ACTION FTPDOWN()
          CAPTION ""
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP "Download files from FTP - server"
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -438,9 +437,9 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          WIDTH 100
          HEIGHT 28
          ACTION ftpconn1()
-         CAPTION "Connect"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         CAPTION "&Connect"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -460,9 +459,9 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          WIDTH 100
          HEIGHT 28
          ACTION ftpclose()
-         CAPTION "Disconnect"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         CAPTION "&Disconnect"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -483,8 +482,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 28
          ACTION ftpmkdir()
          CAPTION "Make Dir"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -505,8 +504,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 28
          ACTION ftpren()
          CAPTION "Rename"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -527,8 +526,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 28
          ACTION ftpdel()
          CAPTION "Delete"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -548,8 +547,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          WIDTH 400
          HEIGHT 24
          VALUE "aSubDirectory[1][1]"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -567,8 +566,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 28
          ACTION localmkdir()
          CAPTION "Make Dir"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -589,8 +588,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 28
          ACTION localren()
          CAPTION "Rename"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -611,8 +610,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 28
          ACTION LocalDel()
          CAPTION "Delete"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -648,8 +647,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
       //     HEIGHT 28
       //     ACTION Nil
       //     CAPTION "View"
-      //     FONTNAME "Arial"
-      //     FONTSIZE 9
+      //     FONTNAME SP_cFontName()
+      //     FONTSIZE SP_nFontSize()
       //     TOOLTIP ""
       //     ONGOTFOCUS Nil
       //     ONLOSTFOCUS Nil
@@ -670,8 +669,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
       //     HEIGHT 28
       //     ACTION Nil
       //     CAPTION "Run"
-      //     FONTNAME "Arial"
-      //     FONTSIZE 9
+      //     FONTNAME SP_cFontName()
+      //     FONTSIZE SP_nFontSize()
       //     TOOLTIP ""
       //     ONGOTFOCUS Nil
       //     ONLOSTFOCUS Nil
@@ -691,8 +690,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          WIDTH 410
          HEIGHT 18
          VALUE "Local Computer"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -710,8 +709,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          WIDTH 410
          HEIGHT 17
          VALUE "FTP - Server"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -729,9 +728,9 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          WIDTH 100
          HEIGHT 28
          ACTION SiteForm()
-         CAPTION "Sites"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         CAPTION "&Sites"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -752,8 +751,8 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
          HEIGHT 100
          ITEMS { "" }
          VALUE 1
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -797,13 +796,29 @@ STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
    ftpMain.Button_REN_Local.enabled := .f.
    ftpMain.Button_DEL_Local.enabled := .f.
 
-LocalComboImage( .T. )
+   LoadComboImage( .T. )
    _SetWindowSizePos( "ftpMain", 0, 0, nwidth, nheight )
 
    //    ON KEY ESCAPE OF ftpMain ACTION ftpMain.Release
    center window ftpMain
    activate window ftpMain
 
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure FTPFormExit()
+*+
+*+    Called from ( hbftp.prg )   1 - static procedure ftpform()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE FTPFormExit()                                        // Jimmy
+
+   IF lIsConnect = .T.
+      // close open Connection
+      FTPCLOSE()
+   ENDIF
 RETURN
 
 *+--------------------------------------------------------------------
@@ -839,11 +854,11 @@ STATIC PROCEDURE SiteForm()                                           // Jimmy
          HEIGHT 233
          VALUE 1                                                      // ftpMain.Combo_Sites.value
          WIDTHS { 600, 1000, 600, 200 }
-         HEADERS { 'NAME', 'ADDRESS', 'USER', 'PASSWORD' }
+         HEADERS { 'Name', 'Address', 'User', 'Password' }
          WORKAREA Sites
          FIELDS { 'Sites->NAME', 'Sites->ADDRESS', 'Sites->USER', 'Sites->PASSWORD' }
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE NIL
          ONGOTFOCUS NIL
@@ -877,10 +892,10 @@ STATIC PROCEDURE SiteForm()                                           // Jimmy
          COL 350
          WIDTH 100
          HEIGHT 28
-         CAPTION "Connect"
+         CAPTION "&Connect"
          ACTION ftpconn2()
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS NIL
          ONLOSTFOCUS NIL
@@ -896,10 +911,10 @@ STATIC PROCEDURE SiteForm()                                           // Jimmy
          COL 350
          WIDTH 100
          HEIGHT 28
-         CAPTION "Create site..."
+         CAPTION "Create &site..."
          ACTION EditForm( "new" )
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS NIL
          ONLOSTFOCUS NIL
@@ -915,10 +930,10 @@ STATIC PROCEDURE SiteForm()                                           // Jimmy
          COL 350
          WIDTH 100
          HEIGHT 28
-         CAPTION "Edit..."
+         CAPTION "&Edit..."
          ACTION EditForm()
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS NIL
          ONLOSTFOCUS NIL
@@ -934,10 +949,10 @@ STATIC PROCEDURE SiteForm()                                           // Jimmy
          COL 350
          WIDTH 100
          HEIGHT 28
-         CAPTION "Delete"
+         CAPTION "&Delete"
          ACTION ftpdelete()
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS NIL
          ONLOSTFOCUS NIL
@@ -953,10 +968,10 @@ STATIC PROCEDURE SiteForm()                                           // Jimmy
          COL 350
          WIDTH 100
          HEIGHT 28
-         CAPTION "Exit"
+         CAPTION "E&xit"
          ACTION sitemanagerexit()
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS NIL
          ONLOSTFOCUS NIL
@@ -1005,8 +1020,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          COL 10
          WIDTH 410
          HEIGHT 205
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          CAPTION NIL
          BACKCOLOR Nil
          FONTCOLOR Nil
@@ -1019,8 +1034,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          WIDTH 60
          HEIGHT 24
          VALUE "Site name"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -1037,8 +1052,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          WIDTH 80
          HEIGHT 24
          VALUE "FTP Server"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -1055,8 +1070,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          WIDTH 80
          HEIGHT 24
          VALUE "Port"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -1073,8 +1088,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          WIDTH 60
          HEIGHT 24
          VALUE "User id"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -1091,8 +1106,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          WIDTH 60
          HEIGHT 24
          VALUE "Password"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -1109,8 +1124,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          WIDTH 65
          HEIGHT 24
          VALUE "Initial Path"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          HELPID Nil
          VISIBLE .T.
@@ -1126,8 +1141,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          COL 110
          WIDTH 300
          HEIGHT 24
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -1153,8 +1168,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          COL 110
          WIDTH 300
          HEIGHT 24
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -1180,8 +1195,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          COL 110
          WIDTH 100
          HEIGHT 24
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -1208,8 +1223,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          COL 110
          WIDTH 300
          HEIGHT 24
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -1235,8 +1250,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          COL 110
          WIDTH 180
          HEIGHT 24
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -1259,13 +1274,13 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
 
       DEFINE CHECKBOX Check_MaskPW
          ROW 147
-         COL 310
-         WIDTH 100
+         COL 300
+         WIDTH 110
          HEIGHT 28
          CAPTION "Mask Password"
          VALUE .F.
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE ShowPassword()
          ONGOTFOCUS Nil
@@ -1283,8 +1298,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          COL 110
          WIDTH 241
          HEIGHT 24
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -1298,8 +1313,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          DISABLEDBACKCOLOR Nil
          DISABLEDFONTCOLOR Nil
          CASECONVERT NONE
-         BACKCOLOR NIL
-         FONTCOLOR NIL
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
          INPUTMASK Nil
          FORMAT Nil
          VALUE "/"
@@ -1312,8 +1327,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          HEIGHT 28
          CAPTION "Log"
          VALUE .F.
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONCHANGE Nil
          ONGOTFOCUS Nil
@@ -1332,9 +1347,9 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          WIDTH 100
          HEIGHT 30
          ACTION ftppropsave()
-         CAPTION "Save"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         CAPTION "&Save"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -1355,8 +1370,8 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
          HEIGHT 30
          ACTION ftppropcancel()
          CAPTION "Cancel"
-         FONTNAME "Arial"
-         FONTSIZE 9
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
          TOOLTIP ""
          ONGOTFOCUS Nil
          ONLOSTFOCUS Nil
@@ -1610,6 +1625,8 @@ LOCAL cUrl, oError
          ftpMain.Label_SrvPath.value := "/"
          FTPFILLGRID()
       ENDIF
+
+      lIsConnect := .T.
    ENDIF
 RETURN nil
 
@@ -1877,6 +1894,7 @@ RETURN nil
 *+    Static Function FTPCLOSE()
 *+
 *+    Called from ( hbftp.prg )   1 - static procedure ftpform()
+*+                                   1 - static procedure ftpformexit()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1891,6 +1909,8 @@ LOCAL lresp := oClient:CLOSE()
    ftpMain.Button_DEL_Local.enabled := .f.
    ftpMain.button_Connect1.enabled := .t.
    ftpMain.Label_SrvPath.value := ""
+
+   lIsConnect := .F.
 
 RETURN nil
 
@@ -2891,13 +2911,13 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Procedure LocalComboImage()
+*+    Static Procedure LoadComboImage()
 *+
 *+    Called from ( hbftp.prg )   1 - static procedure ftpform()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE LocalComboImage( lRefresh )                          // Jimmy
+STATIC PROCEDURE LoadComboImage( lRefresh )                           // Jimmy
 
 LOCAL nStart, i, ii, iiMax, xVal, nDrive := 1
 
@@ -2957,4 +2977,4 @@ RETURN
 //
 //
 
-*+ EOF: HBFTP.PRG
+*+ EOF: HBFTP.PRG

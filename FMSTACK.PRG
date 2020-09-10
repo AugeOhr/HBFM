@@ -65,7 +65,7 @@
 *+               Function SP_cMainPath()
 *+               Function DebugStack()
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
+*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
 *+
 *+--------------------------------------------------------------------
 
@@ -688,7 +688,7 @@ RETURN nColor4
 *+                ( hbfilter.prg )   4 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function c_fmsetup()
-*+                ( hbftp.prg )   5 - static procedure editform()
+*+                ( hbftp.prg )   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
 *+                ( modistru.prg )   4 - procedure editstrurec()
 *+                                   5 - static procedure exportxls()
@@ -730,7 +730,7 @@ RETURN nColor5
 *+                ( hbfilter.prg )   4 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function c_fmsetup()
-*+                ( hbftp.prg )   5 - static procedure editform()
+*+                ( hbftp.prg )   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
 *+                ( modistru.prg )   4 - procedure editstrurec()
 *+                                   5 - static procedure exportxls()
@@ -1197,6 +1197,9 @@ RETURN lColumnResize
 *+                ( hbevery.prg )   8 - procedure hbevery()
 *+                ( hbfilter.prg )  13 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbftp.prg )  18 - static procedure ftpform()
+*+                                   6 - static procedure siteform()
+*+                                  17 - static procedure editform()
 *+                ( hbinput.prg )   4 - function getinput()
 *+                ( modistru.prg )   2 - function showarraystru()
 *+                                   9 - procedure editstrurec()
@@ -1236,6 +1239,9 @@ RETURN cFontName
 *+                ( hbevery.prg )   7 - procedure hbevery()
 *+                ( hbfilter.prg )  13 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbftp.prg )  18 - static procedure ftpform()
+*+                                   6 - static procedure siteform()
+*+                                  17 - static procedure editform()
 *+                ( hbinput.prg )   4 - function getinput()
 *+                ( modistru.prg )  12 - static procedure exportxls()
 *+                ( picklist.prg )   8 - procedure picklist()
