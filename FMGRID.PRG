@@ -50,8 +50,8 @@
 *+               Static Procedure HeadLeft()
 *+               Static Procedure HeadRight()
 *+               Static Procedure NewTab()
-*+               Static Procedure Tab_Change_Left()
-*+               Static Procedure Tab_Change_Right()
+*+               Procedure Tab_Change_Left()
+*+               Procedure Tab_Change_Right()
 *+               Static Procedure TestTabKey()
 *+               Static Function IsKeyVK()
 *+               Procedure SbarText()
@@ -122,7 +122,7 @@
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  7:52 am
+*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:09 am
 *+
 *+--------------------------------------------------------------------
 
@@ -352,7 +352,7 @@ PUBLIC aFontTypeHBP
       ON KEY F11 ACTION PreFuncMSCFolder()
 
       DEFINE STATUSBAR PARENT Win_1
-         STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
+STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
          KEYBOARD WIDTH 100
          DATE WIDTH 100
          CLOCK WIDTH 100
@@ -2119,8 +2119,8 @@ RETURN nDescend
 *+                                   2 - static procedure change2drive()
 *+                                   2 - static procedure createnewfolder()
 *+                                   2 - static procedure newtab()
-*+                                   1 - static procedure tab_change_left()
-*+                                   1 - static procedure tab_change_right()
+*+                                   1 - procedure tab_change_left()
+*+                                   1 - procedure tab_change_right()
 *+                                   1 - static procedure infogridchange1()
 *+                                   1 - static procedure infogridchange2()
 *+                                   1 - static procedure checkotherside()
@@ -3111,8 +3111,8 @@ RETURN
 *+
 *+    Called from ( fmgrid.prg )   3 - procedure dualgrid()
 *+                                   2 - static procedure change2drive()
-*+                                   1 - static procedure tab_change_left()
-*+                                   1 - static procedure tab_change_right()
+*+                                   1 - procedure tab_change_left()
+*+                                   1 - procedure tab_change_right()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -3630,15 +3630,16 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Procedure Tab_Change_Left()
+*+    Procedure Tab_Change_Left()
 *+
-*+    Called from ( fmgrid.prg )   1 - procedure dualgrid()
+*+    Called from ( askform.prg )   1 - function askform()
+*+                ( fmgrid.prg )   1 - procedure dualgrid()
 *+                                   1 - static procedure dogridkey1()
 *+                                   1 - static procedure newtab()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE Tab_Change_Left()
+PROCEDURE Tab_Change_Left()
 
 LOCAL cObj, cPath, nDrive, cDrive, cText
 LOCAL cForm := "WinLeft"
@@ -3668,15 +3669,16 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Procedure Tab_Change_Right()
+*+    Procedure Tab_Change_Right()
 *+
-*+    Called from ( fmgrid.prg )   1 - procedure dualgrid()
+*+    Called from ( askform.prg )   1 - function askform()
+*+                ( fmgrid.prg )   1 - procedure dualgrid()
 *+                                   1 - static procedure dogridkey2()
 *+                                   1 - static procedure newtab()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE Tab_Change_Right()
+PROCEDURE Tab_Change_Right()
 
 LOCAL cObj, cPath, nDrive, cDrive, cText
 LOCAL cForm := "WinRight"
@@ -4682,8 +4684,8 @@ RETURN
 *+
 *+    Static Procedure SetActivPath()
 *+
-*+    Called from ( fmgrid.prg )   1 - static procedure tab_change_left()
-*+                                   1 - static procedure tab_change_right()
+*+    Called from ( fmgrid.prg )   1 - procedure tab_change_left()
+*+                                   1 - procedure tab_change_right()
 *+                                   1 - static procedure infogridchange1()
 *+                                   1 - static procedure infogridchange2()
 *+                                   1 - static procedure gridgotfocus()
@@ -6531,4 +6533,4 @@ LOCAL cForm, cObj
    ENDIF
 RETURN
 
-*+ EOF: FMGRID.PRG
+*+ EOF: FMGRID.PRG

@@ -30,7 +30,7 @@
 *+               Function ShowRowCol()
 *+               Static Function RTF_RowCol()
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  7:52 am
+*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:11 am
 *+
 *+--------------------------------------------------------------------
 
@@ -375,7 +375,7 @@ RETURN nRet
 *+
 STATIC PROCEDURE ImageRelease( cFile )
 
-   Domethod( "ImageEdit", "SlideTime", "Release" )
+   Domethod( "ImageEdit", "Image_Edit", "PICTURE", "" )
 RETURN
 
 *+--------------------------------------------------------------------

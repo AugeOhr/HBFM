@@ -65,7 +65,7 @@
 *+               Function SP_cMainPath()
 *+               Function DebugStack()
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
+*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -549,7 +549,7 @@ RETURN cTextRight
 *+                ( hbevery.prg )   1 - procedure hbevery()
 *+                ( hbfilter.prg )   1 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   3 - static procedure ftpform()
 *+                                   1 - static procedure siteform()
 *+                                   7 - static procedure editform()
@@ -597,7 +597,7 @@ RETURN nColor1
 *+                                   1 - static procedure precolorpick()
 *+                ( hbeject.prg )   2 - procedure hbeject()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
 *+                                   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
@@ -628,7 +628,7 @@ RETURN nColor2
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -653,7 +653,7 @@ RETURN nColor3
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -687,7 +687,7 @@ RETURN nColor4
 *+                ( hbevery.prg )   3 - procedure hbevery()
 *+                ( hbfilter.prg )   4 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
 *+                ( modistru.prg )   4 - procedure editstrurec()
@@ -729,7 +729,7 @@ RETURN nColor5
 *+                ( hbevery.prg )   3 - procedure hbevery()
 *+                ( hbfilter.prg )   4 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
 *+                ( modistru.prg )   4 - procedure editstrurec()
@@ -762,7 +762,7 @@ RETURN nColor6
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -787,7 +787,7 @@ RETURN nColor7
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -827,7 +827,7 @@ RETURN nColor8
 *+                ( hbeject.prg )   1 - procedure hbeject()
 *+                ( hbevery.prg )   1 - procedure hbevery()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
 *+                                   1 - static procedure siteform()
 *+                ( modistru.prg )   1 - function showarraystru()
@@ -872,7 +872,7 @@ RETURN nColor9
 *+                ( hbeject.prg )   1 - procedure hbeject()
 *+                ( hbevery.prg )   1 - procedure hbevery()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
 *+                                   1 - static procedure siteform()
 *+                ( modistru.prg )   1 - function showarraystru()
@@ -903,7 +903,7 @@ RETURN nColor10
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -929,7 +929,7 @@ RETURN nColor11
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -956,7 +956,7 @@ RETURN nColor12
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbeject.prg )   1 - procedure hbeject()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( viewer.prg )   1 - procedure txt_edit()
 *+                                   1 - procedure rtf_edit()
 *+
@@ -984,7 +984,7 @@ RETURN nColor13
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
-*+                                   1 - static function c_fmsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( viewer.prg )   1 - procedure txt_edit()
 *+                                   1 - procedure rtf_edit()
 *+
@@ -1008,8 +1008,8 @@ RETURN nColor14
 *+                ( fmgrid.prg )   1 - procedure fill1stgrid()
 *+                                   1 - static procedure paint_background_window()
 *+                                   1 - static procedure paint_main_background_window()
-*+                                   1 - static procedure tab_change_left()
-*+                                   1 - static procedure tab_change_right()
+*+                                   1 - procedure tab_change_left()
+*+                                   1 - procedure tab_change_right()
 *+                                   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - static procedure switchdark()
 *+                ( hbfm.prg )   1 - static function loadsetup()

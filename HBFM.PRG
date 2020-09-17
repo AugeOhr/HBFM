@@ -7,15 +7,14 @@
 *+    Functions: Init Procedure MainInit()
 *+               Function Main()
 *+               Static Function LoadSetup()
-*+               Static Function C_FMSETUP()
+*+               Static Function Cre_FMSETUP()
 *+               Static Procedure CheckDBFversion()
-*+               Static Procedure DoShowBug()
 *+
 *+       Tables: USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
+*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -49,7 +48,7 @@ REQUEST HB_CODEPAGE_RU1251
 REQUEST HB_CODEPAGE_SRWIN
 REQUEST HB_CODEPAGE_SLWIN
 
-STATIC cVersion     := "v1.26"
+STATIC cVersion     := "v1.27"
 MEMVAR _HMG_SYSDATA
 
 *+--------------------------------------------------------------------
@@ -180,7 +179,7 @@ LOCAL aColPos := {}
 
    CheckDBFversion( cAppData, cFile )
    IF !FILE( cAppData + "\" + cFile )
-      C_FMSETUP( cAppData, cFile )
+      Cre_FMSETUP( cAppData, cFile )
    ENDIF
 
    USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
@@ -256,13 +255,13 @@ RETURN nil
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Function C_FMSETUP()
+*+    Static Function Cre_FMSETUP()
 *+
 *+    Called from ( hbfm.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC FUNCTION C_FMSETUP( cAppData, cFile, alias, id )
+STATIC FUNCTION Cre_FMSETUP( cAppData, cFile, alias, id )
 
 LOCAL p, field_list := {}
    IF VALTYPE( cFile ) != "C"
@@ -288,8 +287,6 @@ LOCAL p, field_list := {}
       AADD( field_list, { "LWRSORT", "N", 1, 0 } )
       AADD( field_list, { "LWLVIEW", "N", 1, 0 } )
       AADD( field_list, { "LWRVIEW", "N", 1, 0 } )
-      //       AADD( field_list, { "THUMBHIGH", "N", 3, 0 } )
-      //       AADD( field_list, { "THUMBWIDE", "N", 3, 0 } )
       AADD( field_list, { "SKINPATH", "C", 250, 0 } )
       AADD( field_list, { "LWLPATH", "C", 250, 0 } )
       AADD( field_list, { "LWRPATH", "C", 250, 0 } )
@@ -326,8 +323,6 @@ LOCAL p, field_list := {}
       AADD( field_list, { "COLOR13", "N", 9, 0 } )
       AADD( field_list, { "COLOR14", "N", 9, 0 } )
       AADD( field_list, { "DARKMODE", "L", 1, 0 } )
-      //       AADD( field_list, { "LASTLEFT", "N", 2, 0 } )
-      //       AADD( field_list, { "LASTRIGHT", "N", 2, 0 } )
       AADD( field_list, { "USEIMAGE", "L", 1, 0 } )
       AADD( field_list, { "COLRESIZE", "L", 1, 0 } )
       AADD( field_list, { "WINTANS", "N", 3, 0 } )
@@ -444,22 +439,10 @@ LOCAL aStructure
    ENDIF
 RETURN
 
-*+--------------------------------------------------------------------
-*+
-*+    Static Procedure DoShowBug()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC PROCEDURE DoShowBug()
-
-LOCAL aDir := DIRECTORY( "C:\*.SYS", "D" )
-LOCAL nLen := LEN( aDir )
-
-   msgInfo( LTRIM( STR( nLen ) ) + " Items" )
-
-RETURN
-
 // ***************************************************************
+//  v.1.27 17.09.2020 HbFTP : default Port := 21
+//   fixeg Thumbs ImageRelease "SlideTime"
+//   fixed SumatraPDF Filename with Space
 //  v.1.26 10.09.2020 HbFTP : include Port
 //  v.1.25 10.09.2020 BUG fix : Modi Stru
 //  v.1.24 09.09.2020 Modi Stru Validation
@@ -594,4 +577,4 @@ RETURN
 //  v.0.10 23.01.2020 Alpha 1 Release F5 F7 F8 - DragDrop
 // ***************************************************************
 
-*+ EOF: HBFM.PRG
+*+ EOF: HBFM.PRG

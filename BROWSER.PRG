@@ -60,7 +60,7 @@
 *+
 *+      Indexes: INDEX ON &cKey TO &cFile ADDITIVE
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  4:11 am
+*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:09 am
 *+
 *+--------------------------------------------------------------------
 
@@ -278,7 +278,8 @@ PUBLIC aBackColorHBP
 
       ALTD()
 
-      DEFINE WINDOW &oBrowse ;
+      //      DEFINE WINDOW &oBrowse ;
+      DEFINE WINDOW &cBroMacro ;
                  AT 371, 498 ;
                  WIDTH 800 ;
                  HEIGHT 600 ;
@@ -290,6 +291,10 @@ PUBLIC aBackColorHBP
                  ON LOSTFOCUS WinTans( ThisWindow.Name, .F. ) ;
                  ON RELEASE MultiBrowseRelease( cBroMacro, cPath, cDBF ) ;
                  BACKCOLOR SP_nColor1()
+
+         DEFINE CONTEXT MENU OF &cBroMacro
+            MENUITEM "Test" IMAGE 'MYRAMDISK16' ACTION NIL
+         END MENU
 
          DEFINE STATUSBAR PARENT oBrowse
 STATUSITEM "" WIDTH 800
@@ -417,7 +422,7 @@ STATUSITEM "" WIDTH 800
             WIDTH nPBwide - 2
             HEIGHT 40
             ACTION CopyResult( cPath, cDBF )
-            CAPTION "Copy"
+            CAPTION "F5 Copy"
             FONTNAME SP_cFontName()
             FONTSIZE SP_nFontSize()
             TABSTOP .F.
@@ -511,10 +516,7 @@ STATUSITEM "" WIDTH 800
 
       END WINDOW
 
-      //       SetProperty( oBrowse, "BrowserView", "PaintDoubleBuffer", .T. )
-
-      //  ON KEY ESCAPE OF &oBrowse ACTION Domethod( cBroMacro, "Release" )
-      //      ON KEY ESCAPE OF &oBrowse ACTION MultiBrowseRelease( cBroMacro,cPath, cDBF )
+      //  ON KEY ESCAPE OF &oBrowse ACTION MultiBrowseRelease( cBroMacro,cPath, cDBF )
       ON KEY ESCAPE OF &oBrowse ACTION Domethod( cBroMacro, "Release" )
 
       ON KEY F1 OF &oBrowse ACTION ThisDbfInfo( cDBF, cWorkArea )
@@ -551,7 +553,6 @@ STATUSITEM "" WIDTH 800
       ENDIF
 
       CENTER WINDOW &oBrowse
-      //      Domethod( oBrowse, "BrowserView", "SetFocus" )
       ACTIVATE WINDOW &oBrowse
 
       SELECT ( cWorkArea )
@@ -561,35 +562,9 @@ STATUSITEM "" WIDTH 800
 
       IF SP_lModiStruct() = .T. .AND. FILE( cAppFolder + "DBUUUU.DBF" )
          IF MsgYesNo( "change Structur of " + cPath + cDBF + CRLF, "modify Structure" )
-
-            //         pBarForm( "ChangeDBFStructur('" + cPath+','+cDBF+','+cVia+','+STR(nRecCount) + "')" )
-
+            //  pBarForm( "ChangeDBFStructur('" + cPath+','+cDBF+','+cVia+','+STR(nRecCount) + "')" )
             cPara := cPath + ',' + cDBF + ',' + cVia + ',' + STR( nRecCount )
-            ALTD()
             pBarForm( "ChangeDBFStructur('" + cPara + "')" )          // in THUMBS.PRG
-
-            // *********
-            // USE_MYDBF(cAppFolder+"DBUUUU.DBF")
-            // APPEND FROM (cPath+cDBF) VIA (cVia)
-            // // FOR FORproggress(oProgress,nEvery,i++) NEXT xMax VIA "DBFNTX"
-            // CLOSE
-            //
-            // FERASE(cPath+cDBF)
-            // RENAME (cAppFolder+"DBUUUU.DBF") TO (cPath+cDBF)
-            //
-            // cMemo := STRTRAN(cPath+cDBF,".DBF",".DBT")
-            // IF FILE(cMemo)
-            //    FERASE(cMemo)
-            //    RENAME (cAppFolder+"DBUUUU.DBT") TO (cMemo)
-            // ENDIF
-            //
-            // cMemo := STRTRAN(cPath+cDBF,".DBF",".FPT")
-            // IF FILE(cMemo)
-            //    FERASE(cMemo)
-            //    RENAME (cAppFolder+"DBUUUU.FPT") TO (cMemo)
-            // ENDIF
-            // *********
-
             SP_lModiStruct( .F. )
          ENDIF
       ENDIF
@@ -639,7 +614,7 @@ LOCAL nPosi, cWorkArea
    IF nPosi > 0
       nDimBrowse := nPosi
       cWorkArea := Stack_Browse[ nPosi ] [ ID_InArea ]
-      //  cdbf := Stack_Browse[ nPosi ] [ ID_InDBF ]
+      //  cdbf  := Stack_Browse[ nPosi ] [ ID_InDBF ]
       //  cPath := Stack_Browse[ nPosi ] [ ID_InPath ]
 
       SELECT ( cWorkArea )

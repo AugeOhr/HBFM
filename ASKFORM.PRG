@@ -9,7 +9,7 @@
 *+               Static Procedure GetNewDir()
 *+               Static Procedure SetSourceInfo()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:51 am
+*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:09 am
 *+
 *+--------------------------------------------------------------------
 
@@ -287,6 +287,11 @@ LOCAL aItem      := GetSelectItem()
    ASKFORM.Button_Start.setfocus()
    ACTIVATE WINDOW ASKFORM
 
+   IF nGridFocus = 1
+      Tab_Change_Left()
+   ELSE
+      Tab_Change_Right()
+   ENDIF
 RETURN Nil
 
 *+--------------------------------------------------------------------

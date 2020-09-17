@@ -56,7 +56,7 @@
 *+
 *+       Tables: USE (cPath+"SITES.dbf") ALIAS sites
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  7:52 am
+*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:11 am
 *+
 *+--------------------------------------------------------------------
 
@@ -1404,6 +1404,7 @@ STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
 
       editsitemanager.Text_User.value := "anonimous"
       editsitemanager.Text_PW.value := "anonimous"
+      editsitemanager.Text_Port.value := 21
    ENDIF
 
    ON KEY ESCAPE OF editsitemanager ACTION editsitemanager.Release
