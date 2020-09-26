@@ -387,10 +387,13 @@ HB_FUNC( GETICOINDEX )
 
    #ifndef _WIN64
       hb_retnl( ( LONG ) sfi.iIcon );
+      HB_STORNL( ( LONG ) ( HICON ) sfi.hIcon, 3 );
    #else
       hb_retnll( ( LONGLONG ) sfi.iIcon );
+      HB_STORNLL( ( LONGLONG ) ( HICON ) sfi.hIcon, 3 );
    #endif
 }
+
 
 // BOOL WINAPI DestroyIcon( HICON hIcon )
 HB_FUNC( DESTROYICON )
