@@ -56,7 +56,7 @@
 *+
 *+       Tables: USE (cPath+"SITES.dbf") ALIAS sites
 *+
-*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:11 am
+*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
 *+
 *+--------------------------------------------------------------------
 
@@ -264,529 +264,529 @@ RETURN nil
 STATIC PROCEDURE FTPForm( nWidth, nHeight )                           // Jimmy
 
    DEFINE WINDOW ftpMain ;
-              AT 140, 412 ;
-              WIDTH 900 ;
-              HEIGHT 609 ;
-              TITLE xTitle + xVersion ;
-              ICON "ICOFTP" ;
-              ON INIT initgrid() ;
-              ON RELEASE FTPFormExit() ;
-              ON SIZE DoReSizeMain() ;
-              ON MAXIMIZE DoReSizeMain() ;
-              ON MINIMIZE Nil ;
-              ON PAINT Nil ;
-              BACKCOLOR SP_nColor1()
+      AT 140, 412 ;
+      WIDTH 900 ;
+      HEIGHT 609 ;
+      TITLE xTitle + xVersion ;
+      ICON "ICOFTP" ;
+      ON INIT initgrid() ;
+      ON RELEASE FTPFormExit() ;
+      ON SIZE DoReSizeMain() ;
+      ON MAXIMIZE DoReSizeMain() ;
+      ON MINIMIZE Nil ;
+      ON PAINT Nil ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE GRID Grid_Local
-         ROW 95
-         COL 20
-         WIDTH 410
-         HEIGHT 445
-         ITEMS { { "", "", "", "", "" } }
-         VALUE 1
-         WIDTHS aGridWidth
-         HEADERS { '', '[Name]', 'Size', 'Date', 'Time' }
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE { || IF( lfirst,, CurrentDirectory( 1 ) ) }
-         ONGOTFOCUS { || CurrentDirectory( 1 ) }
-         ONLOSTFOCUS Nil
-         ONDBLCLICK Verify()
-         ONHEADCLICK Nil
-         ONQUERYDATA Nil
-         MULTISELECT .F.
-         ALLOWEDIT .F.
-         VIRTUAL .F.
-         DYNAMICBACKCOLOR Nil
-         DYNAMICFORECOLOR Nil
-         COLUMNWHEN Nil
-         COLUMNVALID Nil
-         COLUMNCONTROLS Nil
-         SHOWHEADERS .T.
-         CELLNAVIGATION .F.
-         NOLINES .F.
-         HELPID Nil
-         IMAGE { "MYFTPFOLDER", "MYFTPFILE" }
-         JUSTIFY { 0, BROWSE_JTFY_LEFT, BROWSE_JTFY_RIGHT, BROWSE_JTFY_CENTER, BROWSE_JTFY_CENTER }
-         ITEMCOUNT Nil
-         BACKCOLOR SP_nColor9()
-         FONTCOLOR SP_nColor10()
-         HEADERIMAGES { "" }
-         ROWSOURCE Nil
-         COLUMNFIELDS Nil
-         ALLOWAPPEND .F.
-         ALLOWDELETE .F.
-         BUFFERED .F.
-         DYNAMICDISPLAY .F.
-         ONSAVE Nil
-         LOCKCOLUMNS 0
-      END GRID
+   DEFINE GRID Grid_Local
+      ROW 95
+      COL 20
+      WIDTH 410
+      HEIGHT 445
+      ITEMS { { "", "", "", "", "" } }
+      VALUE 1
+      WIDTHS aGridWidth
+      HEADERS { '', '[Name]', 'Size', 'Date', 'Time' }
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE { || IF( lfirst,, CurrentDirectory( 1 ) ) }
+      ONGOTFOCUS { || CurrentDirectory( 1 ) }
+      ONLOSTFOCUS Nil
+      ONDBLCLICK Verify()
+      ONHEADCLICK Nil
+      ONQUERYDATA Nil
+      MULTISELECT .F.
+      ALLOWEDIT .F.
+      VIRTUAL .F.
+      DYNAMICBACKCOLOR Nil
+      DYNAMICFORECOLOR Nil
+      COLUMNWHEN Nil
+      COLUMNVALID Nil
+      COLUMNCONTROLS Nil
+      SHOWHEADERS .T.
+      CELLNAVIGATION .F.
+      NOLINES .F.
+      HELPID Nil
+      IMAGE { "MYFTPFOLDER", "MYFTPFILE" }
+      JUSTIFY { 0, BROWSE_JTFY_LEFT, BROWSE_JTFY_RIGHT, BROWSE_JTFY_CENTER, BROWSE_JTFY_CENTER }
+      ITEMCOUNT Nil
+      BACKCOLOR SP_nColor9()
+      FONTCOLOR SP_nColor10()
+      HEADERIMAGES { "" }
+      ROWSOURCE Nil
+      COLUMNFIELDS Nil
+      ALLOWAPPEND .F.
+      ALLOWDELETE .F.
+      BUFFERED .F.
+      DYNAMICDISPLAY .F.
+      ONSAVE Nil
+      LOCKCOLUMNS 0
+   END GRID
 
-      DEFINE GRID Grid_FTP
-         ROW 95
-         COL 450
-         WIDTH 410
-         HEIGHT 445
-         ITEMS {}
-         VALUE 0
-         WIDTHS { 26, 150, 80, 80, 70, 90 }
-         HEADERS { '', '[Name]', 'Size', 'Date', 'Time', 'Attributes' }
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         ONDBLCLICK FTPCWD()
-         ONHEADCLICK Nil
-         ONQUERYDATA Nil
-         MULTISELECT .F.
-         ALLOWEDIT .F.
-         VIRTUAL .F.
-         DYNAMICBACKCOLOR Nil
-         DYNAMICFORECOLOR Nil
-         COLUMNWHEN Nil
-         COLUMNVALID Nil
-         COLUMNCONTROLS Nil
-         SHOWHEADERS .T.
-         CELLNAVIGATION .F.
-         NOLINES .F.
-         HELPID Nil
-         IMAGE { "MYFTPFOLDER", "MYFTPFILE" }
-         JUSTIFY { 0, BROWSE_JTFY_LEFT, BROWSE_JTFY_RIGHT, BROWSE_JTFY_CENTER, BROWSE_JTFY_LEFT, BROWSE_JTFY_LEFT }
-         ITEMCOUNT Nil
-         BACKCOLOR SP_nColor9()
-         FONTCOLOR SP_nColor10()
-         HEADERIMAGES { "" }
-         ROWSOURCE Nil
-         COLUMNFIELDS Nil
-         ALLOWAPPEND .F.
-         ALLOWDELETE .F.
-         BUFFERED .F.
-         DYNAMICDISPLAY .F.
-         ONSAVE Nil
-         LOCKCOLUMNS 0
-      END GRID
+   DEFINE GRID Grid_FTP
+      ROW 95
+      COL 450
+      WIDTH 410
+      HEIGHT 445
+      ITEMS {}
+      VALUE 0
+      WIDTHS { 26, 150, 80, 80, 70, 90 }
+      HEADERS { '', '[Name]', 'Size', 'Date', 'Time', 'Attributes' }
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      ONDBLCLICK FTPCWD()
+      ONHEADCLICK Nil
+      ONQUERYDATA Nil
+      MULTISELECT .F.
+      ALLOWEDIT .F.
+      VIRTUAL .F.
+      DYNAMICBACKCOLOR Nil
+      DYNAMICFORECOLOR Nil
+      COLUMNWHEN Nil
+      COLUMNVALID Nil
+      COLUMNCONTROLS Nil
+      SHOWHEADERS .T.
+      CELLNAVIGATION .F.
+      NOLINES .F.
+      HELPID Nil
+      IMAGE { "MYFTPFOLDER", "MYFTPFILE" }
+      JUSTIFY { 0, BROWSE_JTFY_LEFT, BROWSE_JTFY_RIGHT, BROWSE_JTFY_CENTER, BROWSE_JTFY_LEFT, BROWSE_JTFY_LEFT }
+      ITEMCOUNT Nil
+      BACKCOLOR SP_nColor9()
+      FONTCOLOR SP_nColor10()
+      HEADERIMAGES { "" }
+      ROWSOURCE Nil
+      COLUMNFIELDS Nil
+      ALLOWAPPEND .F.
+      ALLOWDELETE .F.
+      BUFFERED .F.
+      DYNAMICDISPLAY .F.
+      ONSAVE Nil
+      LOCKCOLUMNS 0
+   END GRID
 
-      DEFINE LABEL Label_SrvPath
-         ROW 545
-         COL 450
-         WIDTH 400
-         HEIGHT 24
-         VALUE ""
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
+   DEFINE LABEL Label_SrvPath
+      ROW 545
+      COL 450
+      WIDTH 400
+      HEIGHT 24
+      VALUE ""
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
 
-      DEFINE BUTTON Button_Upload
-         ROW 280
-         COL 430
-         WIDTH 20
-         HEIGHT 44
-         ACTION FTPUP()
-         CAPTION ""
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP "Upload files to FTP - server"
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .T.
-         MULTILINE .T.
-         PICTURE "MYFTP16UP"
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_Upload
+      ROW 280
+      COL 430
+      WIDTH 20
+      HEIGHT 44
+      ACTION FTPUP()
+      CAPTION ""
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP "Upload files to FTP - server"
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .T.
+      MULTILINE .T.
+      PICTURE "MYFTP16UP"
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_Download
-         ROW 330
-         COL 430
-         WIDTH 20
-         HEIGHT 44
-         ACTION FTPDOWN()
-         CAPTION ""
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP "Download files from FTP - server"
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .T.
-         MULTILINE .T.
-         PICTURE "MYFTP16DOWN"
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_Download
+      ROW 330
+      COL 430
+      WIDTH 20
+      HEIGHT 44
+      ACTION FTPDOWN()
+      CAPTION ""
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP "Download files from FTP - server"
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .T.
+      MULTILINE .T.
+      PICTURE "MYFTP16DOWN"
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_Connect1
-         ROW 5
-         COL 610
-         WIDTH 100
-         HEIGHT 28
-         ACTION ftpconn1()
-         CAPTION "&Connect"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_Connect1
+      ROW 5
+      COL 610
+      WIDTH 100
+      HEIGHT 28
+      ACTION ftpconn1()
+      CAPTION "&Connect"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_Disconnect
-         ROW 5
-         COL 730
-         WIDTH 100
-         HEIGHT 28
-         ACTION ftpclose()
-         CAPTION "&Disconnect"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_Disconnect
+      ROW 5
+      COL 730
+      WIDTH 100
+      HEIGHT 28
+      ACTION ftpclose()
+      CAPTION "&Disconnect"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_MD_Local
-         ROW 60
-         COL 490
-         WIDTH 100
-         HEIGHT 28
-         ACTION ftpmkdir()
-         CAPTION "Make Dir"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_MD_Local
+      ROW 60
+      COL 490
+      WIDTH 100
+      HEIGHT 28
+      ACTION ftpmkdir()
+      CAPTION "Make Dir"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_REN_Local
-         ROW 60
-         COL 610
-         WIDTH 100
-         HEIGHT 28
-         ACTION ftpren()
-         CAPTION "Rename"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_REN_Local
+      ROW 60
+      COL 610
+      WIDTH 100
+      HEIGHT 28
+      ACTION ftpren()
+      CAPTION "Rename"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_DEL_Local
-         ROW 60
-         COL 730
-         WIDTH 100
-         HEIGHT 28
-         ACTION ftpdel()
-         CAPTION "Delete"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_DEL_Local
+      ROW 60
+      COL 730
+      WIDTH 100
+      HEIGHT 28
+      ACTION ftpdel()
+      CAPTION "Delete"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE LABEL Label_CurDir
-         ROW 545
-         COL 20
-         WIDTH 400
-         HEIGHT 24
-         VALUE "aSubDirectory[1][1]"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
+   DEFINE LABEL Label_CurDir
+      ROW 545
+      COL 20
+      WIDTH 400
+      HEIGHT 24
+      VALUE "aSubDirectory[1][1]"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
 
-      DEFINE BUTTON Button_MD_Remote
-         ROW 59
-         COL 30
-         WIDTH 70
-         HEIGHT 28
-         ACTION localmkdir()
-         CAPTION "Make Dir"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_MD_Remote
+      ROW 59
+      COL 30
+      WIDTH 70
+      HEIGHT 28
+      ACTION localmkdir()
+      CAPTION "Make Dir"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_REN_Remote
-         ROW 60
-         COL 110
-         WIDTH 70
-         HEIGHT 28
-         ACTION localren()
-         CAPTION "Rename"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_REN_Remote
+      ROW 60
+      COL 110
+      WIDTH 70
+      HEIGHT 28
+      ACTION localren()
+      CAPTION "Rename"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_DEL_Remote
-         ROW 60
-         COL 190
-         WIDTH 70
-         HEIGHT 28
-         ACTION LocalDel()
-         CAPTION "Delete"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_DEL_Remote
+      ROW 60
+      COL 190
+      WIDTH 70
+      HEIGHT 28
+      ACTION LocalDel()
+      CAPTION "Delete"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE COMBOBOX Combo_Drive
-         ROW 60
-         COL 360
-         WIDTH 60
-         HEIGHT 500
-         ITEMS caItems
-         IMAGE acImage
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         TABSTOP .T.
-         DROPPEDWIDTH 150
-         OnCloseUp ChangeLocalDrive( )
-      END COMBOBOX
+   DEFINE COMBOBOX Combo_Drive
+      ROW 60
+      COL 360
+      WIDTH 60
+      HEIGHT 500
+      ITEMS caItems
+      IMAGE acImage
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      TABSTOP .T.
+      DROPPEDWIDTH 150
+      OnCloseUp ChangeLocalDrive( )
+   END COMBOBOX
 
-      //  DEFINE BUTTON Button_11
-      //     ROW 60
-      //     COL 270
-      //     WIDTH 70
-      //     HEIGHT 28
-      //     ACTION Nil
-      //     CAPTION "View"
-      //     FONTNAME SP_cFontName()
-      //     FONTSIZE SP_nFontSize()
-      //     TOOLTIP ""
-      //     ONGOTFOCUS Nil
-      //     ONLOSTFOCUS Nil
-      //     HELPID Nil
-      //     FLAT .F.
-      //     TABSTOP .T.
-      //     VISIBLE .T.
-      //     TRANSPARENT .F.
-      //     MULTILINE .F.
-      //     PICTURE Nil
-      //     PICTALIGNMENT TOP
-      //  END BUTTON
+   //  DEFINE BUTTON Button_11
+   //     ROW 60
+   //     COL 270
+   //     WIDTH 70
+   //     HEIGHT 28
+   //     ACTION Nil
+   //     CAPTION "View"
+   //     FONTNAME SP_cFontName()
+   //     FONTSIZE SP_nFontSize()
+   //     TOOLTIP ""
+   //     ONGOTFOCUS Nil
+   //     ONLOSTFOCUS Nil
+   //     HELPID Nil
+   //     FLAT .F.
+   //     TABSTOP .T.
+   //     VISIBLE .T.
+   //     TRANSPARENT .F.
+   //     MULTILINE .F.
+   //     PICTURE Nil
+   //     PICTALIGNMENT TOP
+   //  END BUTTON
 
-      //  DEFINE BUTTON Button_12
-      //     ROW 60
-      //     COL 350
-      //     WIDTH 70
-      //     HEIGHT 28
-      //     ACTION Nil
-      //     CAPTION "Run"
-      //     FONTNAME SP_cFontName()
-      //     FONTSIZE SP_nFontSize()
-      //     TOOLTIP ""
-      //     ONGOTFOCUS Nil
-      //     ONLOSTFOCUS Nil
-      //     HELPID Nil
-      //     FLAT .F.
-      //     TABSTOP .T.
-      //     VISIBLE .T.
-      //     TRANSPARENT .F.
-      //     MULTILINE .F.
-      //     PICTURE Nil
-      //     PICTALIGNMENT TOP
-      //  END BUTTON
+   //  DEFINE BUTTON Button_12
+   //     ROW 60
+   //     COL 350
+   //     WIDTH 70
+   //     HEIGHT 28
+   //     ACTION Nil
+   //     CAPTION "Run"
+   //     FONTNAME SP_cFontName()
+   //     FONTSIZE SP_nFontSize()
+   //     TOOLTIP ""
+   //     ONGOTFOCUS Nil
+   //     ONLOSTFOCUS Nil
+   //     HELPID Nil
+   //     FLAT .F.
+   //     TABSTOP .T.
+   //     VISIBLE .T.
+   //     TRANSPARENT .F.
+   //     MULTILINE .F.
+   //     PICTURE Nil
+   //     PICTALIGNMENT TOP
+   //  END BUTTON
 
-      DEFINE LABEL Label_LocalPC
-         ROW 40
-         COL 20
-         WIDTH 410
-         HEIGHT 18
-         VALUE "Local Computer"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR { 0, 0, 255 }
-         FONTCOLOR { 255, 255, 255 }
-         CENTERALIGN .T.
-      END LABEL
+   DEFINE LABEL Label_LocalPC
+      ROW 40
+      COL 20
+      WIDTH 410
+      HEIGHT 18
+      VALUE "Local Computer"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR { 0, 0, 255 }
+      FONTCOLOR { 255, 255, 255 }
+      CENTERALIGN .T.
+   END LABEL
 
-      DEFINE LABEL Label_FTPServer
-         ROW 40
-         COL 450
-         WIDTH 410
-         HEIGHT 17
-         VALUE "FTP - Server"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR { 0, 0, 255 }
-         FONTCOLOR { 255, 255, 255 }
-         CENTERALIGN .T.
-      END LABEL
+   DEFINE LABEL Label_FTPServer
+      ROW 40
+      COL 450
+      WIDTH 410
+      HEIGHT 17
+      VALUE "FTP - Server"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR { 0, 0, 255 }
+      FONTCOLOR { 255, 255, 255 }
+      CENTERALIGN .T.
+   END LABEL
 
-      DEFINE BUTTON Button_Sites
-         ROW 5
-         COL 490
-         WIDTH 100
-         HEIGHT 28
-         ACTION SiteForm()
-         CAPTION "&Sites"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_Sites
+      ROW 5
+      COL 490
+      WIDTH 100
+      HEIGHT 28
+      ACTION SiteForm()
+      CAPTION "&Sites"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE COMBOBOX Combo_Sites
-         ROW 10
-         COL 30
-         WIDTH 390
-         HEIGHT 100
-         ITEMS { "" }
-         VALUE 1
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         SORT .F.
-         ONENTER Nil
-         ONDISPLAYCHANGE Nil
-         DISPLAYEDIT .F.
-         ITEMSOURCE sites->Name
-         IMAGE Nil
-         DROPPEDWIDTH Nil
-         ONDROPDOWN Nil
-         ONCLOSEUP Nil
-      END COMBOBOX
+   DEFINE COMBOBOX Combo_Sites
+      ROW 10
+      COL 30
+      WIDTH 390
+      HEIGHT 100
+      ITEMS { "" }
+      VALUE 1
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      SORT .F.
+      ONENTER Nil
+      ONDISPLAYCHANGE Nil
+      DISPLAYEDIT .F.
+      ITEMSOURCE sites->Name
+      IMAGE Nil
+      DROPPEDWIDTH Nil
+      ONDROPDOWN Nil
+      ONCLOSEUP Nil
+   END COMBOBOX
 
-      DEFINE PROGRESSBAR ProgressBar_1
-         ROW 565
-         COL 0
-         WIDTH 880
-         HEIGHT 3
-         RANGEMIN 1
-         RANGEMAX 100
-         VALUE 0
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .F.
-         SMOOTH .F.
-         VERTICAL .F.
-         BACKCOLOR NIL
-         FORECOLOR NIL
-      END PROGRESSBAR
+   DEFINE PROGRESSBAR ProgressBar_1
+      ROW 565
+      COL 0
+      WIDTH 880
+      HEIGHT 3
+      RANGEMIN 1
+      RANGEMAX 100
+      VALUE 0
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .F.
+      SMOOTH .F.
+      VERTICAL .F.
+      BACKCOLOR NIL
+      FORECOLOR NIL
+   END PROGRESSBAR
 
    END WINDOW
 
@@ -832,155 +832,155 @@ RETURN
 STATIC PROCEDURE SiteForm()                                           // Jimmy
 
    DEFINE WINDOW sitemanager ;
-              AT 0, 0 ;
-              WIDTH 472 ;
-              HEIGHT 295 ;
-              TITLE "Site Manager" ;
-              ICON NIL ;
-              TOPMOST ;
-              CURSOR NIL ;
-              ON INIT NIL ;
-              ON RELEASE NIL ;
-              NOSIZE ;
-              NOMAXIMIZE ;
-              NOMINIMIZE ;
-              ON PAINT NIL ;
-              BACKCOLOR SP_nColor1()
+      AT 0, 0 ;
+      WIDTH 472 ;
+      HEIGHT 295 ;
+      TITLE "Site Manager" ;
+      ICON NIL ;
+      TOPMOST ;
+      CURSOR NIL ;
+      ON INIT NIL ;
+      ON RELEASE NIL ;
+      NOSIZE ;
+      NOMAXIMIZE ;
+      NOMINIMIZE ;
+      ON PAINT NIL ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE BROWSE Browse_1
-         ROW 10
-         COL 5
-         WIDTH 346
-         HEIGHT 233
-         VALUE 1                                                      // ftpMain.Combo_Sites.value
-         WIDTHS { 600, 1000, 600, 200 }
-         HEADERS { 'Name', 'Address', 'User', 'Password' }
-         WORKAREA Sites
-         FIELDS { 'Sites->NAME', 'Sites->ADDRESS', 'Sites->USER', 'Sites->PASSWORD' }
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE NIL
-         ONGOTFOCUS NIL
-         ONLOSTFOCUS NIL
-         ONDBLCLICK EditForm()                                        // editsite()
-         ALLOWEDIT .F.
-         ALLOWAPPEND .F.
-         ONHEADCLICK NIL
-         ALLOWDELETE .F.
-         HELPID NIL
-         VALID NIL
-         VALIDMESSAGES NIL
-         LOCK .F.
-         VSCROLLBAR .T.
-         DYNAMICFORECOLOR NIL
-         DYNAMICBACKCOLOR NIL
-         INPUTMASK NIL
-         FORMAT NIL
-         WHEN NIL
-         BACKCOLOR SP_nColor9()
-         FONTCOLOR SP_nColor10()
-         IMAGE NIL
-         JUSTIFY NIL
-         NOLINES .F.
-         READONLYFIELDS NIL
-         INPLACEEDIT .F.
-      END BROWSE
+   DEFINE BROWSE Browse_1
+      ROW 10
+      COL 5
+      WIDTH 346
+      HEIGHT 233
+      VALUE 1                                                         // ftpMain.Combo_Sites.value
+      WIDTHS { 600, 1000, 600, 200 }
+      HEADERS { 'Name', 'Address', 'User', 'Password' }
+      WORKAREA Sites
+      FIELDS { 'Sites->NAME', 'Sites->ADDRESS', 'Sites->USER', 'Sites->PASSWORD' }
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE NIL
+      ONGOTFOCUS NIL
+      ONLOSTFOCUS NIL
+      ONDBLCLICK EditForm()                                           // editsite()
+      ALLOWEDIT .F.
+      ALLOWAPPEND .F.
+      ONHEADCLICK NIL
+      ALLOWDELETE .F.
+      HELPID NIL
+      VALID NIL
+      VALIDMESSAGES NIL
+      LOCK .F.
+      VSCROLLBAR .T.
+      DYNAMICFORECOLOR NIL
+      DYNAMICBACKCOLOR NIL
+      INPUTMASK NIL
+      FORMAT NIL
+      WHEN NIL
+      BACKCOLOR SP_nColor9()
+      FONTCOLOR SP_nColor10()
+      IMAGE NIL
+      JUSTIFY NIL
+      NOLINES .F.
+      READONLYFIELDS NIL
+      INPLACEEDIT .F.
+   END BROWSE
 
-      DEFINE BUTTON Button_Connect2
-         ROW 10
-         COL 350
-         WIDTH 100
-         HEIGHT 28
-         CAPTION "&Connect"
-         ACTION ftpconn2()
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS NIL
-         ONLOSTFOCUS NIL
-         HELPID NIL
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-      END BUTTON
+   DEFINE BUTTON Button_Connect2
+      ROW 10
+      COL 350
+      WIDTH 100
+      HEIGHT 28
+      CAPTION "&Connect"
+      ACTION ftpconn2()
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS NIL
+      ONLOSTFOCUS NIL
+      HELPID NIL
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+   END BUTTON
 
-      DEFINE BUTTON Button_CreateSite
-         ROW 40
-         COL 350
-         WIDTH 100
-         HEIGHT 28
-         CAPTION "Create &site..."
-         ACTION EditForm( "new" )
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS NIL
-         ONLOSTFOCUS NIL
-         HELPID NIL
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-      END BUTTON
+   DEFINE BUTTON Button_CreateSite
+      ROW 40
+      COL 350
+      WIDTH 100
+      HEIGHT 28
+      CAPTION "Create &site..."
+      ACTION EditForm( "new" )
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS NIL
+      ONLOSTFOCUS NIL
+      HELPID NIL
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+   END BUTTON
 
-      DEFINE BUTTON Button_EditSite
-         ROW 70
-         COL 350
-         WIDTH 100
-         HEIGHT 28
-         CAPTION "&Edit..."
-         ACTION EditForm()
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS NIL
-         ONLOSTFOCUS NIL
-         HELPID NIL
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-      END BUTTON
+   DEFINE BUTTON Button_EditSite
+      ROW 70
+      COL 350
+      WIDTH 100
+      HEIGHT 28
+      CAPTION "&Edit..."
+      ACTION EditForm()
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS NIL
+      ONLOSTFOCUS NIL
+      HELPID NIL
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+   END BUTTON
 
-      DEFINE BUTTON Button_DeleteSite
-         ROW 100
-         COL 350
-         WIDTH 100
-         HEIGHT 28
-         CAPTION "&Delete"
-         ACTION ftpdelete()
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS NIL
-         ONLOSTFOCUS NIL
-         HELPID NIL
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-      END BUTTON
+   DEFINE BUTTON Button_DeleteSite
+      ROW 100
+      COL 350
+      WIDTH 100
+      HEIGHT 28
+      CAPTION "&Delete"
+      ACTION ftpdelete()
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS NIL
+      ONLOSTFOCUS NIL
+      HELPID NIL
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+   END BUTTON
 
-      DEFINE BUTTON Button_ExitSite
-         ROW 130
-         COL 350
-         WIDTH 100
-         HEIGHT 28
-         CAPTION "E&xit"
-         ACTION sitemanagerexit()
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS NIL
-         ONLOSTFOCUS NIL
-         HELPID NIL
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-      END BUTTON
+   DEFINE BUTTON Button_ExitSite
+      ROW 130
+      COL 350
+      WIDTH 100
+      HEIGHT 28
+      CAPTION "E&xit"
+      ACTION sitemanagerexit()
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS NIL
+      ONLOSTFOCUS NIL
+      HELPID NIL
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+   END BUTTON
 
    END WINDOW
 
@@ -1001,389 +1001,389 @@ RETURN
 STATIC PROCEDURE EditForm( xParam )                                   // Jimmy
 
    DEFINE WINDOW editsitemanager ;
-              AT 324, 493 ;
-              WIDTH 450 ;
-              HEIGHT 320 ;
-              TITLE "FTP Server Properties" ;
-              ICON NIL ;
-              TOPMOST ;
-              ON INIT Nil ;
-              ON RELEASE Nil ;
-              NOSIZE ;
-              NOMAXIMIZE ;
-              NOMINIMIZE ;
-              ON PAINT Nil ;
-              BACKCOLOR SP_nColor1()
+      AT 324, 493 ;
+      WIDTH 450 ;
+      HEIGHT 320 ;
+      TITLE "FTP Server Properties" ;
+      ICON NIL ;
+      TOPMOST ;
+      ON INIT Nil ;
+      ON RELEASE Nil ;
+      NOSIZE ;
+      NOMAXIMIZE ;
+      NOMINIMIZE ;
+      ON PAINT Nil ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE FRAME Frame_1
-         ROW 19
-         COL 10
-         WIDTH 410
-         HEIGHT 205
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         CAPTION NIL
-         BACKCOLOR Nil
-         FONTCOLOR Nil
-         OPAQUE .T.
-      END FRAME
+   DEFINE FRAME Frame_1
+      ROW 19
+      COL 10
+      WIDTH 410
+      HEIGHT 205
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      CAPTION NIL
+      BACKCOLOR Nil
+      FONTCOLOR Nil
+      OPAQUE .T.
+   END FRAME
 
-      DEFINE LABEL Label_Name
-         ROW 30
-         COL 20
-         WIDTH 60
-         HEIGHT 24
-         VALUE "Site name"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
+   DEFINE LABEL Label_Name
+      ROW 30
+      COL 20
+      WIDTH 60
+      HEIGHT 24
+      VALUE "Site name"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
 
-      DEFINE LABEL Label_Adress
-         ROW 60
-         COL 20
-         WIDTH 80
-         HEIGHT 24
-         VALUE "FTP Server"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
+   DEFINE LABEL Label_Adress
+      ROW 60
+      COL 20
+      WIDTH 80
+      HEIGHT 24
+      VALUE "FTP Server"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
 
-      DEFINE LABEL Label_Port                                         // Jimmy
-         ROW 90
-         COL 20
-         WIDTH 80
-         HEIGHT 24
-         VALUE "Port"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
+   DEFINE LABEL Label_Port                                            // Jimmy
+      ROW 90
+      COL 20
+      WIDTH 80
+      HEIGHT 24
+      VALUE "Port"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
 
-      DEFINE LABEL Label_User
-         ROW 120
-         COL 20
-         WIDTH 60
-         HEIGHT 24
-         VALUE "User id"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
+   DEFINE LABEL Label_User
+      ROW 120
+      COL 20
+      WIDTH 60
+      HEIGHT 24
+      VALUE "User id"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
 
-      DEFINE LABEL Label_PW
-         ROW 150
-         COL 20
-         WIDTH 60
-         HEIGHT 24
-         VALUE "Password"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
+   DEFINE LABEL Label_PW
+      ROW 150
+      COL 20
+      WIDTH 60
+      HEIGHT 24
+      VALUE "Password"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
 
-      DEFINE LABEL Label_SPath
-         ROW 180
-         COL 20
-         WIDTH 65
-         HEIGHT 24
-         VALUE "Initial Path"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         HELPID Nil
-         VISIBLE .T.
-         TRANSPARENT .F.
-         ACTION Nil
-         AUTOSIZE .F.
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
+   DEFINE LABEL Label_SPath
+      ROW 180
+      COL 20
+      WIDTH 65
+      HEIGHT 24
+      VALUE "Initial Path"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      HELPID Nil
+      VISIBLE .T.
+      TRANSPARENT .F.
+      ACTION Nil
+      AUTOSIZE .F.
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
 
-      DEFINE TEXTBOX Text_Name
-         ROW 30
-         COL 110
-         WIDTH 300
-         HEIGHT 24
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         ONENTER Nil
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         READONLY .F.
-         RIGHTALIGN .F.
-         DISABLEDBACKCOLOR Nil
-         DISABLEDFONTCOLOR Nil
-         CASECONVERT NONE
-         BACKCOLOR SP_nColor5()
-         FONTCOLOR SP_nColor6()
-         INPUTMASK Nil
-         FORMAT Nil
-         VALUE ""
-      END TEXTBOX
+   DEFINE TEXTBOX Text_Name
+      ROW 30
+      COL 110
+      WIDTH 300
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      ONENTER Nil
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      READONLY .F.
+      RIGHTALIGN .F.
+      DISABLEDBACKCOLOR Nil
+      DISABLEDFONTCOLOR Nil
+      CASECONVERT NONE
+      BACKCOLOR SP_nColor5()
+      FONTCOLOR SP_nColor6()
+      INPUTMASK Nil
+      FORMAT Nil
+      VALUE ""
+   END TEXTBOX
 
-      DEFINE TEXTBOX Text_Adress
-         ROW 60
-         COL 110
-         WIDTH 300
-         HEIGHT 24
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         ONENTER Nil
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         READONLY .F.
-         RIGHTALIGN .F.
-         DISABLEDBACKCOLOR Nil
-         DISABLEDFONTCOLOR Nil
-         CASECONVERT NONE
-         BACKCOLOR SP_nColor5()
-         FONTCOLOR SP_nColor6()
-         INPUTMASK Nil
-         FORMAT Nil
-         VALUE ""
-      END TEXTBOX
+   DEFINE TEXTBOX Text_Adress
+      ROW 60
+      COL 110
+      WIDTH 300
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      ONENTER Nil
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      READONLY .F.
+      RIGHTALIGN .F.
+      DISABLEDBACKCOLOR Nil
+      DISABLEDFONTCOLOR Nil
+      CASECONVERT NONE
+      BACKCOLOR SP_nColor5()
+      FONTCOLOR SP_nColor6()
+      INPUTMASK Nil
+      FORMAT Nil
+      VALUE ""
+   END TEXTBOX
 
-      DEFINE TEXTBOX Text_Port
-         ROW 90
-         COL 110
-         WIDTH 100
-         HEIGHT 24
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         ONENTER Nil
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         READONLY .F.
-         RIGHTALIGN .F.
-         DISABLEDBACKCOLOR Nil
-         DISABLEDFONTCOLOR Nil
-         CASECONVERT NONE
-         BACKCOLOR SP_nColor5()
-         FONTCOLOR SP_nColor6()
-         DATATYPE NUMERIC
-         INPUTMASK "99999"
-         FORMAT Nil
-         VALUE ""
-      END TEXTBOX
+   DEFINE TEXTBOX Text_Port
+      ROW 90
+      COL 110
+      WIDTH 100
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      ONENTER Nil
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      READONLY .F.
+      RIGHTALIGN .F.
+      DISABLEDBACKCOLOR Nil
+      DISABLEDFONTCOLOR Nil
+      CASECONVERT NONE
+      BACKCOLOR SP_nColor5()
+      FONTCOLOR SP_nColor6()
+      DATATYPE NUMERIC
+      INPUTMASK "99999"
+      FORMAT Nil
+      VALUE ""
+   END TEXTBOX
 
-      DEFINE TEXTBOX Text_User
-         ROW 120
-         COL 110
-         WIDTH 300
-         HEIGHT 24
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         ONENTER Nil
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         READONLY .F.
-         RIGHTALIGN .F.
-         DISABLEDBACKCOLOR Nil
-         DISABLEDFONTCOLOR Nil
-         CASECONVERT NONE
-         BACKCOLOR SP_nColor5()
-         FONTCOLOR SP_nColor6()
-         INPUTMASK Nil
-         FORMAT Nil
-         VALUE ""
-      END TEXTBOX
+   DEFINE TEXTBOX Text_User
+      ROW 120
+      COL 110
+      WIDTH 300
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      ONENTER Nil
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      READONLY .F.
+      RIGHTALIGN .F.
+      DISABLEDBACKCOLOR Nil
+      DISABLEDFONTCOLOR Nil
+      CASECONVERT NONE
+      BACKCOLOR SP_nColor5()
+      FONTCOLOR SP_nColor6()
+      INPUTMASK Nil
+      FORMAT Nil
+      VALUE ""
+   END TEXTBOX
 
-      DEFINE TEXTBOX Text_PW
-         ROW 150
-         COL 110
-         WIDTH 180
-         HEIGHT 24
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         ONENTER Nil
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         READONLY .F.
-         RIGHTALIGN .F.
-         DISABLEDBACKCOLOR Nil
-         DISABLEDFONTCOLOR Nil
-         CASECONVERT NONE
-         BACKCOLOR SP_nColor5()
-         FONTCOLOR SP_nColor6()
-         INPUTMASK Nil
-         FORMAT Nil
-         VALUE ""
-      END TEXTBOX
+   DEFINE TEXTBOX Text_PW
+      ROW 150
+      COL 110
+      WIDTH 180
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      ONENTER Nil
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      READONLY .F.
+      RIGHTALIGN .F.
+      DISABLEDBACKCOLOR Nil
+      DISABLEDFONTCOLOR Nil
+      CASECONVERT NONE
+      BACKCOLOR SP_nColor5()
+      FONTCOLOR SP_nColor6()
+      INPUTMASK Nil
+      FORMAT Nil
+      VALUE ""
+   END TEXTBOX
 
-      DEFINE CHECKBOX Check_MaskPW
-         ROW 147
-         COL 300
-         WIDTH 110
-         HEIGHT 28
-         CAPTION "Mask Password"
-         VALUE .F.
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE ShowPassword()
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         BACKCOLOR NIL
-         FONTCOLOR NIL
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-      END CHECKBOX
+   DEFINE CHECKBOX Check_MaskPW
+      ROW 147
+      COL 300
+      WIDTH 110
+      HEIGHT 28
+      CAPTION "Mask Password"
+      VALUE .F.
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE ShowPassword()
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      BACKCOLOR NIL
+      FONTCOLOR NIL
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+   END CHECKBOX
 
-      DEFINE TEXTBOX Text_SPath
-         ROW 180
-         COL 110
-         WIDTH 241
-         HEIGHT 24
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         ONENTER Nil
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         READONLY .F.
-         RIGHTALIGN .F.
-         DISABLEDBACKCOLOR Nil
-         DISABLEDFONTCOLOR Nil
-         CASECONVERT NONE
-         BACKCOLOR SP_nColor5()
-         FONTCOLOR SP_nColor6()
-         INPUTMASK Nil
-         FORMAT Nil
-         VALUE "/"
-      END TEXTBOX
+   DEFINE TEXTBOX Text_SPath
+      ROW 180
+      COL 110
+      WIDTH 241
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      ONENTER Nil
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      READONLY .F.
+      RIGHTALIGN .F.
+      DISABLEDBACKCOLOR Nil
+      DISABLEDFONTCOLOR Nil
+      CASECONVERT NONE
+      BACKCOLOR SP_nColor5()
+      FONTCOLOR SP_nColor6()
+      INPUTMASK Nil
+      FORMAT Nil
+      VALUE "/"
+   END TEXTBOX
 
-      DEFINE CHECKBOX Check_Log
-         ROW 177
-         COL 370
-         WIDTH 40
-         HEIGHT 28
-         CAPTION "Log"
-         VALUE .F.
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         BACKCOLOR NIL
-         FONTCOLOR NIL
-         HELPID Nil
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-      END CHECKBOX
+   DEFINE CHECKBOX Check_Log
+      ROW 177
+      COL 370
+      WIDTH 40
+      HEIGHT 28
+      CAPTION "Log"
+      VALUE .F.
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      BACKCOLOR NIL
+      FONTCOLOR NIL
+      HELPID Nil
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+   END CHECKBOX
 
-      DEFINE BUTTON Button_Save
-         ROW 235
-         COL 200
-         WIDTH 100
-         HEIGHT 30
-         ACTION ftppropsave()
-         CAPTION "&Save"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_Save
+      ROW 235
+      COL 200
+      WIDTH 100
+      HEIGHT 30
+      ACTION ftppropsave()
+      CAPTION "&Save"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
-      DEFINE BUTTON Button_Cancel
-         ROW 235
-         COL 320
-         WIDTH 100
-         HEIGHT 30
-         ACTION ftppropcancel()
-         CAPTION "Cancel"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         HELPID Nil
-         FLAT .F.
-         TABSTOP .T.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         PICTURE Nil
-         PICTALIGNMENT TOP
-      END BUTTON
+   DEFINE BUTTON Button_Cancel
+      ROW 235
+      COL 320
+      WIDTH 100
+      HEIGHT 30
+      ACTION ftppropcancel()
+      CAPTION "Cancel"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      HELPID Nil
+      FLAT .F.
+      TABSTOP .T.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+      PICTURE Nil
+      PICTALIGNMENT TOP
+   END BUTTON
 
    END WINDOW
 

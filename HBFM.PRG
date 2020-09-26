@@ -14,7 +14,7 @@
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:10 am
+*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
 *+
 *+--------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ REQUEST HB_CODEPAGE_RU1251
 REQUEST HB_CODEPAGE_SRWIN
 REQUEST HB_CODEPAGE_SLWIN
 
-STATIC cVersion     := "v1.27"
+STATIC cVersion     := "v1.30"
 MEMVAR _HMG_SYSDATA
 
 *+--------------------------------------------------------------------
@@ -440,6 +440,10 @@ LOCAL aStructure
 RETURN
 
 // ***************************************************************
+//  v.1.30 26.09.2020 Problem when delete many Files. now BEGIN SEQUENCE
+//  v.1.29 22.09.2020 BUG GETICOINDEX() sind v1.17 in FMGRID.PRG DirImageColor()
+//  v.1.28 21.09.2020 integrate VFP Type "I" and "@" (Timestamp)
+//   need change in HMG \Source\H_BROWSE.PRG amd h_controlmisc.prg
 //  v.1.27 17.09.2020 HbFTP : default Port := 21
 //   fixeg Thumbs ImageRelease "SlideTime"
 //   fixed SumatraPDF Filename with Space

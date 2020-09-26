@@ -30,7 +30,7 @@
 *+               Function ShowRowCol()
 *+               Static Function RTF_RowCol()
 *+
-*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:11 am
+*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
 *+
 *+--------------------------------------------------------------------
 
@@ -90,38 +90,38 @@ STATIC lRunning := .F.
    cMemo := HB_MEMOREAD( cFile )
 
    DEFINE WINDOW TXTEdit ;
-              AT 240, 384 ;
-              WIDTH 800 ;
-              HEIGHT 600 ;
-              TITLE cFile ;
-              ON SIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
-              ON MAXIMIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
-              ON RELEASE TXTRelease( lEdit, cFile ) ;
-              BACKCOLOR SP_nColor1()
+      AT 240, 384 ;
+      WIDTH 800 ;
+      HEIGHT 600 ;
+      TITLE cFile ;
+      ON SIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
+      ON MAXIMIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
+      ON RELEASE TXTRelease( lEdit, cFile ) ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE STATUSBAR PARENT TXTEdit
+   DEFINE STATUSBAR PARENT TXTEdit
 STATUSITEM "TXTCtrl()" WIDTH 400
-      END STATUSBAR
+   END STATUSBAR
 
-      DEFINE EDITBOX TXTCtrl
-         ROW 10
-         COL 10
-         WIDTH 760
-         HEIGHT 520
-         VALUE cMemo
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .T.
-         VISIBLE .T.
-         READONLY !lEdit
-         HSCROLLBAR lEdit
-         VSCROLLBAR .T.
-         DISABLEDBACKCOLOR SP_nColor13()
-         DISABLEDFONTCOLOR SP_nColor14()
-         BACKCOLOR SP_nColor5()
-         FONTCOLOR SP_nColor6()
-         ONCHANGE OnChanged()
-      END EDITBOX
+   DEFINE EDITBOX TXTCtrl
+      ROW 10
+      COL 10
+      WIDTH 760
+      HEIGHT 520
+      VALUE cMemo
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .T.
+      VISIBLE .T.
+      READONLY !lEdit
+      HSCROLLBAR lEdit
+      VSCROLLBAR .T.
+      DISABLEDBACKCOLOR SP_nColor13()
+      DISABLEDFONTCOLOR SP_nColor14()
+      BACKCOLOR SP_nColor5()
+      FONTCOLOR SP_nColor6()
+      ONCHANGE OnChanged()
+   END EDITBOX
 
    END WINDOW
 
@@ -196,31 +196,31 @@ STATIC lRunning := .F.
    DO EVENTS
 
    DEFINE WINDOW RTFEdit ;
-              AT 292, 562 ;
-              WIDTH 800 ;
-              HEIGHT 600 ;
-              TITLE cFile ;
-              ON SIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
-              ON MAXIMIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
-              ON RELEASE RTFRelease( lEdit, cFile ) ;
-              BACKCOLOR SP_nColor1()
+      AT 292, 562 ;
+      WIDTH 800 ;
+      HEIGHT 600 ;
+      TITLE cFile ;
+      ON SIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
+      ON MAXIMIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
+      ON RELEASE RTFRelease( lEdit, cFile ) ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE STATUSBAR PARENT RTFEdit
+   DEFINE STATUSBAR PARENT RTFEdit
 STATUSITEM "RTFCtrl()" WIDTH 400
-      END STATUSBAR
+   END STATUSBAR
 
-      DEFINE RICHEDITBOX RTFCtrl
-         ROW 10
-         COL 10
-         WIDTH 760
-         HEIGHT 520
-         FONTNAME SP_cFontName()
-         TABSTOP .T.
-         VISIBLE .T.
-         READONLY !lEdit
-         BACKCOLOR Nil
-         ONCHANGE OnChanged()
-      END RICHEDITBOX
+   DEFINE RICHEDITBOX RTFCtrl
+      ROW 10
+      COL 10
+      WIDTH 760
+      HEIGHT 520
+      FONTNAME SP_cFontName()
+      TABSTOP .T.
+      VISIBLE .T.
+      READONLY !lEdit
+      BACKCOLOR Nil
+      ONCHANGE OnChanged()
+   END RICHEDITBOX
 
    END WINDOW
 
@@ -308,26 +308,26 @@ STATIC lRunning := .F.
    DO EVENTS
 
    DEFINE WINDOW ImageEdit ;
-              AT 249, 410 ;
-              WIDTH nwide ;
-              HEIGHT nheight + nTitlebar ;
-              TITLE cFile ;
-              TOPMOST ;
-              ON INIT DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
-              ON SIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
-              ON MAXIMIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
-              ON RELEASE ImageRelease( cFile ) ;
-              BACKCOLOR SP_nColor1()
+      AT 249, 410 ;
+      WIDTH nwide ;
+      HEIGHT nheight + nTitlebar ;
+      TITLE cFile ;
+      TOPMOST ;
+      ON INIT DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
+      ON SIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
+      ON MAXIMIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
+      ON RELEASE ImageRelease( cFile ) ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE IMAGE Image_Edit
-         ROW 0
-         COL 0
-         WIDTH 0
-         HEIGHT 0
-         PICTURE cFile
-         VISIBLE .T.
-         STRETCH .T.
-      END IMAGE
+   DEFINE IMAGE Image_Edit
+      ROW 0
+      COL 0
+      WIDTH 0
+      HEIGHT 0
+      PICTURE cFile
+      VISIBLE .T.
+      STRETCH .T.
+   END IMAGE
 
    END WINDOW
 
@@ -375,7 +375,7 @@ RETURN nRet
 *+
 STATIC PROCEDURE ImageRelease( cFile )
 
-   Domethod( "ImageEdit", "Image_Edit", "PICTURE", "" )
+   //    Domethod( "ImageEdit", "Image_Edit", "PICTURE", "" )
 RETURN
 
 *+--------------------------------------------------------------------
@@ -514,24 +514,24 @@ STATIC cLast    := ""
       DO EVENTS
 
       DEFINE WINDOW &cForm ;
-                 ROW 10 ;
-                 COL 10 ;
-                 WIDTH 1024 ;
-                 HEIGHT 1024 ;
-                 TITLE cFile ;
-                 ICON "ICOPDF" ;
-                 ON MAXIMIZE DoPDFResize( cForm, "PdfView" ) ;
-                 ON SIZE DoPDFResize( cForm, "PdfView" ) ;
-                 BACKCOLOR { 250, 241, 228 }
+         ROW 10 ;
+         COL 10 ;
+         WIDTH 1024 ;
+         HEIGHT 1024 ;
+         TITLE cFile ;
+         ICON "ICOPDF" ;
+         ON MAXIMIZE DoPDFResize( cForm, "PdfView" ) ;
+         ON SIZE DoPDFResize( cForm, "PdfView" ) ;
+         BACKCOLOR { 250, 241, 228 }
 
-         DEFINE WINDOW PdfView ;
-                    ROW 10 ;
-                    COL 10 ;
-                    WIDTH 1000 ;
-                    HEIGHT 960 ;
-                    PANEL ;
-                    BACKCOLOR { 250, 241, 228 }
-         END WINDOW
+      DEFINE WINDOW PdfView ;
+         ROW 10 ;
+         COL 10 ;
+         WIDTH 1000 ;
+         HEIGHT 960 ;
+         PANEL ;
+         BACKCOLOR { 250, 241, 228 }
+      END WINDOW
       END WINDOW
 
       cHwnd := ALLTRIM( STR( GETFORMHANDLE( 'PdfView' ) ) )
@@ -574,39 +574,39 @@ LOCAL cText := ""
    cText += "Ctrl-6 : Singe-Side    Ctrl-7 : Double-Side    Ctrl-8 : Book-view" + CRLF
 
    DEFINE WINDOW DoPDFHelp ;
-              ROW 0 ;
-              COL 0 ;
-              WIDTH 1280 - 80 ;
-              HEIGHT 1024 - 50 ;
-              TITLE "Help" ;
-              ICON "ICOPDF" ;
-              NOMAXIMIZE ;
-              NOSIZE ;
-              BACKCOLOR NIL
+      ROW 0 ;
+      COL 0 ;
+      WIDTH 1280 - 80 ;
+      HEIGHT 1024 - 50 ;
+      TITLE "Help" ;
+      ICON "ICOPDF" ;
+      NOMAXIMIZE ;
+      NOSIZE ;
+      BACKCOLOR NIL
 
-      DEFINE IMAGE HelpInfo
-         ROW 0
-         COL 0
-         WIDTH nWide
-         HEIGHT nHigh
-         PICTURE "MYSUMATRA"
-         VISIBLE .T.
-         TRANSPARENT .F.
-         BACKGROUNDCOLOR SP_nColor1()
-      END IMAGE
+   DEFINE IMAGE HelpInfo
+      ROW 0
+      COL 0
+      WIDTH nWide
+      HEIGHT nHigh
+      PICTURE "MYSUMATRA"
+      VISIBLE .T.
+      TRANSPARENT .F.
+      BACKGROUNDCOLOR SP_nColor1()
+   END IMAGE
 
-      DEFINE LABEL PathInfo
-         ROW nHigh + 20
-         COL 0
-         VALUE cText
-         WIDTH nWide
-         HEIGHT 100
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontlarge()
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-         ALIGNMENT Left
-      END LABEL
+   DEFINE LABEL PathInfo
+      ROW nHigh + 20
+      COL 0
+      VALUE cText
+      WIDTH nWide
+      HEIGHT 100
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontlarge()
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+      ALIGNMENT Left
+   END LABEL
 
    END WINDOW
 

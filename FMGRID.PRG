@@ -122,7 +122,7 @@
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:09 am
+*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
 *+
 *+--------------------------------------------------------------------
 
@@ -289,674 +289,674 @@ PUBLIC aFontTypeHBP
    cLogic := IF( luseParameter, "1", "0" )
 
    DEFINE WINDOW Win_1 ;
-              AT aPos[ 1 ], aPos[ 2 ] ;
-              WIDTH aSize[ 1 ] HEIGHT aSize[ 2 ] ;
-              TITLE 'HBFM ' + cVersion ;
-              ICON "A1MAIN" ;
-              MAIN ;
-              VISIBLE .F. ;
-              BACKCOLOR SP_nColor1() ;
-              ON MAXIMIZE DoReSizeMain( ThisWindow.Name ) ;
-              ON SIZE DoReSizeMain( ThisWindow.Name ) ;
-              ON RELEASE SaveSetup( luseParameter ) ;
-              ON LOSTFOCUS Readydrag( ThisWindow.Name ) ;
-              ON GOTFOCUS WinTans( ThisWindow.Name, .T. ) ;
-              ON PAINT Paint_Main_Background_Window( ThisWindow.Name ) ;
-              ON INIT CreateScreenSplash( "Fill1StGrid('" + cLogic + "')" )
+      AT aPos[ 1 ], aPos[ 2 ] ;
+      WIDTH aSize[ 1 ] HEIGHT aSize[ 2 ] ;
+      TITLE 'HBFM ' + cVersion ;
+      ICON "A1MAIN" ;
+      MAIN ;
+      VISIBLE .F. ;
+      BACKCOLOR SP_nColor1() ;
+      ON MAXIMIZE DoReSizeMain( ThisWindow.Name ) ;
+      ON SIZE DoReSizeMain( ThisWindow.Name ) ;
+      ON RELEASE SaveSetup( luseParameter ) ;
+      ON LOSTFOCUS Readydrag( ThisWindow.Name ) ;
+      ON GOTFOCUS WinTans( ThisWindow.Name, .T. ) ;
+      ON PAINT Paint_Main_Background_Window( ThisWindow.Name ) ;
+      ON INIT CreateScreenSplash( "Fill1StGrid('" + cLogic + "')" )
 
-      //               ON INIT Fill1StGrid( cLogic )
+   //               ON INIT Fill1StGrid( cLogic )
 
-      ON KEY TAB ACTION IF( HMG_VirtualKeyIsPressed( VK_CONTROL ),, TestTabKey() )
+   ON KEY TAB ACTION IF( HMG_VirtualKeyIsPressed( VK_CONTROL ),, TestTabKey() )
 
-      ON KEY ALT + F1 ACTION OpenCombo( "LEFT", "KEY" )
-      ON KEY ALT + F2 ACTION OpenCombo( "RIGHT", "KEY" )
-      ON KEY ALT + F7 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ), SearchForm( nGridFocus ), )
-      ON KEY ALT + F10 ACTION SelFolder( 1 )
+   ON KEY ALT + F1 ACTION OpenCombo( "LEFT", "KEY" )
+   ON KEY ALT + F2 ACTION OpenCombo( "RIGHT", "KEY" )
+   ON KEY ALT + F7 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ), SearchForm( nGridFocus ), )
+   ON KEY ALT + F10 ACTION SelFolder( 1 )
 
-      ON KEY CONTROL + F1 ACTION GodMode()
+   ON KEY CONTROL + F1 ACTION GodMode()
 
-      ON KEY CONTROL + C ACTION IF( lActiveMain = .T., CopyClipboard(), )
-      ON KEY CONTROL + E ACTION HBEJECT()
-      ON KEY CONTROL + R ACTION ReRead( nGridFocus )
-      ON KEY CONTROL + S ACTION FMSETUP()
-      ON KEY CONTROL + T ACTION IF( lActiveMain = .T., NewTab(), )
-      ON KEY CONTROL + U ACTION IF( lActiveMain = .T., ChangeLeftRight(), )
-      // ON KEY CONTROL + W ACTION IF( lActiveMain = .T., CloseTab( nGridFocus ) , )
+   ON KEY CONTROL + C ACTION IF( lActiveMain = .T., CopyClipboard(), )
+   ON KEY CONTROL + E ACTION HBEJECT()
+   ON KEY CONTROL + R ACTION ReRead( nGridFocus )
+   ON KEY CONTROL + S ACTION FMSETUP()
+   ON KEY CONTROL + T ACTION IF( lActiveMain = .T., NewTab(), )
+   ON KEY CONTROL + U ACTION IF( lActiveMain = .T., ChangeLeftRight(), )
+   // ON KEY CONTROL + W ACTION IF( lActiveMain = .T., CloseTab( nGridFocus ) , )
 
-      ON KEY CONTROL + F4 ACTION IF( nGridFocus = 1, HeadLeft( F_NAME ), HeadRight( F_NAME ) )
-      ON KEY CONTROL + F5 ACTION IF( nGridFocus = 1, HeadLeft( F_DATE ), HeadRight( F_DATE ) )
-      ON KEY CONTROL + F6 ACTION IF( nGridFocus = 1, HeadLeft( F_SIZE ), HeadRight( F_SIZE ) )
-      ON KEY CONTROL + F7 ACTION IF( nGridFocus = 1, HeadLeft( 0 ), HeadRight( 0 ) )
-      ON KEY CONTROL + F8 ACTION SelFolder( 2 )
-      ON KEY CONTROL + BACK ACTION ShowHistory()
+   ON KEY CONTROL + F4 ACTION IF( nGridFocus = 1, HeadLeft( F_NAME ), HeadRight( F_NAME ) )
+   ON KEY CONTROL + F5 ACTION IF( nGridFocus = 1, HeadLeft( F_DATE ), HeadRight( F_DATE ) )
+   ON KEY CONTROL + F6 ACTION IF( nGridFocus = 1, HeadLeft( F_SIZE ), HeadRight( F_SIZE ) )
+   ON KEY CONTROL + F7 ACTION IF( nGridFocus = 1, HeadLeft( 0 ), HeadRight( 0 ) )
+   ON KEY CONTROL + F8 ACTION SelFolder( 2 )
+   ON KEY CONTROL + BACK ACTION ShowHistory()
 
-      ON KEY SHIFT + F2 ACTION IF( lActiveMain = .T., CompareDir(), )
-      ON KEY SHIFT + F3 ACTION Slideshow()
-      ON KEY SHIFT + F4 ACTION CreateNewDbf()
+   ON KEY SHIFT + F2 ACTION IF( lActiveMain = .T., CompareDir(), )
+   ON KEY SHIFT + F3 ACTION Slideshow()
+   ON KEY SHIFT + F4 ACTION CreateNewDbf()
 
-      ON KEY F1 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ) .OR. HMG_VirtualKeyIsPressed( VK_CONTROL ),, HelpFile() )
-      ON KEY F2 ACTION PreFuncSysFolder()
-      ON KEY F3 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ) .OR. HMG_VirtualKeyIsPressed( VK_CONTROL ),, DataViewer( .F. ) )
-      ON KEY F4 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ) .OR. HMG_VirtualKeyIsPressed( VK_CONTROL ),, DataViewer( .T. ) )
+   ON KEY F1 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ) .OR. HMG_VirtualKeyIsPressed( VK_CONTROL ),, HelpFile() )
+   ON KEY F2 ACTION PreFuncSysFolder()
+   ON KEY F3 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ) .OR. HMG_VirtualKeyIsPressed( VK_CONTROL ),, DataViewer( .F. ) )
+   ON KEY F4 ACTION IF( HMG_VirtualKeyIsPressed( VK_ALT ) .OR. HMG_VirtualKeyIsPressed( VK_CONTROL ),, DataViewer( .T. ) )
 
-      ON KEY F5 ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "COPY" ), )
-      ON KEY F6 ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "MOVE" ), )
-      ON KEY F7 ACTION IF( lActiveMain = .T. .AND. .NOT. ( HMG_VirtualKeyIsPressed( VK_CONTROL ) .OR. HMG_VirtualKeyIsPressed( VK_ALT ) ), CreateNewFolder(), )
-      ON KEY F8 ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "DELETE" ), )
-      ON KEY F9 ACTION ShowHistory()
+   ON KEY F5 ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "COPY" ), )
+   ON KEY F6 ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "MOVE" ), )
+   ON KEY F7 ACTION IF( lActiveMain = .T. .AND. .NOT. ( HMG_VirtualKeyIsPressed( VK_CONTROL ) .OR. HMG_VirtualKeyIsPressed( VK_ALT ) ), CreateNewFolder(), )
+   ON KEY F8 ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "DELETE" ), )
+   ON KEY F9 ACTION ShowHistory()
 
-      ON KEY DELETE ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "DELETE" ), )
+   ON KEY DELETE ACTION IF( lActiveMain = .T. .AND. .NOT. HMG_VirtualKeyIsPressed( VK_CONTROL ), ASKFORM( "DELETE" ), )
 
-      // ON KEY F10 ACTION Test()
+   // ON KEY F10 ACTION Test()
 
-      ON KEY F11 ACTION PreFuncMSCFolder()
+   ON KEY F11 ACTION PreFuncMSCFolder()
 
-      DEFINE STATUSBAR PARENT Win_1
+   DEFINE STATUSBAR PARENT Win_1
 STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
-         KEYBOARD WIDTH 100
-         DATE WIDTH 100
-         CLOCK WIDTH 100
-      END STATUSBAR
-
-      DEFINE TOOLBAR ToolBar_1 BUTTONSIZE 50, 50 FLAT
-
-         BUTTON MYRELOAD ;
-                 TOOLTIP 'reload Crtl-R' ;
-                 PICTURE "MYRELOAD" ;
-                 ACTION ReRead( nGridFocus )
-
-         BUTTON MYCOMPARE ;
-                 TOOLTIP 'Compare left/right Shift-F2' ;
-                 PICTURE 'MYCOMPARE' ;
-                 ACTION CompareDir()
-
-         BUTTON MYHISTORY ;
-                 TOOLTIP 'F9 List of last visit Folder' ;
-                 PICTURE "MYHISTORY" ;
-                 ACTION ShowHistory()
-
-         BUTTON MYTHUMBS ;
-                 TOOLTIP 'Shift-F3 : Slideshow or Thumbs (9999)' ;
-                 PICTURE "MYTHUMB32" ;
-                 ACTION Slideshow()
-
-         BUTTON MYCLIPBOARD ;
-                 TOOLTIP 'To Clipboard Crtl-C' ;
-                 PICTURE 'MYCLIPBOARD' ;
-                 ACTION CopyClipboard()
-
-         BUTTON MYCONFIG ;
-                 TOOLTIP 'Setup Crtl-S' ;
-                 PICTURE 'MYCONFIG' ;
-                 SEPARATOR ;
-                 ACTION FMSETUP()
-
-         BUTTON MYDUMMY1 ;
-                 SEPARATOR ;
-                 ACTION NIL
-
-         BUTTON MYEJECTUSB ;
-                 TOOLTIP 'Eject USB Crtl-E' ;
-                 PICTURE 'MYEJECTUSB' ;
-                 ACTION HBEJECT()
-
-         BUTTON MYDEVICE ;
-                 TOOLTIP 'Device SmartPhone' ;
-                 PICTURE "MYPHONE" ;
-                 SEPARATOR ;
-                 ACTION DoDevice()
-
-         BUTTON MYDUMMY2 ;
-                 SEPARATOR ;
-                 ACTION NIL
-
-         BUTTON MYOSK ;
-                 TOOLTIP 'On Screen Keyboard' ;
-                 PICTURE "MYKEYBOARD" ;
-                 ACTION ShowOSK()
-
-         BUTTON MYENTER ;
-                 TOOLTIP 'ENTER for Touch-Screen' ;
-                 PICTURE "MYFINGER" ;
-                 SEPARATOR ;
-                 ACTION DoTouchEnter()
-
-         BUTTON MYDUMMY3 ;
-                 SEPARATOR ;
-                 ACTION NIL
-
-         BUTTON MYCONNECT ;
-                 TOOLTIP 'connect to Network' ;
-                 PICTURE 'MYCONNECT' ;
-                 ACTION NetConnect()
-
-         BUTTON MYDISCONNECT ;
-                 TOOLTIP 'disconnect from Network' ;
-                 PICTURE 'MYDISCONNECT' ;
-                 SEPARATOR ;
-                 ACTION NetDisconnect()
-
-         BUTTON MYDUMMY4 ;
-                 SEPARATOR ;
-                 ACTION NIL
-
-         BUTTON MYFTP ;
-                 TOOLTIP 'FTP transfer' ;
-                 PICTURE 'MYFTP32' ;
-                 ACTION HbFTP(, cAppFolder )
-
-         BUTTON MYFTPConnect1 ;
-                 ACTION NIL
-         BUTTON MYFTPDisconnect1 ;
-                 ACTION NIL
-         //          BUTTON MYMD_Remote ;
-         //                  ACTION NIL
-         //          BUTTON MYREN_Remote ;
-         //                  ACTION NIL
-         //          BUTTON MYDEL_Remote ;
-         //                  SEPARATOR ;
-         //                  ACTION NIL
-
-         BUTTON MYDUMMY5 ;
-                 SEPARATOR ;
-                 ACTION NIL
-
-         BUTTON MYREG ;
-                 TOOLTIP 'Registry Database' ;
-                 SEPARATOR ;
-                 PICTURE 'MYREG' ;
-                 ACTION RegDBForm()
-
-         BUTTON MYEXIT ;
-                 TOOLTIP 'Exit' ;
-                 PICTURE "MYEXIT" ;
-                 ACTION Win_1.Release
-
-      END TOOLBAR
-
-      DEFINE MAIN MENU
-         DEFINE POPUP "&Menu"
-            MENUITEM "E&xit" IMAGE 'MYEXIT' ACTION Win_1.Release
-         END POPUP
-
-         DEFINE POPUP "&Device"
-            MENUITEM "&Device" IMAGE "MYPHONE" ACTION DoDevice()
-         END POPUP
-
-         DEFINE POPUP "&Network"
-            MENUITEM "&Connect" IMAGE "MYCONNECT" ACTION NetConnect()
-            SEPARATOR
-            MENUITEM "&DisConnect" IMAGE "MYDISCONNECT" ACTION NetDisconnect()
-         END POPUP
-
-         DEFINE POPUP "&About"
-            MENUITEM "&About" ACTION About()
-            SEPARATOR
-            MENUITEM "&Mail to author..." ;
-                    ACTION ShellExecute( 0, "open", "rundll32.exe", ;
-                    "url.dll,FileProtocolHandler " + ;
-                    "mailto:Auge_Ohr@Web.DE" + ;
-                    "&subject=HBFM%20" + cVersion + "%20Feedback:" + ;
-                    "&body=Hello%20World",, 1 )
-
-         END POPUP
-
-      END MENU
-
-      nPBwide := INT( aSize[ 1 ] / 11 )
-
-      DEFINE BUTTON Button_F1
-         PARENT Win_1
-         ROW 890
-         COL 0
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION HelpFile()
-         CAPTION "F1"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         TABSTOP .F.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F2
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 1
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION PreFuncSysFolder()
-         CAPTION "F2 SysFolder"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F3
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 2
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION IF( HMG_VirtualKeyIsPressed( VK_SHIFT ), Slideshow(), DataViewer( .F. ) )
-         CAPTION "F3 Viewer"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F4
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 3
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION IF( HMG_VirtualKeyIsPressed( VK_SHIFT ), CreateNewDbf(), DataViewer( .T. ) )
-         CAPTION "F4 edit DBF"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F5
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 4
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION IF( lActiveMain = .T., ASKFORM( "COPY" ), )
-         CAPTION "F5 Copy"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F6
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 5
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION IF( lActiveMain = .T., ASKFORM( "MOVE" ), )
-         CAPTION "F6 move"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F7
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 6
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION IF( lActiveMain = .T., CreateNewFolder(), )
-         CAPTION "F7 New Folder"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F8
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 7
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION IF( lActiveMain = .T., ASKFORM( "DELETE" ), )
-         CAPTION "F8 Delete"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F9
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 8
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION ShowHistory()
-         CAPTION "F9 History"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F10
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 9
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION MsgInfo( "under construction ..." )
-         CAPTION "F10"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      DEFINE BUTTON Button_F11
-         PARENT Win_1
-         ROW 890
-         COL nPBwide * 10
-         WIDTH nPBwide - 2
-         HEIGHT nPBheigh
-         ACTION PreFuncMSCFolder()
-         CAPTION "F11 MSCFolder"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-      END BUTTON
-
-      // DEFINE BUTTON Button_F12
-      //    PARENT Win_1
-      //    ROW 890
-      //    COL nPBwide * 11
-      //    WIDTH nPBwide - 2
-      //    HEIGHT nPBheigh
-      //    ACTION MsgInfo( "under construction ..." )
-      //    CAPTION "F12"
-      //    TABSTOP .F.
-      // END BUTTON
-
-      DEFINE TEXTBOX PathInfo
-         PARENT Win_1
-         ROW 890 - 30
-         COL 0
-         WIDTH 630
-         HEIGHT 30
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS Nil
-         ONLOSTFOCUS Nil
-         ONENTER ChangeFolder()
-         TABSTOP .F.
-         VISIBLE .T.
-         READONLY .F.
-         RIGHTALIGN .T.
-         DISABLEDBACKCOLOR Nil
-         DISABLEDFONTCOLOR Nil
-         CASECONVERT NONE
-         BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-         INPUTMASK Nil
-         FORMAT Nil
-         VALUE GetVolumne( "C" ) + " " + STR( HB_DISKSPACE( "C:" ) / 1024 / 1000 / 1000 ) + " Mb free of " + LTRIM( STR( HB_DISKSPACE( "C:", HB_DISK_TOTAL ) / 1024 / 1000 / 1000 ) ) + " Mb"
-      END TEXTBOX
-
-      DEFINE TEXTBOX CMDBox
-         PARENT Win_1
-         ROW 890 - 30
-         COL 630
-         WIDTH 630
-         HEIGHT 30
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         ONCHANGE Nil
-         ONGOTFOCUS ReleaseDelKey( 1 )
-         ONLOSTFOCUS ReleaseDelKey( 2 )
-         ONENTER RunCMDBox()
-         TABSTOP .F.
-         VISIBLE .T.
-         READONLY .F.
-         RIGHTALIGN .F.
-         DISABLEDBACKCOLOR Nil
-         DISABLEDFONTCOLOR Nil
-         CASECONVERT NONE
-         BACKCOLOR SP_nColor5()
-         FONTCOLOR SP_nColor6()
-         INPUTMASK Nil
-         FORMAT Nil
-         VALUE ""
-      END TEXTBOX
-
-      DEFINE WINDOW WinLeft ;
-                 PARENT Win_1 ;
-                 AT 50, 0 ;
-                 WIDTH 630 HEIGHT 810 ;
-                 PANEL ;
-                 NOCAPTION ;
-                 BACKCOLOR SP_nColor1() ;
-                 ON PAINT Paint_Background_Window( ThisWindow.Name, 1 )
-
-         /* ON MOUSEMOVE IF( lActiveMain = .T., DragMove( ThisWindow.Name ), nil ) ; */
-         /* ON MOUSEDRAG IF( lActiveMain = .T., DragHere( ThisWindow.Name ), nil ) ; */
-
-         DEFINE CONTEXT MENU OF WinLeft
-            MENUITEM "Close Tab Left" IMAGE 'MYEXIT16' ACTION CloseTab( 1 )
-            SEPARATOR
-            MENUITEM "sort Name" IMAGE 'MYNAME16' ACTION HeadLeft( F_NAME )
-            MENUITEM "sort Size" IMAGE 'MYSIZE16' ACTION HeadLeft( F_DATE )
-            MENUITEM "sort Date" IMAGE 'MYDATE16' ACTION HeadLeft( F_SIZE )
-            MENUITEM "un-sort  " IMAGE 'MYTYPE16' ACTION HeadLeft( 0 )
-            SEPARATOR
-            MENUITEM "Icon Style" ACTION SetLV_View( 1, LV_VIEW_ICON )
-            MENUITEM "Report Style" ACTION SetLV_View( 1, LV_VIEW_DETAILS )
-            MENUITEM "small Icon" ACTION SetLV_View( 1, LV_VIEW_SMALLICON )
-            MENUITEM "simple List" ACTION SetLV_View( 1, LV_VIEW_LIST )
-            // MENUITEM "tile Style"   ACTION SetLV_View( 1, LV_VIEW_TILE )
-            // MENUITEM "max Style"    ACTION SetLV_View( 1, LV_VIEW_MAX )
-            SEPARATOR
-            MENUITEM "Slideshow / Thumbs" IMAGE "MYTHUMB16" ACTION Slideshow()
-            SEPARATOR
-            MENUITEM "Tree Left " IMAGE 'MYVIEWTREE16' ACTION SelFolder( 1 )
-            MENUITEM "Tree Right" IMAGE 'MYSIDETREE16' ACTION SelFolder( 2 )
-            SEPARATOR
-            MENUITEM "Send to DeskTop" ACTION SendToDeskTop( 1 )
-            MENUITEM "Send to Startup" ACTION SendToStartup( 1 )
-            SEPARATOR
-            MENUITEM "Attribut" IMAGE 'MYATTR16' ACTION ChangeFAttr( 1 )
-            SEPARATOR
-            MENUITEM "Property" IMAGE 'MYRAMDISK16' ACTION ShowProperty( 1 )
-         END MENU
-
-         DEFINE COMBOBOX ComboLeft
-            PARENT WinLeft
-            ROW 2
-            COL 2
-            WIDTH 60
-            HEIGHT 500
-            ITEMS caItems
-            IMAGE acImage
-            TABSTOP .F.
-            DROPPEDWIDTH 150
-            ON GOTFOCUS IF( lFromKeyBoard = .T., ComboboxShowList( GetControlHandle( "ComboLeft", "WinLeft" ) ), )
-            OnCloseUp Change2Drive( This.Name )
-         END COMBOBOX
-
-         DEFINE LABEL VolInfo_Left
-            PARENT WinLeft
-            ROW 2
-            COL 70
-            VALUE GetVolumne( "C" ) + " " + STR( HB_DISKSPACE( "C:" ) / 1024 / 1000 / 1000 ) + " Mb free of " + LTRIM( STR( HB_DISKSPACE( "C:", HB_DISK_TOTAL ) / 1024 / 1000 / 1000 ) ) + " Mb"
-            WIDTH 300
-            HEIGHT 24
-            FONTNAME SP_cFontName()
-            FONTSIZE SP_nFontSize()
-            BACKCOLOR SP_nColor1()
-            FONTCOLOR SP_nColor2()
-         END LABEL
-
-         DEFINE BUTTON RootUp_Left
-            PARENT WinLeft
-            ROW 2
-            COL 630 - 48
-            WIDTH 24
-            HEIGHT 24
-            ACTION RootUpDirPath( 1 )
-            CAPTION "\"
-            TOOLTIP "change to Root"
-            TABSTOP .F.
-         END BUTTON
-
-         DEFINE BUTTON DirUp_Left
-            PARENT WinLeft
-            ROW 2
-            COL 630 - 24
-            WIDTH 24
-            HEIGHT 24
-            ACTION UpDirPath( 1 )
-            TOOLTIP "change up Folder"
-            CAPTION ".."
-            TABSTOP .F.
-         END BUTTON
-
-         DEFINE LABEL TabStatus_Left
-            PARENT WinLeft
-            ROW 786
-            COL 0
-            VALUE "Status"
-            WIDTH 626
-            HEIGHT 24
-            FONTNAME SP_cFontName()
-            FONTSIZE SP_nFontSize()
-            BACKCOLOR SP_nColor1()
-            FONTCOLOR SP_nColor2()
-         END LABEL
-
-         DEFINE TAB Tab_Left ;
-                    OF WinLeft ;
-                    AT 30, 0 ;
-                    WIDTH 630 HEIGHT 746 ;
-                    VALUE 1 ;
-                    FONT SP_cFontName() SIZE SP_nFontSize() ;
-                    TOOLTIP "" ;
-                    Hottrack ;
-                    ON CHANGE Tab_Change_Left()
-
-            DEFINE PAGE "Page 1" IMAGE "MYFIXDRIVE16"
-               DefGridLeft( "WinLeft", "Grid_1", 1 )
-            END PAGE
-         END TAB
-
-      END WINDOW
-
-      DEFINE WINDOW WinRight ;
-                 PARENT Win_1 ;
-                 AT 50, aSize[ 1 ] / 2 ;
-                 WIDTH 630 HEIGHT 810 ;
-                 PANEL ;
-                 NOCAPTION ;
-                 BACKCOLOR SP_nColor1() ;
-                 ON PAINT Paint_Background_Window( ThisWindow.Name, 2 )
-
-         /* ON MOUSEMOVE IF( lActiveMain = .T., DragMove( ThisWindow.Name ), nil ) ; */
-         /* ON MOUSEDRAG IF( lActiveMain = .T., DragHere( ThisWindow.Name ), nil ) ; */
-
-         DEFINE CONTEXT MENU OF WinRight
-            MENUITEM "Close Tab Right" IMAGE "MYEXIT16" ACTION CloseTab( 2 )
-            SEPARATOR
-            MENUITEM "sort Name" IMAGE 'MYNAME16' ACTION HeadRight( F_NAME )
-            MENUITEM "sort Size" IMAGE 'MYSIZE16' ACTION HeadRight( F_DATE )
-            MENUITEM "sort Date" IMAGE 'MYDATE16' ACTION HeadRight( F_SIZE )
-            MENUITEM "un-sort  " IMAGE 'MYTYPE16' ACTION HeadRight( 0 )
-            SEPARATOR
-            MENUITEM "Icon Style" ACTION SetLV_View( 2, LV_VIEW_ICON )
-            MENUITEM "Report Style" ACTION SetLV_View( 2, LV_VIEW_DETAILS )
-            MENUITEM "small Icon" ACTION SetLV_View( 2, LV_VIEW_SMALLICON )
-            MENUITEM "simple List" ACTION SetLV_View( 2, LV_VIEW_LIST )
-            // MENUITEM "tile Style"   ACTION SetLV_View( 2, LV_VIEW_TILE )
-            // MENUITEM "max Style"    ACTION SetLV_View( 2, LV_VIEW_MAX )
-            SEPARATOR
-            MENUITEM "Slideshow / Thumbs" IMAGE "MYTHUMB16" ACTION Slideshow()
-            SEPARATOR
-            MENUITEM "Tree Left " IMAGE 'MYVIEWTREE16' ACTION SelFolder( 2 )
-            MENUITEM "Tree Right" IMAGE 'MYSIDETREE16' ACTION SelFolder( 1 )
-            SEPARATOR
-            MENUITEM "Send to DeskTop" ACTION SendToDeskTop( 2 )
-            MENUITEM "Send to Startup" ACTION SendToStartup( 2 )
-            SEPARATOR
-            MENUITEM "Attribut" IMAGE 'MYATTR16' ACTION ChangeFAttr( 2 )
-            SEPARATOR
-            MENUITEM "Property" IMAGE 'MYRAMDISK16' ACTION ShowProperty( 2 )
-         END MENU
-
-         DEFINE COMBOBOX ComboRight
-            PARENT WinRight
-            ROW 2
-            COL 2
-            WIDTH 60
-            HEIGHT 500
-            ITEMS caItems
-            IMAGE acImage
-            TABSTOP .F.
-            DROPPEDWIDTH 150
-            ON GOTFOCUS IF( lFromKeyBoard = .T., ComboboxShowList( GetControlHandle( "ComboRight", "WinRight" ) ), )
-            OnCloseUp Change2Drive( This.Name )
-         END COMBOBOX
-
-         DEFINE LABEL VolInfo_Right
-            PARENT WinRight
-            ROW 2
-            COL 70
-            VALUE GetVolumne( "C" ) + " " + STR( HB_DISKSPACE( "C:" ) / 1024 / 1000 / 1000 ) + " Mb free of " + LTRIM( STR( HB_DISKSPACE( "C:", HB_DISK_TOTAL ) / 1024 / 1000 / 1000 ) ) + " Mb"
-            WIDTH 300
-            HEIGHT 24
-            FONTNAME SP_cFontName()
-            FONTSIZE SP_nFontSize()
-            BACKCOLOR SP_nColor1()
-            FONTCOLOR SP_nColor2()
-         END LABEL
-
-         DEFINE BUTTON DirUp_Right
-            PARENT WinRight
-            ROW 2
-            COL 630 - 68
-            WIDTH 24
-            HEIGHT 24
-            ACTION UpDirPath( 2 )
-            TOOLTIP "change up Folder"
-            CAPTION ".."
-            TABSTOP .F.
-         END BUTTON
-
-         DEFINE BUTTON RootUp_Right
-            PARENT WinRight
-            ROW 2
-            COL 630 - 44
-            WIDTH 24
-            HEIGHT 24
-            ACTION RootUpDirPath( 2 )
-            TOOLTIP "change to Root"
-            CAPTION "\"
-            TABSTOP .F.
-         END BUTTON
-
-         DEFINE LABEL TabStatus_Right
-            PARENT WinRight
-            ROW 786
-            COL 0
-            VALUE "Status"
-            WIDTH 626
-            HEIGHT 24
-            FONTNAME SP_cFontName()
-            FONTSIZE SP_nFontSize()
-            BACKCOLOR SP_nColor1()
-            FONTCOLOR SP_nColor2()
-         END LABEL
-
-         DEFINE TAB Tab_Right ;
-                    OF WinRight ;
-                    AT 30, 0 ;
-                    WIDTH 630 HEIGHT 746 ;
-                    VALUE 1 ;
-                    FONT SP_cFontName() SIZE SP_nFontSize() ;
-                    TOOLTIP "" ;
-                    Hottrack ;
-                    ON CHANGE Tab_Change_Right()
-
-            DEFINE PAGE "Page 1" IMAGE "MYFIXDRIVE16"
-               DefGridRight( "WinRight", "Grid_1", 1 )
-            END PAGE
-         END TAB
-      END WINDOW
+      KEYBOARD WIDTH 100
+      DATE WIDTH 100
+      CLOCK WIDTH 100
+   END STATUSBAR
+
+   DEFINE TOOLBAR ToolBar_1 BUTTONSIZE 50, 50 FLAT
+
+      BUTTON MYRELOAD ;
+              TOOLTIP 'reload Crtl-R' ;
+              PICTURE "MYRELOAD" ;
+              ACTION ReRead( nGridFocus )
+
+      BUTTON MYCOMPARE ;
+              TOOLTIP 'Compare left/right Shift-F2' ;
+              PICTURE 'MYCOMPARE' ;
+              ACTION CompareDir()
+
+      BUTTON MYHISTORY ;
+              TOOLTIP 'F9 List of last visit Folder' ;
+              PICTURE "MYHISTORY" ;
+              ACTION ShowHistory()
+
+      BUTTON MYTHUMBS ;
+              TOOLTIP 'Shift-F3 : Slideshow or Thumbs (9999)' ;
+              PICTURE "MYTHUMB32" ;
+              ACTION Slideshow()
+
+      BUTTON MYCLIPBOARD ;
+              TOOLTIP 'To Clipboard Crtl-C' ;
+              PICTURE 'MYCLIPBOARD' ;
+              ACTION CopyClipboard()
+
+      BUTTON MYCONFIG ;
+              TOOLTIP 'Setup Crtl-S' ;
+              PICTURE 'MYCONFIG' ;
+              SEPARATOR ;
+              ACTION FMSETUP()
+
+      BUTTON MYDUMMY1 ;
+              SEPARATOR ;
+              ACTION NIL
+
+      BUTTON MYEJECTUSB ;
+              TOOLTIP 'Eject USB Crtl-E' ;
+              PICTURE 'MYEJECTUSB' ;
+              ACTION HBEJECT()
+
+      BUTTON MYDEVICE ;
+              TOOLTIP 'Device SmartPhone' ;
+              PICTURE "MYPHONE" ;
+              SEPARATOR ;
+              ACTION DoDevice()
+
+      BUTTON MYDUMMY2 ;
+              SEPARATOR ;
+              ACTION NIL
+
+      BUTTON MYOSK ;
+              TOOLTIP 'On Screen Keyboard' ;
+              PICTURE "MYKEYBOARD" ;
+              ACTION ShowOSK()
+
+      BUTTON MYENTER ;
+              TOOLTIP 'ENTER for Touch-Screen' ;
+              PICTURE "MYFINGER" ;
+              SEPARATOR ;
+              ACTION DoTouchEnter()
+
+      BUTTON MYDUMMY3 ;
+              SEPARATOR ;
+              ACTION NIL
+
+      BUTTON MYCONNECT ;
+              TOOLTIP 'connect to Network' ;
+              PICTURE 'MYCONNECT' ;
+              ACTION NetConnect()
+
+      BUTTON MYDISCONNECT ;
+              TOOLTIP 'disconnect from Network' ;
+              PICTURE 'MYDISCONNECT' ;
+              SEPARATOR ;
+              ACTION NetDisconnect()
+
+      BUTTON MYDUMMY4 ;
+              SEPARATOR ;
+              ACTION NIL
+
+      BUTTON MYFTP ;
+              TOOLTIP 'FTP transfer' ;
+              PICTURE 'MYFTP32' ;
+              ACTION HbFTP(, cAppFolder )
+
+      BUTTON MYFTPConnect1 ;
+              ACTION NIL
+      BUTTON MYFTPDisconnect1 ;
+              ACTION NIL
+      //          BUTTON MYMD_Remote ;
+      //                  ACTION NIL
+      //          BUTTON MYREN_Remote ;
+      //                  ACTION NIL
+      //          BUTTON MYDEL_Remote ;
+      //                  SEPARATOR ;
+      //                  ACTION NIL
+
+      BUTTON MYDUMMY5 ;
+              SEPARATOR ;
+              ACTION NIL
+
+      BUTTON MYREG ;
+              TOOLTIP 'Registry Database' ;
+              SEPARATOR ;
+              PICTURE 'MYREG' ;
+              ACTION RegDBForm()
+
+      BUTTON MYEXIT ;
+              TOOLTIP 'Exit' ;
+              PICTURE "MYEXIT" ;
+              ACTION Win_1.Release
+
+   END TOOLBAR
+
+   DEFINE MAIN MENU
+      DEFINE POPUP "&Menu"
+         MENUITEM "E&xit" IMAGE 'MYEXIT' ACTION Win_1.Release
+      END POPUP
+
+      DEFINE POPUP "&Device"
+         MENUITEM "&Device" IMAGE "MYPHONE" ACTION DoDevice()
+      END POPUP
+
+      DEFINE POPUP "&Network"
+         MENUITEM "&Connect" IMAGE "MYCONNECT" ACTION NetConnect()
+         SEPARATOR
+         MENUITEM "&DisConnect" IMAGE "MYDISCONNECT" ACTION NetDisconnect()
+      END POPUP
+
+      DEFINE POPUP "&About"
+         MENUITEM "&About" ACTION About()
+         SEPARATOR
+         MENUITEM "&Mail to author..." ;
+                 ACTION ShellExecute( 0, "open", "rundll32.exe", ;
+                 "url.dll,FileProtocolHandler " + ;
+                 "mailto:Auge_Ohr@Web.DE" + ;
+                 "&subject=HBFM%20" + cVersion + "%20Feedback:" + ;
+                 "&body=Hello%20World",, 1 )
+
+      END POPUP
+
+   END MENU
+
+   nPBwide := INT( aSize[ 1 ] / 11 )
+
+   DEFINE BUTTON Button_F1
+      PARENT Win_1
+      ROW 890
+      COL 0
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION HelpFile()
+      CAPTION "F1"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      TABSTOP .F.
+      VISIBLE .T.
+      TRANSPARENT .F.
+      MULTILINE .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F2
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 1
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION PreFuncSysFolder()
+      CAPTION "F2 SysFolder"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F3
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 2
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION IF( HMG_VirtualKeyIsPressed( VK_SHIFT ), Slideshow(), DataViewer( .F. ) )
+      CAPTION "F3 Viewer"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F4
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 3
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION IF( HMG_VirtualKeyIsPressed( VK_SHIFT ), CreateNewDbf(), DataViewer( .T. ) )
+      CAPTION "F4 edit DBF"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F5
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 4
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION IF( lActiveMain = .T., ASKFORM( "COPY" ), )
+      CAPTION "F5 Copy"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F6
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 5
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION IF( lActiveMain = .T., ASKFORM( "MOVE" ), )
+      CAPTION "F6 move"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F7
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 6
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION IF( lActiveMain = .T., CreateNewFolder(), )
+      CAPTION "F7 New Folder"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F8
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 7
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION IF( lActiveMain = .T., ASKFORM( "DELETE" ), )
+      CAPTION "F8 Delete"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F9
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 8
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION ShowHistory()
+      CAPTION "F9 History"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F10
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 9
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION MsgInfo( "under construction ..." )
+      CAPTION "F10"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON Button_F11
+      PARENT Win_1
+      ROW 890
+      COL nPBwide * 10
+      WIDTH nPBwide - 2
+      HEIGHT nPBheigh
+      ACTION PreFuncMSCFolder()
+      CAPTION "F11 MSCFolder"
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TABSTOP .F.
+   END BUTTON
+
+   // DEFINE BUTTON Button_F12
+   //    PARENT Win_1
+   //    ROW 890
+   //    COL nPBwide * 11
+   //    WIDTH nPBwide - 2
+   //    HEIGHT nPBheigh
+   //    ACTION MsgInfo( "under construction ..." )
+   //    CAPTION "F12"
+   //    TABSTOP .F.
+   // END BUTTON
+
+   DEFINE TEXTBOX PathInfo
+      PARENT Win_1
+      ROW 890 - 30
+      COL 0
+      WIDTH 630
+      HEIGHT 30
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS Nil
+      ONLOSTFOCUS Nil
+      ONENTER ChangeFolder()
+      TABSTOP .F.
+      VISIBLE .T.
+      READONLY .F.
+      RIGHTALIGN .T.
+      DISABLEDBACKCOLOR Nil
+      DISABLEDFONTCOLOR Nil
+      CASECONVERT NONE
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+      INPUTMASK Nil
+      FORMAT Nil
+      VALUE GetVolumne( "C" ) + " " + STR( HB_DISKSPACE( "C:" ) / 1024 / 1000 / 1000 ) + " Mb free of " + LTRIM( STR( HB_DISKSPACE( "C:", HB_DISK_TOTAL ) / 1024 / 1000 / 1000 ) ) + " Mb"
+   END TEXTBOX
+
+   DEFINE TEXTBOX CMDBox
+      PARENT Win_1
+      ROW 890 - 30
+      COL 630
+      WIDTH 630
+      HEIGHT 30
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      TOOLTIP ""
+      ONCHANGE Nil
+      ONGOTFOCUS ReleaseDelKey( 1 )
+      ONLOSTFOCUS ReleaseDelKey( 2 )
+      ONENTER RunCMDBox()
+      TABSTOP .F.
+      VISIBLE .T.
+      READONLY .F.
+      RIGHTALIGN .F.
+      DISABLEDBACKCOLOR Nil
+      DISABLEDFONTCOLOR Nil
+      CASECONVERT NONE
+      BACKCOLOR SP_nColor5()
+      FONTCOLOR SP_nColor6()
+      INPUTMASK Nil
+      FORMAT Nil
+      VALUE ""
+   END TEXTBOX
+
+   DEFINE WINDOW WinLeft ;
+      PARENT Win_1 ;
+      AT 50, 0 ;
+      WIDTH 630 HEIGHT 810 ;
+      PANEL ;
+      NOCAPTION ;
+      BACKCOLOR SP_nColor1() ;
+      ON PAINT Paint_Background_Window( ThisWindow.Name, 1 )
+
+   /* ON MOUSEMOVE IF( lActiveMain = .T., DragMove( ThisWindow.Name ), nil ) ; */
+   /* ON MOUSEDRAG IF( lActiveMain = .T., DragHere( ThisWindow.Name ), nil ) ; */
+
+   DEFINE CONTEXT MENU OF WinLeft
+      MENUITEM "Close Tab Left" IMAGE 'MYEXIT16' ACTION CloseTab( 1 )
+      SEPARATOR
+      MENUITEM "sort Name" IMAGE 'MYNAME16' ACTION HeadLeft( F_NAME )
+      MENUITEM "sort Size" IMAGE 'MYSIZE16' ACTION HeadLeft( F_DATE )
+      MENUITEM "sort Date" IMAGE 'MYDATE16' ACTION HeadLeft( F_SIZE )
+      MENUITEM "un-sort  " IMAGE 'MYTYPE16' ACTION HeadLeft( 0 )
+      SEPARATOR
+      MENUITEM "Icon Style" ACTION SetLV_View( 1, LV_VIEW_ICON )
+      MENUITEM "Report Style" ACTION SetLV_View( 1, LV_VIEW_DETAILS )
+      MENUITEM "small Icon" ACTION SetLV_View( 1, LV_VIEW_SMALLICON )
+      MENUITEM "simple List" ACTION SetLV_View( 1, LV_VIEW_LIST )
+      // MENUITEM "tile Style"   ACTION SetLV_View( 1, LV_VIEW_TILE )
+      // MENUITEM "max Style"    ACTION SetLV_View( 1, LV_VIEW_MAX )
+      SEPARATOR
+      MENUITEM "Slideshow / Thumbs" IMAGE "MYTHUMB16" ACTION Slideshow()
+      SEPARATOR
+      MENUITEM "Tree Left " IMAGE 'MYVIEWTREE16' ACTION SelFolder( 1 )
+      MENUITEM "Tree Right" IMAGE 'MYSIDETREE16' ACTION SelFolder( 2 )
+      SEPARATOR
+      MENUITEM "Send to DeskTop" ACTION SendToDeskTop( 1 )
+      MENUITEM "Send to Startup" ACTION SendToStartup( 1 )
+      SEPARATOR
+      MENUITEM "Attribut" IMAGE 'MYATTR16' ACTION ChangeFAttr( 1 )
+      SEPARATOR
+      MENUITEM "Property" IMAGE 'MYRAMDISK16' ACTION ShowProperty( 1 )
+   END MENU
+
+   DEFINE COMBOBOX ComboLeft
+      PARENT WinLeft
+      ROW 2
+      COL 2
+      WIDTH 60
+      HEIGHT 500
+      ITEMS caItems
+      IMAGE acImage
+      TABSTOP .F.
+      DROPPEDWIDTH 150
+      ON GOTFOCUS IF( lFromKeyBoard = .T., ComboboxShowList( GetControlHandle( "ComboLeft", "WinLeft" ) ), )
+      OnCloseUp Change2Drive( This.Name )
+   END COMBOBOX
+
+   DEFINE LABEL VolInfo_Left
+      PARENT WinLeft
+      ROW 2
+      COL 70
+      VALUE GetVolumne( "C" ) + " " + STR( HB_DISKSPACE( "C:" ) / 1024 / 1000 / 1000 ) + " Mb free of " + LTRIM( STR( HB_DISKSPACE( "C:", HB_DISK_TOTAL ) / 1024 / 1000 / 1000 ) ) + " Mb"
+      WIDTH 300
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
+
+   DEFINE BUTTON RootUp_Left
+      PARENT WinLeft
+      ROW 2
+      COL 630 - 48
+      WIDTH 24
+      HEIGHT 24
+      ACTION RootUpDirPath( 1 )
+      CAPTION "\"
+      TOOLTIP "change to Root"
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON DirUp_Left
+      PARENT WinLeft
+      ROW 2
+      COL 630 - 24
+      WIDTH 24
+      HEIGHT 24
+      ACTION UpDirPath( 1 )
+      TOOLTIP "change up Folder"
+      CAPTION ".."
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE LABEL TabStatus_Left
+      PARENT WinLeft
+      ROW 786
+      COL 0
+      VALUE "Status"
+      WIDTH 626
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
+
+   DEFINE TAB Tab_Left ;
+              OF WinLeft ;
+              AT 30, 0 ;
+              WIDTH 630 HEIGHT 746 ;
+              VALUE 1 ;
+              FONT SP_cFontName() SIZE SP_nFontSize() ;
+              TOOLTIP "" ;
+              Hottrack ;
+              ON CHANGE Tab_Change_Left()
+
+      DEFINE PAGE "Page 1" IMAGE "MYFIXDRIVE16"
+         DefGridLeft( "WinLeft", "Grid_1", 1 )
+      END PAGE
+   END TAB
+
+   END WINDOW
+
+   DEFINE WINDOW WinRight ;
+      PARENT Win_1 ;
+      AT 50, aSize[ 1 ] / 2 ;
+      WIDTH 630 HEIGHT 810 ;
+      PANEL ;
+      NOCAPTION ;
+      BACKCOLOR SP_nColor1() ;
+      ON PAINT Paint_Background_Window( ThisWindow.Name, 2 )
+
+   /* ON MOUSEMOVE IF( lActiveMain = .T., DragMove( ThisWindow.Name ), nil ) ; */
+   /* ON MOUSEDRAG IF( lActiveMain = .T., DragHere( ThisWindow.Name ), nil ) ; */
+
+   DEFINE CONTEXT MENU OF WinRight
+      MENUITEM "Close Tab Right" IMAGE "MYEXIT16" ACTION CloseTab( 2 )
+      SEPARATOR
+      MENUITEM "sort Name" IMAGE 'MYNAME16' ACTION HeadRight( F_NAME )
+      MENUITEM "sort Size" IMAGE 'MYSIZE16' ACTION HeadRight( F_DATE )
+      MENUITEM "sort Date" IMAGE 'MYDATE16' ACTION HeadRight( F_SIZE )
+      MENUITEM "un-sort  " IMAGE 'MYTYPE16' ACTION HeadRight( 0 )
+      SEPARATOR
+      MENUITEM "Icon Style" ACTION SetLV_View( 2, LV_VIEW_ICON )
+      MENUITEM "Report Style" ACTION SetLV_View( 2, LV_VIEW_DETAILS )
+      MENUITEM "small Icon" ACTION SetLV_View( 2, LV_VIEW_SMALLICON )
+      MENUITEM "simple List" ACTION SetLV_View( 2, LV_VIEW_LIST )
+      // MENUITEM "tile Style"   ACTION SetLV_View( 2, LV_VIEW_TILE )
+      // MENUITEM "max Style"    ACTION SetLV_View( 2, LV_VIEW_MAX )
+      SEPARATOR
+      MENUITEM "Slideshow / Thumbs" IMAGE "MYTHUMB16" ACTION Slideshow()
+      SEPARATOR
+      MENUITEM "Tree Left " IMAGE 'MYVIEWTREE16' ACTION SelFolder( 2 )
+      MENUITEM "Tree Right" IMAGE 'MYSIDETREE16' ACTION SelFolder( 1 )
+      SEPARATOR
+      MENUITEM "Send to DeskTop" ACTION SendToDeskTop( 2 )
+      MENUITEM "Send to Startup" ACTION SendToStartup( 2 )
+      SEPARATOR
+      MENUITEM "Attribut" IMAGE 'MYATTR16' ACTION ChangeFAttr( 2 )
+      SEPARATOR
+      MENUITEM "Property" IMAGE 'MYRAMDISK16' ACTION ShowProperty( 2 )
+   END MENU
+
+   DEFINE COMBOBOX ComboRight
+      PARENT WinRight
+      ROW 2
+      COL 2
+      WIDTH 60
+      HEIGHT 500
+      ITEMS caItems
+      IMAGE acImage
+      TABSTOP .F.
+      DROPPEDWIDTH 150
+      ON GOTFOCUS IF( lFromKeyBoard = .T., ComboboxShowList( GetControlHandle( "ComboRight", "WinRight" ) ), )
+      OnCloseUp Change2Drive( This.Name )
+   END COMBOBOX
+
+   DEFINE LABEL VolInfo_Right
+      PARENT WinRight
+      ROW 2
+      COL 70
+      VALUE GetVolumne( "C" ) + " " + STR( HB_DISKSPACE( "C:" ) / 1024 / 1000 / 1000 ) + " Mb free of " + LTRIM( STR( HB_DISKSPACE( "C:", HB_DISK_TOTAL ) / 1024 / 1000 / 1000 ) ) + " Mb"
+      WIDTH 300
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
+
+   DEFINE BUTTON DirUp_Right
+      PARENT WinRight
+      ROW 2
+      COL 630 - 68
+      WIDTH 24
+      HEIGHT 24
+      ACTION UpDirPath( 2 )
+      TOOLTIP "change up Folder"
+      CAPTION ".."
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE BUTTON RootUp_Right
+      PARENT WinRight
+      ROW 2
+      COL 630 - 44
+      WIDTH 24
+      HEIGHT 24
+      ACTION RootUpDirPath( 2 )
+      TOOLTIP "change to Root"
+      CAPTION "\"
+      TABSTOP .F.
+   END BUTTON
+
+   DEFINE LABEL TabStatus_Right
+      PARENT WinRight
+      ROW 786
+      COL 0
+      VALUE "Status"
+      WIDTH 626
+      HEIGHT 24
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontSize()
+      BACKCOLOR SP_nColor1()
+      FONTCOLOR SP_nColor2()
+   END LABEL
+
+   DEFINE TAB Tab_Right ;
+              OF WinRight ;
+              AT 30, 0 ;
+              WIDTH 630 HEIGHT 746 ;
+              VALUE 1 ;
+              FONT SP_cFontName() SIZE SP_nFontSize() ;
+              TOOLTIP "" ;
+              Hottrack ;
+              ON CHANGE Tab_Change_Right()
+
+      DEFINE PAGE "Page 1" IMAGE "MYFIXDRIVE16"
+         DefGridRight( "WinRight", "Grid_1", 1 )
+      END PAGE
+   END TAB
+   END WINDOW
 
    END WINDOW
 
@@ -1430,12 +1430,13 @@ RETURN
 FUNCTION DoSH2func( cAction, lConfirm, lPaperbin, lAdjustTime )
 
 LOCAL acFiles, acTarget
-LOCAL nPosi
+LOCAL nPosi, cFile
 LOCAL i, iMax
 LOCAL cSourceDir := ""
 LOCAL cTargetDir := ""
 LOCAL acDelete   := {}
 LOCAL aSourceNum
+LOCAL bError, oError
 
    DEFAULT lConfirm TO .F.
    DEFAULT lPaperbin TO .F.
@@ -1480,25 +1481,38 @@ LOCAL aSourceNum
    acTarget := {}
    SP_JustDelete( {} )
 
+   aSourceNum := ASORT( aSourceNum )
    iMax := LEN( aSourceNum )
    FOR i := 1 TO iMax
-      IF nGridFocus = 1
-         AADD( acFiles, cSourceDir + aDir_Left[ aSourceNum[ i ] ] [ F_NAME ] )
-         IF cAction = "DELETE"
-            AADD( acTarget, "" + CHR( 0 ) )
-            AADD( acDelete, aDir_Left[ aSourceNum[ i ] ] [ F_NAME ] )
+      nPosi := aSourceNum[ i ]
+
+      bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+      BEGIN SEQUENCE
+         IF nGridFocus = 1
+            cFile := aDir_Left[ nPosi ] [ F_NAME ]
+            AADD( acFiles, cSourceDir + cFile )
+            IF cAction = "DELETE"
+               AADD( acTarget, "" + CHR( 0 ) )
+               AADD( acDelete, cFile )
+            ELSE
+               AADD( acTarget, cTargetDir + cFile )
+            ENDIF
          ELSE
-            AADD( acTarget, cTargetDir + aDir_Left[ aSourceNum[ i ] ] [ F_NAME ] )
+            cFile := aDir_Right[ nPosi ] [ F_NAME ]
+            AADD( acFiles, cSourceDir + cFile )
+            IF cAction = "DELETE"
+               AADD( acTarget, "" + CHR( 0 ) )
+               AADD( acDelete, cFile )
+            ELSE
+               AADD( acTarget, cTargetDir + cFile )
+            ENDIF
          ENDIF
-      ELSE
-         AADD( acFiles, cSourceDir + aDir_Right[ aSourceNum[ i ] ] [ F_NAME ] )
-         IF cAction = "DELETE"
-            AADD( acTarget, "" + CHR( 0 ) )
-            AADD( acDelete, aDir_Right[ aSourceNum[ i ] ] [ F_NAME ] )
-         ELSE
-            AADD( acTarget, cTargetDir + aDir_Right[ aSourceNum[ i ] ] [ F_NAME ] )
-         ENDIF
-      ENDIF
+      RECOVER USING oError
+         ERRORBLOCK( bError )
+         MsgInfo( oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
+      END SEQUENCE
+      ERRORBLOCK( bError )
+
    NEXT
 
    IF !EMPTY( acDelete )
@@ -3408,7 +3422,7 @@ RETURN
 STATIC PROCEDURE DirImageColor( cPath, aDir, cForm, cObj )
 
 LOCAL i, iMax := LEN( aDir )
-LOCAL cName, nPosi, nIndex, cFull, nLen, cFile, cAttr, nFileHandle
+LOCAL cName, nPosi, nIndex, cFull, nLen, cFile, cAttr, nFileHandle, hIcon
 
    FOR i := 1 TO iMax
       cName := aDir[ i ] [ F_NAME ]
@@ -3418,25 +3432,34 @@ LOCAL cName, nPosi, nIndex, cFull, nLen, cFile, cAttr, nFileHandle
       IF "D" $ cAttr
          nIndex := 3
       ELSE
-         nIndex := GETICOINDEX( cFile, 16 )
+         // !!! WARNING !!!
+         // API Function seems to have Side-Effects
+         nIndex := GETICOINDEX( cFile, 16, @hIcon )
       ENDIF
       SetProperty( cForm, cObj, "ImageIndex", i, 1, nIndex )
 
-      /***********************************************************************
-      IF cForm = "WinLeft"
-         nPosi := ASCAN( aFiles_Left, { | e | e[ BT_DIRECTORYINFO_NAME ] = cName } )
-         IF nPosi > 0
-            nIndex := aFiles_Left[ nPosi ] [ BT_DIRECTORYINFO_INTERNALDATA_IMAGEINDEX ]
-            SetProperty( cForm, cObj, "ImageIndex", i, 1, nIndex )
-         ENDIF
-      ELSE
-         nPosi := ASCAN( aFiles_Right, { | e | e[ BT_DIRECTORYINFO_NAME ] = cName } )
-         IF nPosi > 0
-            nIndex := aFiles_Right[ nPosi ] [ BT_DIRECTORYINFO_INTERNALDATA_IMAGEINDEX ]
-            SetProperty( cForm, cObj, "ImageIndex", i, 1, nIndex )
+      IF VALTYPE( hIcon ) != "U"
+         IF DestroyIcon( hIcon )
+            hIcon := NIL
          ENDIF
       ENDIF
-***********************************************************************/
+
+      // **********************************************************************
+      //       IF cForm = "WinLeft"
+      //          nPosi := ASCAN( aFiles_Left, { | e | e[ BT_DIRECTORYINFO_NAME ] = cName } )
+      //          IF nPosi > 0
+      //             nIndex := aFiles_Left[ nPosi ] [ BT_DIRECTORYINFO_INTERNALDATA_IMAGEINDEX ]
+      //             SetProperty( cForm, cObj, "ImageIndex", i, 1, nIndex )
+      //          ENDIF
+      //       ELSE
+      //          nPosi := ASCAN( aFiles_Right, { | e | e[ BT_DIRECTORYINFO_NAME ] = cName } )
+      //          IF nPosi > 0
+      //      nIndex := aFiles_Right[ nPosi ] [ BT_DIRECTORYINFO_INTERNALDATA_IMAGEINDEX ]
+      //      SetProperty( cForm, cObj, "ImageIndex", i, 1, nIndex )
+      //   ENDIF
+      //ENDIF
+      // **********************************************************************
+
    NEXT
 
 RETURN
@@ -5068,34 +5091,34 @@ LOCAL nTitlebar := GETTITLEHEIGHT()
    ENDIF
 
    DEFINE WINDOW ShowBackList ;
-              AT 0, 0 ;
-              WIDTH 600 HEIGHT 600 ;
-              TITLE 'Last visit Folder' ;
-              ICON "ICOHISTORY" ;
-              ON MAXIMIZE DoReSizeBackList( ThisWindow.Name ) ;
-              ON SIZE DoReSizeBackList( ThisWindow.Name ) ;
-              BACKCOLOR SP_nColor1()
+      AT 0, 0 ;
+      WIDTH 600 HEIGHT 600 ;
+      TITLE 'Last visit Folder' ;
+      ICON "ICOHISTORY" ;
+      ON MAXIMIZE DoReSizeBackList( ThisWindow.Name ) ;
+      ON SIZE DoReSizeBackList( ThisWindow.Name ) ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE LISTBOX List_BackDir
-         PARENT ShowBackList
-         ROW 5
-         COL 5
-         WIDTH 570
-         HEIGHT 570 - nTitlebar
-         ITEMS {}
-         VALUE 1
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontlarge()
-         TOOLTIP ""
-         BACKCOLOR SP_nColor9()
-         FONTCOLOR SP_nColor10()
-         ONDBLCLICK Back2Dirlist()
-         TABSTOP .T.
-         VISIBLE .T.
-         SORT .F.
-         MULTISELECT .F.
-         DRAGITEMS .F.
-      END LISTBOX
+   DEFINE LISTBOX List_BackDir
+      PARENT ShowBackList
+      ROW 5
+      COL 5
+      WIDTH 570
+      HEIGHT 570 - nTitlebar
+      ITEMS {}
+      VALUE 1
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontlarge()
+      TOOLTIP ""
+      BACKCOLOR SP_nColor9()
+      FONTCOLOR SP_nColor10()
+      ONDBLCLICK Back2Dirlist()
+      TABSTOP .T.
+      VISIBLE .T.
+      SORT .F.
+      MULTISELECT .F.
+      DRAGITEMS .F.
+   END LISTBOX
    END WINDOW
 
    nCount := LEN( aItems )
@@ -5563,89 +5586,89 @@ LOCAL cPath, cName, cFile, lChange := .f.
    lSystem := "S" $ aDir[ 1 ] [ F_ATTR ]
 
    DEFINE WINDOW wFileAttr ;
-              AT 0, 0 ;
-              WIDTH 300 ;
-              HEIGHT 260 ;
-              TITLE "File attributes for " + cName ;
-              ICON 'ICOATTR' ;
-              MODAL ;
-              NOSIZE
+      AT 0, 0 ;
+      WIDTH 300 ;
+      HEIGHT 260 ;
+      TITLE "File attributes for " + cName ;
+      ICON 'ICOATTR' ;
+      MODAL ;
+      NOSIZE
 
-      //       BACKCOLOR SP_nColor1() ;
-      //       FONT 'MS Sans Serif'          ;
-      //       SIZE 9
+   //       BACKCOLOR SP_nColor1() ;
+   //       FONT 'MS Sans Serif'          ;
+   //       SIZE 9
 
-      @  4,  5 FRAME FA_Frame_1 CAPTION "Change attributes" WIDTH 284 HEIGHT 118
+   @  4,  5 FRAME FA_Frame_1 CAPTION "Change attributes" WIDTH 284 HEIGHT 118
 
-      @ 26, 14 CHECKBOX FA_Check_1 ;
-              CAPTION '&Archive' ;
-              WIDTH 200 ;
-              HEIGHT 16 ;
-              VALUE lArchive ;
-              ON CHANGE lArchive := wFileAttr.FA_Check_1.Value
+   @ 26, 14 CHECKBOX FA_Check_1 ;
+           CAPTION '&Archive' ;
+           WIDTH 200 ;
+           HEIGHT 16 ;
+           VALUE lArchive ;
+           ON CHANGE lArchive := wFileAttr.FA_Check_1.Value
 
-      @ 48, 14 CHECKBOX FA_Check_2 ;
-              CAPTION '&Read only' ;
-              WIDTH 200 ;
-              HEIGHT 16 ;
-              VALUE lRead ;
-              ON CHANGE lRead := wFileAttr.FA_Check_2.Value
+   @ 48, 14 CHECKBOX FA_Check_2 ;
+           CAPTION '&Read only' ;
+           WIDTH 200 ;
+           HEIGHT 16 ;
+           VALUE lRead ;
+           ON CHANGE lRead := wFileAttr.FA_Check_2.Value
 
-      @ 70, 14 CHECKBOX FA_Check_3 ;
-              CAPTION '&Hidden' ;
-              WIDTH 200 ;
-              HEIGHT 16 ;
-              VALUE lHidden ;
-              ON CHANGE lHidden := wFileAttr.FA_Check_3.Value
+   @ 70, 14 CHECKBOX FA_Check_3 ;
+           CAPTION '&Hidden' ;
+           WIDTH 200 ;
+           HEIGHT 16 ;
+           VALUE lHidden ;
+           ON CHANGE lHidden := wFileAttr.FA_Check_3.Value
 
-      @ 92, 14 CHECKBOX FA_Check_4 ;
-              CAPTION '&System' ;
-              WIDTH 200 ;
-              HEIGHT 16 ;
-              VALUE lSystem ;
-              ON CHANGE lSystem := wFileAttr.FA_Check_4.Value
+   @ 92, 14 CHECKBOX FA_Check_4 ;
+           CAPTION '&System' ;
+           WIDTH 200 ;
+           HEIGHT 16 ;
+           VALUE lSystem ;
+           ON CHANGE lSystem := wFileAttr.FA_Check_4.Value
 
-      @ 130,  5 FRAME Frame_2 WIDTH 284 HEIGHT 64
+   @ 130,  5 FRAME Frame_2 WIDTH 284 HEIGHT 64
 
-      @ 140, 14 CHECKBOX FA_Check_5 ;
-              CAPTION 'Change &date/time' ;
-              WIDTH 120 ;
-              HEIGHT 16 ;
-              VALUE lChange ;
-              ON CHANGE lChange := wFileAttr.FA_Check_5.Value
+   @ 140, 14 CHECKBOX FA_Check_5 ;
+           CAPTION 'Change &date/time' ;
+           WIDTH 120 ;
+           HEIGHT 16 ;
+           VALUE lChange ;
+           ON CHANGE lChange := wFileAttr.FA_Check_5.Value
 
-      @ 138, 206 BUTTON FA_Button_3 ;
-              CAPTION "C&urrent" ;
-              ACTION( wFileAttr.FA_Text_1.Value := DTOC( DATE() ), ;
-              wFileAttr.FA_Text_2.Value := TIME(), ;
-              wFileAttr.FA_Check_5.Value := .t. ) ;
-              WIDTH 74 HEIGHT 23
+   @ 138, 206 BUTTON FA_Button_3 ;
+           CAPTION "C&urrent" ;
+           ACTION( wFileAttr.FA_Text_1.Value := DTOC( DATE() ), ;
+           wFileAttr.FA_Text_2.Value := TIME(), ;
+           wFileAttr.FA_Check_5.Value := .t. ) ;
+           WIDTH 74 HEIGHT 23
 
-      @ 166, 014 LABEL FA_Label_1 VALUE "Date:" AUTOSIZE
+   @ 166, 014 LABEL FA_Label_1 VALUE "Date:" AUTOSIZE
 
-      @ 166, 162 LABEL FA_Label_2 VALUE "Time:" AUTOSIZE
+   @ 166, 162 LABEL FA_Label_2 VALUE "Time:" AUTOSIZE
 
-      @ 164, 56 TEXTBOX FA_Text_1 ;
-              VALUE cDate ;
-              WIDTH 74 ;
-              HEIGHT 20 ;
-              ON CHANGE( cDate := wFileAttr.FA_Text_1.Value, wFileAttr.FA_Check_5.Value := .t. )
+   @ 164, 56 TEXTBOX FA_Text_1 ;
+           VALUE cDate ;
+           WIDTH 74 ;
+           HEIGHT 20 ;
+           ON CHANGE( cDate := wFileAttr.FA_Text_1.Value, wFileAttr.FA_Check_5.Value := .t. )
 
-      @ 164, 206 TEXTBOX FA_Text_2 ;
-              VALUE cTime ;
-              WIDTH 74 ;
-              HEIGHT 20 ;
-              ON CHANGE( cTime := wFileAttr.FA_Text_2.Value, wFileAttr.FA_Check_5.Value := .t. )
+   @ 164, 206 TEXTBOX FA_Text_2 ;
+           VALUE cTime ;
+           WIDTH 74 ;
+           HEIGHT 20 ;
+           ON CHANGE( cTime := wFileAttr.FA_Text_2.Value, wFileAttr.FA_Check_5.Value := .t. )
 
-      @ 204, 122 BUTTON FA_Button_1 ;
-              CAPTION "&Ok" ;
-              ACTION( SetAttr( cFile, lArchive, lRead, lHidden, lSystem, lChange, cDate, cTime ), wFileAttr.Release ) ;
-              WIDTH 80 HEIGHT 23
+   @ 204, 122 BUTTON FA_Button_1 ;
+           CAPTION "&Ok" ;
+           ACTION( SetAttr( cFile, lArchive, lRead, lHidden, lSystem, lChange, cDate, cTime ), wFileAttr.Release ) ;
+           WIDTH 80 HEIGHT 23
 
-      @ 204, 208 BUTTON FA_Button_2 ;
-              CAPTION "&Cancel" ;
-              ACTION wFileAttr.Release ;
-              WIDTH 80 HEIGHT 23
+   @ 204, 208 BUTTON FA_Button_2 ;
+           CAPTION "&Cancel" ;
+           ACTION wFileAttr.Release ;
+           WIDTH 80 HEIGHT 23
 
    END WINDOW
 

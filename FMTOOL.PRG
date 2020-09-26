@@ -24,7 +24,7 @@
 *+               Function DXE_ResolveLink()
 *+               Function Userfolder()
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
+*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
 *+
 *+--------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ STATIC FUNCTION GetWinMsc()
 LOCAL aArray := {}
 
    AADD( aArray, { "compmgmt.msc               ", "Computer Verwaltung           ", "Computer administration       ", "ALL" } )
-   AADD( aArray, { "devmgmt.msc                ", "Ger„te Manager                ", "Device Management             ", "ALL" } )
+   AADD( aArray, { "devmgmt.msc                ", "Geräte Manager                ", "Device Management             ", "ALL" } )
    AADD( aArray, { "diskmgmt.msc               ", "Festplatten Verwaltung        ", "Disk management               ", "ALL" } )
    AADD( aArray, { "eventvwr.msc               ", "Ereigniss Anzeige             ", "Event display                 ", "ALL" } )
    AADD( aArray, { "services.msc               ", "Dienste                       ", "Services                      ", "ALL" } )
@@ -158,7 +158,7 @@ LOCAL aArray := {}
    AADD( aArray, { "perfmon.exe /res           ", "Ressourcenmonitor             ", "resource monitor              ", "ALL" } )
    AADD( aArray, { "charmap.exe                ", "Sonderzeichen                 ", "Character Map                 ", "ALL" } )
    AADD( aArray, { "shrpubw.exe                ", "Ordner freigeben              ", "Shared folder wizard          ", "ALL" } )
-   AADD( aArray, { "magnify.exe                ", "Vergr”áerungsglas             ", "Magnifying glass              ", "ALL" } )
+   AADD( aArray, { "magnify.exe                ", "Vergrösserungsglas            ", "Magnifying glass              ", "ALL" } )
    AADD( aArray, { "dccw.exe                   ", "Farbdarstellung               ", "Display Color Calibration     ", "ALL" } )
    AADD( aArray, { "explorer.exe               ", "Explorer                      ", "Explorer                      ", "ALL" } )
    AADD( aArray, { "notepad.exe                ", "Notepad                       ", "Notepad                       ", "ALL" } )
@@ -172,7 +172,7 @@ LOCAL aArray := {}
    AADD( aArray, { "taskmgr.exe                ", "Task Manager                  ", "Task Manager                  ", "ALL" } )
    AADD( aArray, { "wordpad.exe                ", "Wordpad                       ", "Wordpad                       ", "ALL" } )
    AADD( aArray, { "stikynot.exe               ", "Notizzettel                   ", "Sticky Notes                  ", "W7" } )
-   AADD( aArray, { "computerdefaults.exe       ", "Standard-Software w„hlen      ", "Select standard software      ", "W7" } )
+   AADD( aArray, { "computerdefaults.exe       ", "Standard-Software wählen      ", "Select standard software      ", "W7" } )
    AADD( aArray, { "psr.exe                    ", "Windows-Probleme aufzeichnen  ", "Record Windows problems       ", "W7" } )
    AADD( aArray, { "iexpress.exe               ", "Selbstentpackendes Archiv     ", "Self-extracting archive       ", "W7" } )
    AADD( aArray, { "control.exe                ", "Systemsteuerrung              ", "Control Panel                 ", "ALL" } )
@@ -180,7 +180,7 @@ LOCAL aArray := {}
    AADD( aArray, { "control.exe fonts          ", "Font Manager                  ", "Font Manager                  ", "ALL" } )
    AADD( aArray, { "control.exe keyboard       ", "Keyboard Eigenschaften        ", "Keyboard properties           ", "ALL" } )
    AADD( aArray, { "control.exe userpasswords2 ", "Benutzer Konten Verwaltung    ", "User accounts management      ", "ALL" } )
-   AADD( aArray, { "control.exe printers       ", "Ger„te und Drucker            ", "Devices and printers          ", "W7" } )
+   AADD( aArray, { "control.exe printers       ", "Geräte und Drucker            ", "Devices and printers          ", "W7" } )
    AADD( aArray, { "control.exe keyboard       ", "Tastatur Eigenschaften        ", "Keyboard properties           ", "W7" } )
 
 RETURN aArray
@@ -269,37 +269,37 @@ LOCAL i, iMax := LEN( aFolder )
    NEXT
 
    DEFINE WINDOW ListSysFolder ;
-              AT 348, 589 ;
-              WIDTH 224 ;
-              HEIGHT 755 ;
-              TITLE "" ;
-              ICON "A1MAIN" ;
-              TOPMOST ;
-              NOMINIMIZE ;
-              NOMAXIMIZE ;
-              NOSIZE ;
-              BACKCOLOR SP_nColor1()
+      AT 348, 589 ;
+      WIDTH 224 ;
+      HEIGHT 755 ;
+      TITLE "" ;
+      ICON "A1MAIN" ;
+      TOPMOST ;
+      NOMINIMIZE ;
+      NOMAXIMIZE ;
+      NOSIZE ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE LISTBOX List_SysFolder
-         PARENT ListSysFolder
-         ROW 10
-         COL 10
-         WIDTH 200
-         HEIGHT 700
-         ITEMS a2List
-         VALUE 1
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontLarge()
-         TOOLTIP ""
-         BACKCOLOR SP_nColor9( )
-         FONTCOLOR SP_nColor10()
-         ONDBLCLICK DoMySysAction( aFolder )
-         TABSTOP .T.
-         VISIBLE .T.
-         SORT .F.
-         MULTISELECT .F.
-         DRAGITEMS .F.
-      END LISTBOX
+   DEFINE LISTBOX List_SysFolder
+      PARENT ListSysFolder
+      ROW 10
+      COL 10
+      WIDTH 200
+      HEIGHT 700
+      ITEMS a2List
+      VALUE 1
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontLarge()
+      TOOLTIP ""
+      BACKCOLOR SP_nColor9( )
+      FONTCOLOR SP_nColor10()
+      ONDBLCLICK DoMySysAction( aFolder )
+      TABSTOP .T.
+      VISIBLE .T.
+      SORT .F.
+      MULTISELECT .F.
+      DRAGITEMS .F.
+   END LISTBOX
 
    END WINDOW
 
@@ -448,37 +448,37 @@ LOCAL nCountry := HB_bitAND( GETKEYBOARDLAYOUT(), 0xFFFF )
    //   a2List := ASORT(a2List,{|x,y| x < y })
 
    DEFINE WINDOW ListMSCFolder ;
-              AT 348, 589 ;
-              WIDTH 324 ;
-              HEIGHT 755 ;
-              TITLE "" ;
-              ICON "A1MAIN" ;
-              TOPMOST ;
-              NOMINIMIZE ;
-              NOMAXIMIZE ;
-              NOSIZE ;
-              BACKCOLOR SP_nColor1()
+      AT 348, 589 ;
+      WIDTH 324 ;
+      HEIGHT 755 ;
+      TITLE "" ;
+      ICON "A1MAIN" ;
+      TOPMOST ;
+      NOMINIMIZE ;
+      NOMAXIMIZE ;
+      NOSIZE ;
+      BACKCOLOR SP_nColor1()
 
-      DEFINE LISTBOX List_MSCFolder
-         PARENT ListMSCFolder
-         ROW 10
-         COL 10
-         WIDTH 300
-         HEIGHT 700
-         ITEMS a2List
-         VALUE 1
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontLarge()
-         TOOLTIP ""
-         BACKCOLOR SP_nColor9( )
-         FONTCOLOR SP_nColor10()
-         ONDBLCLICK DoMyMSCAction( aSort )
-         TABSTOP .T.
-         VISIBLE .T.
-         SORT .F.
-         MULTISELECT .F.
-         DRAGITEMS .F.
-      END LISTBOX
+   DEFINE LISTBOX List_MSCFolder
+      PARENT ListMSCFolder
+      ROW 10
+      COL 10
+      WIDTH 300
+      HEIGHT 700
+      ITEMS a2List
+      VALUE 1
+      FONTNAME SP_cFontName()
+      FONTSIZE SP_nFontLarge()
+      TOOLTIP ""
+      BACKCOLOR SP_nColor9( )
+      FONTCOLOR SP_nColor10()
+      ONDBLCLICK DoMyMSCAction( aSort )
+      TABSTOP .T.
+      VISIBLE .T.
+      SORT .F.
+      MULTISELECT .F.
+      DRAGITEMS .F.
+   END LISTBOX
 
    END WINDOW
 
@@ -547,7 +547,8 @@ LOCAL myWinNT    := .T.
          cRoot := GETENV( "SYSTEMROOT" )
 
          IF ".CPL" $ UPPER( cAction )
-            RUN ( "Shell32,Control_RunDLL " + cAction, cRoot + "\SYSTEM32\RUNDLL32.EXE", .T. )
+            //   RUN ( "Shell32,Control_RunDLL " + cAction, cRoot + "\SYSTEM32\RUNDLL32.EXE", .T. )
+            RUN ( cAction )
 
          ELSEIF ".DLL" $ UPPER( cAction )
             // ???
@@ -558,7 +559,9 @@ LOCAL myWinNT    := .T.
             ENDIF
 
          ELSEIF ".MSC" $ UPPER( cAction )
-            RUN ( "/C START " + cAction )
+            //    RUN ( "/C START " + cAction )
+            //  v1.28
+            SHELLOPENFILE( "", cAction )
 
          ELSE
             bSaveError := ERRORBLOCK( { | e | BREAK( e ) } )
