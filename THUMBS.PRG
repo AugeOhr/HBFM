@@ -20,12 +20,12 @@
 *+               Static Procedure TroggleMark()
 *+               Static Procedure Form_ONGOTFOCUS()
 *+               Static Function PaintImage()
-*+               Static Procedure Rotate()
+*+               Static Procedure ThumbsRotate()
 *+               Procedure ChangeDBFStructur()
 *+               Function FORproggress()
 *+               Static Function AtInside()
 *+
-*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:11 am
+*+    Reformatted by Click! 2.05.34 on Sep-28-2020 at  3:25 am
 *+
 *+--------------------------------------------------------------------
 
@@ -118,7 +118,6 @@ LOCAL nHwnd, nSbHwnd
       nHight := GetProperty( "Win_1", "ClientAreaHeight" )
 
       nSbHight += GetBorderHeight()
-      //  nSbHight += GetBorderWidth()
 
 #IFDEF ON_STATUSBAR
       nRow += nHight + nSbHight
@@ -127,23 +126,20 @@ LOCAL nHwnd, nSbHwnd
 #ENDIF
       nCol += 8
 
-      //  AT (GetDesktopHeight()/2 ) , (GetDesktopWidth() - 550) / 2 ;
-      //               TOPMOST ;
-
       DEFINE WINDOW Pbar_Form ;
-                 AT nRow, nCol ;
-                 WIDTH nWide ;
-                 HEIGHT nSbHight ;
-                 NOMINIMIZE ;
-                 NOMAXIMIZE ;
-                 NOSIZE ;
-                 NOSYSMENU ;
-                 NOCAPTION ;
-                 ON RELEASE Nil ;
-                 ON PAINT nil ;
-                 ON INIT &cFormRun
+         AT nRow, nCol ;
+         WIDTH nWide ;
+         HEIGHT nSbHight ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         NOSIZE ;
+         NOSYSMENU ;
+         NOCAPTION ;
+         ON RELEASE Nil ;
+         ON PAINT nil ;
+         ON INIT &cFormRun
 
-         @  0,  0 PROGRESSBAR ProgressBar_1 RANGE 0, 100 WIDTH nWide HEIGHT nSbHight         
+      @  0,  0 PROGRESSBAR ProgressBar_1 RANGE 0, 100 WIDTH nWide HEIGHT nSbHight         
 
       END WINDOW
 
@@ -154,11 +150,9 @@ LOCAL nHwnd, nSbHwnd
       SETPARENT( nHwnd, nSbHwnd )
 
       //    TBL_SETVALUE(nHwnd, 0, 100)
-
       nHwnd := GetControlHandle( "ProgressBar_1", "Pbar_Form" )
       nSbHwnd := GetControlHandle( "STATUSBAR", "Win_1" )
       SETPARENT( nHwnd, nSbHwnd )
-
       //    TBL_SETVALUE(nSbHwnd, 0, 100)
 
 #ENDIF
@@ -202,36 +196,36 @@ LOCAL nDeskHigh       := GETDESKTOPHEIGHT()
 PUBLIC cImage       := "", cDevice := ""
 PUBLIC _HMG_SYSDATA
 
-   /*********************************************
-   CHECK TYPE SOFT ;
-           cImage AS CHARACTER, ;
-           cDevice AS CHARACTER, ;
-           fname AS CHARACTER, ;
-           cThumbsFile AS CHARACTER, ;
-           cMacro AS CHARACTER, ;
-           cTemp AS CHARACTER, ;
-           cText AS CHARACTER, ;
-           aTempDir AS ARRAY, ;
-           FI_hBitmap1_aux AS NUMERIC, ;
-           FI_hBitmap1 AS NUMERIC, ;
-           Hwnd AS NUMERIC, ;
-           nMax AS NUMERIC, ;
-           nMode AS NUMERIC, ;
-           ii AS NUMERIC, ;
-           xx AS NUMERIC, ;
-           yy AS NUMERIC, ;
-           iMax AS NUMERIC, ;
-           yPicMax AS NUMERIC, ;
-           xPicMax AS NUMERIC, ;
-           nRow AS NUMERIC, ;
-           nCol AS NUMERIC, ;
-           nCount AS NUMERIC, ;
-           nStart AS NUMERIC, ;
-           nStop AS NUMERIC, ;
-           nIndex AS NUMERIC, ;
-           nHeight AS NUMERIC, ;
-           clone AS NUMERIC
-*********************************************/
+   // ********************************************
+   //    CHECK TYPE SOFT ;
+   //            cImage AS CHARACTER, ;
+   //            cDevice AS CHARACTER, ;
+   //            fname AS CHARACTER, ;
+   //            cThumbsFile AS CHARACTER, ;
+   //            cMacro AS CHARACTER, ;
+   //            cTemp AS CHARACTER, ;
+   //            cText AS CHARACTER, ;
+   //            aTempDir AS ARRAY, ;
+   //            FI_hBitmap1_aux AS NUMERIC, ;
+   //            FI_hBitmap1 AS NUMERIC, ;
+   //            Hwnd AS NUMERIC, ;
+   //            nMax AS NUMERIC, ;
+   //            nMode AS NUMERIC, ;
+   //            ii AS NUMERIC, ;
+   //            xx AS NUMERIC, ;
+   //            yy AS NUMERIC, ;
+   //            iMax AS NUMERIC, ;
+   //            yPicMax AS NUMERIC, ;
+   //            xPicMax AS NUMERIC, ;
+   //            nRow AS NUMERIC, ;
+   //            nCol AS NUMERIC, ;
+   //            nCount AS NUMERIC, ;
+   //            nStart AS NUMERIC, ;
+   //            nStop AS NUMERIC, ;
+   //            nIndex AS NUMERIC, ;
+   //            nHeight AS NUMERIC, ;
+   //            clone AS NUMERIC
+   // ********************************************
 
    aMark := {}
 
@@ -251,229 +245,165 @@ PUBLIC _HMG_SYSDATA
    ENDIF
 
    IF EMPTY( aDir )
-      //  MsgInfo("missing aDir")
-      //  RETURN
-      //  aDir := DIRECTORY( cPath + "*.*" )
-      aDir := HB_DirScanM( cPath, { "*.bmp", "*.jpg", "*.png", "*.gif", "*.tif", "*.wmf", "*.emf", "*.cur" }, "", .F. )
+      aDir := HB_DirScanM( cPath, { "*.bmp", "*.jpg", "*.jpeg", "*.png", "*.gif", "*.tif", "*.tiff", "*.wmf", "*.emf" }, "", .F. )
       aDir := ASORT( aDir,,, { | aX, aY | aX[ 1 ] < aY[ 1 ] } )
    ENDIF
 
    nMax := LEN( aDir )
    IF EMPTY( nMax )
-      aDir := HB_DirScanM( cPath, { "*.bmp", "*.jpg", "*.png", "*.gif", "*.tif", "*.wmf", "*.emf", "*.cur" }, "", .F. )
+      aDir := HB_DirScanM( cPath, { "*.bmp", "*.jpg", "*.jpeg", "*.png", "*.gif", "*.tif", "*.tiff", "*.wmf", "*.emf" }, "", .F. )
       aDir := ASORT( aDir,,, { | aX, aY | aX[ 1 ] < aY[ 1 ] } )
       nMax := LEN( aDir )
    ENDIF
 
-   //   xPicMax := ROUND( nDeskWide / 128, 0 )
-   //   yPicMax := ROUND( ( nMax / xPicMax ), 0 )
    xPicMax := INT( nDeskWide / 128 )
    yPicMax := INT( nMax / xPicMax )
-
-   //    IF ( yPicMax * xPicMax ) < nMax
    yPicMax += 1
-   //    ENDIF
 
    nHeight := ( yPicMax * 128 ) + 50 + 40
 
-#IFDEF Use_FreeImage
-   IF FILE( 'FreeImage.Dll' ) .OR. FILE( 'FreeImage64.Dll' )
-      FREE_Initialise()
-      //  MsgInfo( Var2char( FREE_GetVersion() ) )
-   ELSE
-      MsgInfo( "Can't found the FreeImage.Dll" )
-      RETURN
-   ENDIF
-#ENDIF
+   // #IFDEF Use_FreeImage
+   //    IF FILE( 'FreeImage.Dll' ) .OR. FILE( 'FreeImage64.Dll' )
+   //       FREE_Initialise()
+   //       //  MsgInfo( Var2char( FREE_GetVersion() ) )
+   //    ELSE
+   //       MsgInfo( "Can't found the FreeImage.Dll" )
+   //       RETURN
+   //    ENDIF
+   // #ENDIF
 
    nStart := SECONDS()
 
    DEFINE WINDOW THUMBSWIN ;
-              AT 0, 0 ;
-              WIDTH nDeskWide ;
-              HEIGHT MIN( nDeskHigh, nHeight ) ;
-              VIRTUAL WIDTH nDeskWide + 1 ;
-              VIRTUAL HEIGHT nHeight + 1 ;
-              TITLE "Thumbs View" ;
-              ICON "MYTHUMB32" ;
-              ON INIT Nil ;
-              ON RELEASE Nil ;
-              NOSIZE ;
-              NOMAXIMIZE ;
-              NOMINIMIZE ;
-              ON PAINT Nil ;
-              BACKCOLOR Nil                                           // SP_nColor1()
+      AT 0, 0 ;
+      WIDTH nDeskWide ;
+      HEIGHT MIN( nDeskHigh, nHeight ) ;
+      VIRTUAL WIDTH nDeskWide + 1 ;
+      VIRTUAL HEIGHT nHeight + 1 ;
+      TITLE "Thumbs View" ;
+      ICON "MYTHUMB32" ;
+      ON INIT Nil ;
+      ON RELEASE Nil ;
+      NOSIZE ;
+      NOMAXIMIZE ;
+      NOMINIMIZE ;
+      ON PAINT Nil ;
+      BACKCOLOR Nil                                                   // SP_nColor1()
 
-      DEFINE CONTEXT MENU OF THUMBSWIN
-         MENUITEM "rotate &right" IMAGE "MYROTATER16" ACTION Rotate( "R", cPath, aDir )
-         MENUITEM "rotate &left" IMAGE "MYROTATEL16" ACTION Rotate( "L", cPath, aDir )
-         SEPARATOR
-      END MENU
+   DEFINE CONTEXT MENU OF THUMBSWIN
+      MENUITEM "rotate &right" IMAGE "MYROTATER16" ACTION ThumbsRotate( - 90, cPath, aDir )
+      MENUITEM "rotate &left" IMAGE "MYROTATEL16" ACTION ThumbsRotate( 90, cPath, aDir )
+      SEPARATOR
+      MENUITEM "rotate 190" ACTION ThumbsRotate( 180, cPath, aDir )
+   END MENU
 
-      @  2, 000 BUTTON BACKEXIT CAPTION "&Exit"   PICTURE "MYEXIT" LEFT ACTION THUMBSWIN.Release TOOLTIP "close this Windows" WIDTH 90 HEIGHT 46 NOTABSTOP             
-      @  2, 100 BUTTON MarkAll CAPTION "Mark&All" PICTURE "MYCHECK16" LEFT ACTION MarkAllImage( aDir ) TOOLTIP "mark all item" WIDTH 90 HEIGHT 46 NOTABSTOP            
-      @  2, 200 BUTTON DelMark CAPTION "&DelMark" PICTURE "MYUNCHECK16" LEFT ACTION DelAllMark( aDir ) TOOLTIP "un-mark all item" WIDTH 90 HEIGHT 46 NOTABSTOP         
-      @  2, 300 BUTTON ViewPic CAPTION "F3 &View" PICTURE "" LEFT ACTION DoShow( cPath, aDir ) TOOLTIP "view full-Size" WIDTH 90 HEIGHT 46 NOTABSTOP                   
+   @  2, 000 BUTTON BACKEXIT CAPTION "&Exit"   PICTURE "MYEXIT" LEFT ACTION THUMBSWIN.Release TOOLTIP "close this Windows" WIDTH 90 HEIGHT 46 NOTABSTOP             
+   @  2, 100 BUTTON MarkAll CAPTION "Mark&All" PICTURE "MYCHECK16" LEFT ACTION MarkAllImage( aDir ) TOOLTIP "mark all item" WIDTH 90 HEIGHT 46 NOTABSTOP            
+   @  2, 200 BUTTON DelMark CAPTION "&DelMark" PICTURE "MYUNCHECK16" LEFT ACTION DelAllMark( aDir ) TOOLTIP "un-mark all item" WIDTH 90 HEIGHT 46 NOTABSTOP         
+   @  2, 300 BUTTON ViewPic CAPTION "F3 &View" PICTURE "" LEFT ACTION DoShow( cPath, aDir ) TOOLTIP "view full-Size" WIDTH 90 HEIGHT 46 NOTABSTOP                   
 
-      //  SetCursorWait("Win_1",.T.)
-      SetCursorWait( "WinLeft", .T. )
-      SetCursorWait( "WinRight", .T. )
-      //  SetCursorWait("THUMBSWIN",.T.)
+   SetCursorWait( "WinLeft", .T. )
+   SetCursorWait( "WinRight", .T. )
 
-      FOR xx := 1 TO yPicMax
-         YY := 1
-         FOR YY := 1 TO xPicMax
+   FOR xx := 1 TO yPicMax
+      YY := 1
+      FOR YY := 1 TO xPicMax
 
-            nCount ++
-            cMacro := STRZERO( nCount, 5 )
-            cImage := "Image_" + cMacro
-            cDevice := "Device_" + cMacro
+         nCount ++
+         cMacro := STRZERO( nCount, 5 )
+         cImage := "Image_" + cMacro
+         cDevice := "Device_" + cMacro
 
-            nRow := 50 + ( ( xx - 1 ) * 128 )
-            nCol := 02 + ( ( yy - 1 ) * 128 )
+         nRow := 50 + ( ( xx - 1 ) * 128 )
+         nCol := 02 + ( ( yy - 1 ) * 128 )
 
 #IFDEF Use_BT
-            // *************************
-            // fname := cPath + aDir[ nCount ] [ 1 ]
-            // * nHandle := FREE_Load( FREE_GetFileType( fname, 0 ), fname, 0 )
-            //
-            // DEFINE WINDOW &cDevice ;
-            //            PARENT THUMBSWIN ;
-            //            AT nRow, nCol ;
-            //            WIDTH 127 HEIGHT 127 ;
-            //            PANEL ;
-            //            NOCAPTION ;
-            //            ON PAINT PaintImage( ThisWindow.handle, fname ) ;
-            //            BACKCOLOR SP_nColor1()
-            // END WINDOW
-            //
-            // * ON INIT DRAWHBMP( ThisWindow.handle, nHandle,0) ;
-            // * DRAWHBMP(ThisWindow.handle, nHandle,0)
-            // * FREE_Unload(nHandle)
-            // *************************
 
-            DEFINE IMAGE &cImage
-               ROW nRow                                               // 1
-               COL nCol                                               // 1
-               PICTURE nil                                            // cPath + aDir[ 1 ] [ 1 ]
-               ONCLICK SetActiveImage( This.Name )                    // DoShow( This.Name, cPath, aDir )
-               WIDTH 128
-               HEIGHT 128
-               VISIBLE .T.
-               STRETCH .F.
-            END IMAGE
+         fname := aDir[ nCount ] [ F_NAME ]
 
-            fname := cPath + aDir[ nCount ] [ F_NAME ]
-            cThumbsFile := GetTempFolder() + "FI_" + cFileNoExt( fname ) + ".bmp"
+         DEFINE IMAGE &cImage
+            ROW nRow                                                  // 1
+            COL nCol                                                  // 1
+            PICTURE nil                                               // cPath + aDir[ 1 ] [ 1 ]
+            ONCLICK SetActiveImage( This.Name )                       // DoShow( This.Name, cPath, aDir )
+            WIDTH 128
+            HEIGHT 128
+            VISIBLE .T.
+            STRETCH .F.
+            TOOLTIP cPath + fname
+         END IMAGE
+         //  will not work if same name with other Extension
+         //          cThumbsFile := GetTempFolder() + "FI_" + cFileNoExt(cPath + fname ) + ".bmp"
+         cThumbsFile := GetTempFolder() + "FI_" + fname + ".bmp"
 
-            IF FILE( cThumbsFile )
-               SetProperty( "THUMBSWIN", cImage, "PICTURE", cThumbsFile )
-            ELSE
+         IF FILE( cThumbsFile )
+            SetProperty( "THUMBSWIN", cImage, "PICTURE", cThumbsFile )
+         ELSE
 #IFDEF Use_FreeImage
-               FI_hBitmap1_aux := FREE_Load( FREE_GetFileType( fname, 0 ), fname, 0 )
+            FI_hBitmap1_aux := FREE_Load( FREE_GetFileType( cPath + fname, 0 ), cPath + fname, 0 )
 
-               IF !EMPTY( FI_hBitmap1_aux )
-                  clone := FREE_Clone( FI_hBitmap1_aux )
-                  FREE_Unload( FI_hBitmap1_aux )
+            IF !EMPTY( FI_hBitmap1_aux )
+               clone := FREE_Clone( FI_hBitmap1_aux )
+               FREE_Unload( FI_hBitmap1_aux )
 
-                  //  FI_hBitmap1 := FREE_Rescale( clone, 128, 128, FILTER_BICUBIC )
-                  FI_hBitmap1 := Free_MakeThumbnail( clone, 128, TRUE )
-                  FREE_Unload( clone )
+               FI_hBitmap1 := Free_MakeThumbnail( clone, 128, TRUE )
+               FREE_Unload( clone )
 
-                  //  FI_hBitmap1 := Free_MakeThumbnail( FI_hBitmap1_aux, 128, TRUE )
-                  //  FREE_Unload( FI_hBitmap1_aux )
-
-                  // Clipboard
-                  // FreeImage_Copy(FI_hBitmap1,0,0,128,128)
-                  // FREE_Unload( FI_hBitmap1 )
-
-                  FREE_Save( FIF_BMP, FI_hBitmap1, cThumbsFile, BMP_DEFAULT )
-                  SetProperty( "THUMBSWIN", cImage, "PICTURE", cThumbsFile )
-                  FREE_Unload( FI_hBitmap1 )
-                  //  FERASE( cThumbsFile )
-
-                  // *******************
-                  // if !EMPTY(FI_hBitmap1)
-                  //    Hwnd := GetControlHandle( cImage, "THUMBSWIN" )
-                  //
-                  //    PaintImage(Hwnd, FI_hBitmap1)
-                  //    DRAWHBMP(Hwnd, FI_hBitmap1,0)
-                  //
-                  //    hBitmap := FREE_WINCONVTODIB(FI_hBitmap1)
-                  //    DRAWHBMP(Hwnd, hBitmap,0)
-                  //    *PaintImage(Hwnd, hBitmap)
-                  //
-                  //    SetProperty( "THUMBSWIN", cImage, "HBITMAP", hBitmap )
-                  //    SetProperty( "THUMBSWIN", cImage, "PICTURE", hBitmap )
-                  //
-                  //    * DRAWHBMP(Hwnd, hBitmap,0)
-                  //    SendMessage(Hwnd, STM_SETIMAGE, IMAGE_BITMAP, hBitmap)
-                  //    ReDrawWindow(Hwnd)
-                  //    * BT_HMGSetImage( "THUMBSWIN", cImage, hBitmap )
-                  // ENDIF
-                  // *******************
-               ENDIF
-#ELSE
-
-               FI_hBitmap1_aux := BT_BitmapLoadFile( cPath + aDir[ nCount ] [ F_NAME ] )
-               FI_hBitmap1 := BT_BitmapCopyAndResize( FI_hBitmap1_aux, 128, 128, NIL, BT_RESIZE_HALFTONE )                                  // 74
-               //                FI_hBitmap1 := BT_BitmapCopyAndResize( FI_hBitmap1_aux, 128, 128, NIL, BT_RESIZE_COLORONCOLOR )  // 70
-               //                FI_hBitmap1 := BT_BitmapCopyAndResize( FI_hBitmap1_aux, 128, 128, NIL, BT_RESIZE_BILINEAR )
-
-               BT_BitmapRelease( FI_hBitmap1_aux )
-               BT_HMGSetImage( "THUMBSWIN", cImage, FI_hBitmap1 )
-               BT_BitmapSaveFile( FI_hBitmap1, cThumbsFile, BT_FILEFORMAT_BMP )
-
-               //  MarkList( cMacro, aDir, .T. )
-               //  DoMethod("THUMBSWIN", cImage, "SetFocus")
-#ENDIF
+               FREE_Save( FIF_BMP, FI_hBitmap1, cThumbsFile, BMP_DEFAULT )
+               SetProperty( "THUMBSWIN", cImage, "PICTURE", cThumbsFile )
+               FREE_Unload( FI_hBitmap1 )
             ENDIF
 #ELSE
-            DEFINE WINDOW &cDevice ;
-                       PARENT THUMBSWIN ;
-                       AT nRow, nCol ;
-                       WIDTH 127 HEIGHT 127 ;
-                       PANEL ;
-                       NOCAPTION ;
-                       ON PAINT Paint_Frame_Color( ThisWindow.Name ) ;
-                       BACKCOLOR SP_nColor1()
-            END WINDOW
+            FI_hBitmap1_aux := BT_BitmapLoadFile( cPath + aDir[ nCount ] [ F_NAME ] )
+            FI_hBitmap1 := BT_BitmapCopyAndResize( FI_hBitmap1_aux, 128, 128, NIL, BT_RESIZE_HALFTONE )                                     // 74
 
-            DEFINE IMAGE &cImage
-               PARENT &cDevice
-               ROW 1
-               COL 1
-               PICTURE cPath + aDir[ nCount ] [ 1 ]
-               ONCLICK SetActiveImage( This.Name )                    // DoShow( This.Name, cPath, aDir )
-               WIDTH 124
-               HEIGHT 124
-               VISIBLE .T.
-               STRETCH .F.
-            END IMAGE
-            MarkList( cMacro, aDir )
-            // DoMethod("THUMBSWIN", cDevice, "SetFocus")
+            BT_BitmapRelease( FI_hBitmap1_aux )
+            BT_HMGSetImage( "THUMBSWIN", cImage, FI_hBitmap1 )
+            BT_BitmapSaveFile( FI_hBitmap1, cThumbsFile, BT_FILEFORMAT_BMP )
+#ENDIF
+         ENDIF
+#ELSE
+         DEFINE WINDOW &cDevice ;
+            PARENT THUMBSWIN ;
+            AT nRow, nCol ;
+            WIDTH 127 HEIGHT 127 ;
+            PANEL ;
+            NOCAPTION ;
+            ON PAINT Paint_Frame_Color( ThisWindow.Name ) ;
+            BACKCOLOR SP_nColor1()
+         END WINDOW
+
+         DEFINE IMAGE &cImage
+            PARENT &cDevice
+            ROW 1
+            COL 1
+            PICTURE cPath + aDir[ nCount ] [ 1 ]
+            ONCLICK SetActiveImage( This.Name )                       // DoShow( This.Name, cPath, aDir )
+            WIDTH 124
+            HEIGHT 124
+            VISIBLE .T.
+            STRETCH .F.
+            TOOLTIP cPath + aDir[ nCount ] [ 1 ]
+         END IMAGE
+         MarkList( cMacro, aDir )
 
 #ENDIF
-            SetProperty( "Pbar_Form", "ProgressBar_1", "Value", CalcPos( nCount, nMax ) )
-            TBL_SETVALUE( ThisWindow.Handle, CalcPos( nCount, nMax ), 100 )
+         SetProperty( "Pbar_Form", "ProgressBar_1", "Value", CalcPos( nCount, nMax ) )
+         TBL_SETVALUE( ThisWindow.Handle, CalcPos( nCount, nMax ), 100 )
 
-            //  cText := STR( nCount ) + "/" + LTRIM( STR( nMax ) )
-            //  SbarText( cText )
-
-            DO EVENTS
-            IF nCount >= nMax
-               EXIT
-            ENDIF
-         NEXT
+         DO EVENTS
          IF nCount >= nMax
             EXIT
          ENDIF
       NEXT
+      IF nCount >= nMax
+         EXIT
+      ENDIF
+   NEXT
 
    END WINDOW
 
    nStop := SECONDS() - nStart
-   //    MsgInfo( STR( nStop ) + " Sec.", STR( LEN( aMark ) ) )
    THUMBSWIN.TITLE := "Thumbs View " + STR( nStop ) + " Sec."
 
    IF nHeight < nDeskHigh
@@ -492,15 +422,12 @@ PUBLIC _HMG_SYSDATA
    Domethod( "Pbar_Form", "ProgressBar_1", "Release" )
    Domethod( "Pbar_Form", "Release" )
 
-   // SetCursorWait("THUMBSWIN",.F.)
-   // SetCursorWait("Win_1",.F.)
    SetCursorWait( "WinLeft", .F. )
    SetCursorWait( "WinRight", .F. )
 
    cText := STR( nStop ) + " Sec. " + STR( nStop / nMax ) + " Sec./Rec."
    SbarText( cText )
 
-   //    ON KEY ESCAPE OF THUMBSWIN ACTION THUMBSWIN.Release
    ON KEY SPACE OF THUMBSWIN ACTION TroggleMark( aDir )
    ON KEY RETURN OF THUMBSWIN ACTION DoShow( cPath, aDir )
    ON KEY F3 OF THUMBSWIN ACTION DoShow( cPath, aDir )                // TOOLTIP "also ENTER"
@@ -520,11 +447,10 @@ PUBLIC _HMG_SYSDATA
 
    EventRemove( nIndex )
 
-#IFDEF Use_FreeImage
-   FREE_Deinitialise()
-#ENDIF
+   // #IFDEF Use_FreeImage
+   //    FREE_Deinitialise()
+   // #ENDIF
 
-   //   MsgInfo( STR( LEN( aMark ) ) + " marked" )
    Prep4Grid( aDir )
 
 RETURN
@@ -697,8 +623,8 @@ LOCAL cFile
 
    IF !EMPTY( cShowForm )
       cNo := STRTRAN( cShowForm, "Image_", "" )
-      cFile := cPath + aDir[ VAL( cNo ) ] [ 1 ]
-      Image_Edit( cFile )
+      cFile := aDir[ VAL( cNo ) ] [ 1 ]
+      Image_Edit( cPath, cFile )
    ENDIF
 RETURN
 
@@ -753,13 +679,7 @@ LOCAL cText, lMark
       hBitmap := BT_HMGGetImage( "THUMBSWIN", cForm )
 
       hDC := BT_CreateDC( hBitmap, BT_HDC_BITMAP, @BTstruct )
-      //   nTypeText    := BT_TEXT_TRANSPARENT + BT_TEXT_BOLD
-      //   nAlingText   := BT_TEXT_LEFT + BT_TEXT_BASELINE
-      //   nOrientation := 0
-      //   BT_DrawText (hDC, 64, 2, cText, "Times New Roman", 18, aColor, WHITE, nTypeText, nAlingText, nOrientation)
-
       BT_DrawRectangle( hDC, 1, 1, 126, 126, aColor, 2 )
-
       BT_DeleteDC( BTstruct )
       BT_ClientAreaInvalidateAll( "THUMBSWIN" )
 
@@ -815,9 +735,7 @@ LOCAL cNo
 
    IF !EMPTY( cShowForm )
       cNo := STRTRAN( cShowForm, "Image_", "" )
-      //  DISABLE WINDOW EVENT OF THUMBSWIN
       MarkList( cNo, aDir, .T. )
-      //  ENABLE WINDOW EVENT OF THUMBSWIN
    ENDIF
 
 RETURN
@@ -863,50 +781,50 @@ RETURN 0
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Procedure Rotate()
+*+    Static Procedure ThumbsRotate()
 *+
-*+    Called from ( thumbs.prg )   2 - procedure thumbs()
+*+    Called from ( thumbs.prg )   3 - procedure thumbs()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE Rotate( cLR, cPath, aDir )
+STATIC PROCEDURE ThumbsRotate( nRad, cPath, aDir )
 
-LOCAL cNo, cFile, nRad, cThumbsFile
-LOCAL handle, clone, new_handle
+LOCAL cNo, cFile, cThumbsFile
+LOCAL handle, clone, new_handle, nType
 
    IF !EMPTY( cShowForm )
       cNo := STRTRAN( cShowForm, "Image_", "" )
       cFile := cPath + aDir[ VAL( cNo ) ] [ 1 ]
 #IFDEF Use_FreeImage
-
-      handle := FREE_Load( FREE_GetFileType( cFile, 0 ), cFile, 0 )
+      nType := FREE_GetFileType( cFile, 0 )
+      handle := FREE_Load( nType, cFile, 0 )
 
       IF !EMPTY( handle )
          clone := FREE_Clone( handle )
          FREE_Unload( handle )
 
-         IF cLR = "L"
-            nRad := 90
-         ELSE
-            nRad := - 90
-         ENDIF
+         //          IF cLR = "L"
+         //             nRad := 90
+         //          ELSE
+         //             nRad := - 90
+         //          ENDIF
 
          IF !( ( new_handle := FREE_RotateClassic( clone, nRad ) ) == Nil )
             FREE_Unload( clone )
             handle := new_handle
 
-            cThumbsFile := GetTempFolder() + "FI_" + cFileNoExt( cFile ) + ".bmp"
+            //            cThumbsFile := GetTempFolder() + "FI_" + cFileNoExt( cFile ) + ".bmp"
+            cThumbsFile := GetTempFolder() + "FI_" + cFile + ".bmp"
             IF FILE( cThumbsFile )
                FERASE( cThumbsFile )
             ENDIF
 
-            FREE_Save( FIF_BMP, handle, cFile, BMP_DEFAULT )
+            FREE_Save( FIF_BMP, handle, cFile, nType )                //  BMP_DEFAULT )
             SetProperty( "THUMBSWIN", cShowForm, "PICTURE", cFile )
             FREE_Unload( handle )
          ENDIF
       ENDIF
 #ENDIF
-
    ENDIF
 
 RETURN
@@ -1009,9 +927,7 @@ LOCAL aRet := {}
          AADD( aRet, LTRIM( SUBSTR( cText, 1, ( nPos - 1 ) ) ) )
          cText := SUBSTR( cText, ( nPos + 1 ), LEN( cText ) - nPos )
       ELSE
-         //          IF nIst > 0
          AADD( aRet, LTRIM( cText ) )
-         //          ENDIF
          EXIT
       ENDIF
    ENDDO

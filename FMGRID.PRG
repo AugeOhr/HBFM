@@ -29,8 +29,6 @@
 *+               Static Function GridGetDESCEND()
 *+               Static Function GridGetPath()
 *+               Static Function GridChangePath()
-*+               Static Function OnDataRequestL()
-*+               Static Function OnDataRequestR()
 *+               Static Procedure Paint_Background_Window()
 *+               Static Procedure Paint_Main_Background_Window()
 *+               Static Procedure Paint_Tab_Window()
@@ -91,15 +89,12 @@
 *+               Static Procedure SaveSetup()
 *+               Static Procedure RunWithParameter()
 *+               Static Procedure RestoreTab()
-*+               Static Function _GetTabPageCount()
 *+               Static Procedure ShowOSK()
 *+               Static Procedure DoTouchEnter()
 *+               Static Function FindAndCloseProcress()
 *+               Static Function ChangeFAttr()
 *+               Static Procedure Slideshow()
 *+               Static Procedure SetLV_View()
-*+               Static Function IsHMGFile()
-*+               Function GetMainWindowHandle()
 *+               Procedure MarkFromThumbs()
 *+               Static Procedure DoDevice()
 *+               Static Procedure DoReverseMark()
@@ -122,7 +117,7 @@
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
+*+    Reformatted by Click! 2.05.34 on Sep-28-2020 at  3:25 am
 *+
 *+--------------------------------------------------------------------
 
@@ -140,7 +135,12 @@
 
 #include "HBFM.CH"
 
-#define Use_Thread .T.
+#define Use_FreeImage .T.
+#IFDEF Use_FreeImage
+#include "freeimage.ch"
+#ENDIF
+
+//  #define Use_Thread .T.
 
 #define KEYEVENTF_KEYUP    0x0002
 
@@ -182,8 +182,7 @@ STATIC aDrives
 STATIC nMainThreadID
 STATIC lFromKeyBoard := .F.
 STATIC nLastView     := LVS_REPORT
-// STATIC lDirWatch     := .F.
-STATIC lDebug := .F.
+STATIC lDebug        := .F.
 
 MEMVAR aWin
 MEMVAR Stack_Left
@@ -236,6 +235,15 @@ PUBLIC nGridFocus   := 1                                              // 1=left,
 PUBLIC aForeColorHBP
 PUBLIC aBackColorHBP
 PUBLIC aFontTypeHBP
+
+#IFDEF Use_FreeImage
+   IF FILE( 'FreeImage.Dll' ) .OR. FILE( 'FreeImage64.Dll' )
+      FREE_Initialise()
+      //  MsgInfo( Var2char( FREE_GetVersion() ) )
+   ELSE
+      MsgInfo( "Can't found the FreeImage.Dll" )
+   ENDIF
+#ENDIF
 
    SP_cMainPath( cAppFolder )
 
@@ -303,8 +311,6 @@ PUBLIC aFontTypeHBP
       ON GOTFOCUS WinTans( ThisWindow.Name, .T. ) ;
       ON PAINT Paint_Main_Background_Window( ThisWindow.Name ) ;
       ON INIT CreateScreenSplash( "Fill1StGrid('" + cLogic + "')" )
-
-   //               ON INIT Fill1StGrid( cLogic )
 
    ON KEY TAB ACTION IF( HMG_VirtualKeyIsPressed( VK_CONTROL ),, TestTabKey() )
 
@@ -1081,7 +1087,6 @@ LOCAL hWnd, hTabWnd
 LOCAL hGrid
 
    DEFAULT cParameter TO "0"
-   // Domethod( "Win_1", "hide" )
 
    nDrive := ASCAN( aDrives, { | e | e[ 2 ] = SUBSTR( SP_LWTextLeft(), 1, 1 ) } )
    WinLeft.ComboLeft.Value := nDrive
@@ -1114,19 +1119,6 @@ LOCAL hGrid
       hTabWnd := WinRight.Tab_Right.handle
       SetWindowTheme( hTabWnd, 0, 0 )
 
-      //       hWnd := Win_1.SPLITBOX.Handle
-      //       SetWindowTheme( hWnd, 0, 0 )
-
-      // Toolbar
-      //       *hWnd := GetControlHandle( "Win_1", "ToolBar_1" )
-      //       hWnd := Win_1.ToolBar_1.Handle
-      //       SetWindowTheme( hWnd, 0, 0 )
-      //       *hWnd := GetControlHandle( "Win_1", "ToolBar_2" )
-      //       hWnd := Win_1.ToolBar_2.Handle
-      //       SetWindowTheme( hWnd, 0, 0 )
-      //       *hWnd := GetControlHandle( "Win_1", "ToolBar_3" )
-      //       hWnd := Win_1.ToolBar_3.Handle
-      //       SetWindowTheme( hWnd, 0, 0 )
    ENDIF
 
    IF cParameter = "1"
@@ -1307,21 +1299,11 @@ LOCAL nRow, nCol, nHeight, hGrid
            JUSTIFY { GRID_JTFY_LEFT, GRID_JTFY_RIGHT, GRID_JTFY_RIGHT, GRID_JTFY_LEFT, GRID_JTFY_LEFT } ;
            ON KEY DoGridKey1( cForm, cObj )
 
-   // #IFDEF Use_Virtual
-   //     VIRTUAL ;
-   //     ON QUERYDATA OnDataRequestL( aDir_Left, ThisWindow.Name, This.Name ) ;
-   //     IMAGE aImage_Left ;
-   // #ELSE
-   // #ENDIF
-
    SetProperty( cForm, cObj, "PaintDoubleBuffer", .T. )
 
    IF SP_UseImage() = .T.
       SetProperty( cForm, cObj, "ImageList", BT_ImageListGetSystemIcon() )
    ENDIF
-
-   //    SetProperty( cForm, cObj, "ColumnDYNAMICFORECOLOR", F_ATTR, { || IF( IsHMGFile( aDir_Left ) == 1, aForeColorHBP, SP_nColor10() ) } )
-   //    SetProperty( cForm, cObj, "ColumnDYNAMICBACKCOLOR", F_ATTR, { || IF( IsHMGFile( aDir_Left ) == 1, aBackColorHBP, SP_nColor9() ) } )
 
 RETURN
 
@@ -1372,20 +1354,11 @@ LOCAL nRow, nCol, nHeight, hGrid
            JUSTIFY { GRID_JTFY_LEFT, GRID_JTFY_RIGHT, GRID_JTFY_RIGHT, GRID_JTFY_LEFT, GRID_JTFY_LEFT } ;
            ON KEY DoGridKey2( cForm, cObj )
 
-   // #IFDEF Use_Virtual
-   //    VIRTUAL ;
-   //    ON QUERYDATA OnDataRequestR( aDir_Right, ThisWindow.Name, This.Name ) ;
-   //    IMAGE {} ;
-   // #ENDIF
-
    SetProperty( cForm, cObj, "PaintDoubleBuffer", .T. )
 
    IF SP_UseImage() = .T.
       SetProperty( cForm, cObj, "ImageList", BT_ImageListGetSystemIcon() )
    ENDIF
-
-   //    SetProperty( cForm, cObj, "ColumnDYNAMICFORECOLOR", F_ATTR, { || IF( IsHMGFile( aDir_Right ) == 1, aForeColorHBP, SP_nColor10() ) } )
-   //    SetProperty( cForm, cObj, "ColumnDYNAMICBACKCOLOR", F_ATTR, { || IF( IsHMGFile( aDir_Right ) == 1, aBackColorHBP, SP_nColor9() ) } )
 
 RETURN
 
@@ -1486,32 +1459,28 @@ LOCAL bError, oError
    FOR i := 1 TO iMax
       nPosi := aSourceNum[ i ]
 
-      bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
-      BEGIN SEQUENCE
-         IF nGridFocus = 1
-            cFile := aDir_Left[ nPosi ] [ F_NAME ]
-            AADD( acFiles, cSourceDir + cFile )
-            IF cAction = "DELETE"
-               AADD( acTarget, "" + CHR( 0 ) )
-               AADD( acDelete, cFile )
-            ELSE
-               AADD( acTarget, cTargetDir + cFile )
-            ENDIF
-         ELSE
-            cFile := aDir_Right[ nPosi ] [ F_NAME ]
-            AADD( acFiles, cSourceDir + cFile )
-            IF cAction = "DELETE"
-               AADD( acTarget, "" + CHR( 0 ) )
-               AADD( acDelete, cFile )
-            ELSE
-               AADD( acTarget, cTargetDir + cFile )
-            ENDIF
-         ENDIF
-      RECOVER USING oError
-         ERRORBLOCK( bError )
-         MsgInfo( oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
-      END SEQUENCE
-      ERRORBLOCK( bError )
+      //       bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+      //       BEGIN SEQUENCE
+
+      IF nGridFocus = 1
+         cFile := aDir_Left[ nPosi ] [ F_NAME ]
+      ELSE
+         cFile := aDir_Right[ nPosi ] [ F_NAME ]
+      ENDIF
+
+      AADD( acFiles, cSourceDir + cFile )
+      IF cAction = "DELETE"
+         AADD( acTarget, "" + CHR( 0 ) )
+         AADD( acDelete, cFile )
+      ELSE
+         AADD( acTarget, cTargetDir + cFile )
+      ENDIF
+
+      //       RECOVER USING oError
+      //          ERRORBLOCK( bError )
+      //          MsgInfo( oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
+      //       END SEQUENCE
+      //       ERRORBLOCK( bError )
 
    NEXT
 
@@ -1545,7 +1514,6 @@ STATIC PROCEDURE ReFreshGrid( cAction, cTargetDir, cSourceDir, nLeft_Right )
 
    onDummy( TIME(), "ReFreshGrid", SP_lDirWatch(), PROCNAME( 1 ), PROCLINE( 1 ) )
 
-   //    IF SP_lDirWatch() = .F.
    DO CASE
       CASE cAction = "COPY" .AND. LEN( cAction ) = 4
          IF nGridFocus = 2                                            // other side
@@ -1580,7 +1548,7 @@ STATIC PROCEDURE ReFreshGrid( cAction, cTargetDir, cSourceDir, nLeft_Right )
       CASE cAction = "RENAME"
 
    ENDCASE
-   //    ENDIF
+
    DO EVENTS
 RETURN
 
@@ -2034,10 +2002,6 @@ LOCAL nDescend := .F.
       ASORT( aDirOut, 1, nStartAt, { | x, y | LOWER( x[ F_NAME ] ) < LOWER( y[ F_NAME ] ) } )
    ENDIF
 
-   // how is it sort
-   //    nSort := GridGetSort( cForm, cObj )
-   //    nDescend := GridGetDESCEND( cForm, cObj )
-
    DO CASE
       CASE nSort = F_NAME
          IF nDescend = .F.
@@ -2211,50 +2175,6 @@ RETURN lRet
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Function OnDataRequestL()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC FUNCTION OnDataRequestL( aData, cForm, cObj )
-
-LOCAL nRow                                                            // := Getproperty( cForm, cGrid_Left ,"QueryRowIndex" )
-LOCAL nCol                                                            // := Getproperty( cForm, cGrid_Left ,"Querycolindex" )
-LOCAL xVal
-
-   nRow := This.QueryRowIndex
-   nCol := This.Querycolindex
-
-   IF .NOT. EMPTY( nRow ) .AND. LEN( aData ) >= nRow
-      xVal := aData[ nRow ] [ nCol ]
-      This.QueryData := xVal
-   ENDIF
-
-RETURN .T.
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Function OnDataRequestR()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC FUNCTION OnDataRequestR( aData, cForm, cObj )
-
-LOCAL nRow                                                            // := Getproperty( cForm, cObj,"QueryRowIndex" )
-LOCAL nCol                                                            // := Getproperty( cForm, cObj,"Querycolindex" )
-LOCAL xVal
-
-   nRow := This.QueryRowIndex
-   nCol := This.Querycolindex
-
-   IF .NOT. EMPTY( nRow ) .AND. LEN( aData ) >= nRow
-      xVal := aData[ nRow ] [ nCol ]
-      This.QueryData := xVal
-   ENDIF
-
-RETURN .T.
-
-*+--------------------------------------------------------------------
-*+
 *+    Static Procedure Paint_Background_Window()
 *+
 *+    Called from ( fmgrid.prg )   2 - procedure dualgrid()
@@ -2288,18 +2208,8 @@ STATIC PROCEDURE Paint_Main_Background_Window( cForm )
 LOCAL hWnd
 
    IF SP_DarkMode()
-      //       hWnd := Win_1.SPLITBOX.Handle
-      //       BMP_FILL( hwnd, SP_nColor1() )
-
-      //       *hWnd := GetControlHandle( "Win_1", "ToolBar_1" )
-      //       hWnd := Win_1.ToolBar_1.Handle
-      //       BMP_FILL( hwnd, SP_nColor1() )
-      //       *hWnd := GetControlHandle( "Win_1", "ToolBar_2" )
-      //       hWnd := Win_1.ToolBar_2.Handle
-      //       BMP_FILL( hwnd, SP_nColor1() )
-      //       *hWnd := GetControlHandle( "Win_1", "ToolBar_3" )
-      //       hWnd := Win_1.ToolBar_3.Handle
-      //       BMP_FILL( hwnd, SP_nColor1() )
+      //  hWnd := Win_1.Handle
+      //  BMP_FILL( hwnd, SP_nColor1() )
    ENDIF
 
 RETURN
@@ -2331,10 +2241,8 @@ LOCAL i, iMax
    FOR i := 1 TO iMax
 
       IF nNo = 1
-         //  hWnd := WinLeft.Tab_Left(&i).handle
          hWnd := GetProperty( "WinLeft", "Tab_Left", STR( i ), "handle" )
       ELSE
-         //  hWnd := WinRight.Tab_Right(&i).handle
          hWnd := GetProperty( "WinRight", "Tab_Right", STR( i ), "handle" )
       ENDIF
       // BMP_FILL( hwnd, SP_nColor1() )
@@ -2629,8 +2537,8 @@ STATIC nLast      := 1
          CASE xKey == VK_MULTIPLY
             DoReverseMark( 1 )
 
-            //          CASE xKey == VK_SPACE
-            //             DoFolderSize(1)
+         CASE xKey == VK_SPACE
+            DoFolderSize( 1 )
 
          CASE xKey == VK_ESCAPE
             // hm
@@ -2761,9 +2669,13 @@ STATIC nLast      := 1
          CASE xKey == VK_MULTIPLY
             DoReverseMark( 2 )
 
+         CASE xKey == VK_SPACE
+            DoFolderSize( 2 )
+
          CASE xKey == VK_ESCAPE
             // hm
             cInKeySeek := ""
+
          OTHERWISE
 
             IF HMG_VirtualKeyIsPressed( VK_CONTROL ) .OR. HMG_VirtualKeyIsPressed( VK_SHIFT ) .OR. HMG_VirtualKeyIsPressed( VK_ALT )
@@ -2837,48 +2749,11 @@ RETURN
 *+
 STATIC PROCEDURE DragMove( cForm )
 
-   /*************************************
-LOCAL nCursRow := GetCursorRow()  + 5 // - Win_1.Row - GetTitleHeight() - GetBorderHeight()
-LOCAL nCursCol := GetCursorCol()  + 5 // - Win_1.Col - GetBorderWidth()
-LOCAL i
-   IF !isWindowDefined(_HMG_Drag_Form_) //.and. .f.
-      i := ASCAN ( _HMG_SYSDATA [ 69 ] , 'A' )
-      IF i > 0 .AND. _HMG_SYSDATA [ 68 ] [ i ]  //main window is already activated
-         DEFINE WINDOW _HMG_Drag_Form_ ;
-         AT 0, 0 ;
-         WIDTH 100 ;
-         HEIGHT 25 ;
-         WINDOWTYPE STANDARD ;
-         TOPMOST;
-         NOMINIMIZE;
-         NOMAXIMIZE;
-         NOSIZE;
-         NOSYSMENU;
-         NOCAPTION
-
-         @0,0 IMAGE _HMD_Drag_Image_ PICTURE "" WIDTH 0 HEIGHT 0 TRANSPARENT
-
-         END WINDOW
-         SET WINDOW _HMG_Drag_Form_ TRANSPARENT TO OPAQUE
-         DISABLE EVENT OF _HMG_Drag_Form_
-      ENDIF
-     RETURN
-   ENDIF
-
-   IF isWindowDefined(_HMG_Drag_Form_)
-      DoMethod("_HMG_Drag_Form_" ,"Show")
-      SetProperty('_HMG_Drag_Form_' , 'Row' , nCursRow ) // GetCursorPos()[ 1 ] + 5 )
-      SetProperty('_HMG_Drag_Form_' , 'Col' , nCursCol ) // GetCursorPos()[ 2 ] + 5 )
-*     GetControlNameByHandle (nHWnd, @cCtrlName, @cFormName)
-   ENDIF
-*************************************/
-
    // LOCAL hWnd := GetFormHandle( cForm )
    //    SbarText( "DragMove", "ONFLY" )
    //
-   // SetWindowCursor( hWnd, "HP_GLASS" )
-   // SetWindowCursor( hWnd, IDC_HAND )
-   //    msginfo("move")
+   //    SetWindowCursor( hWnd, "HP_GLASS" )
+   //    SetWindowCursor( hWnd, IDC_HAND )
 RETURN
 
 *+--------------------------------------------------------------------
@@ -2913,9 +2788,9 @@ LOCAL cPath, aItem, i, iMax, cString := ""
          NEXT
 
          // Clipboard-Objekt erzeugen
-         //    SETCLIPBOARD(cString)
+         // SETCLIPBOARD(cString)
 
-         //   System.EmptyClipboard
+         // System.EmptyClipboard
          System.Clipboard := cString
 
          ShowWindow( nOther, SW_RESTORE )
@@ -2925,10 +2800,10 @@ LOCAL cPath, aItem, i, iMax, cString := ""
 
          HMG_PressKey( VK_CONTROL, VK_V )
 
-         //          keybd_event( VK_CONTROL, 0, 0, 0 )
-         //          keybd_event( ASC( "V" ), 0, 0, 0 )
-         //          keybd_event( ASC( "V" ), 0, KEYEVENTF_KEYUP, 0 )
-         //          keybd_event( VK_CONTROL, 0, KEYEVENTF_KEYUP, 0 )
+         // keybd_event( VK_CONTROL, 0, 0, 0 )
+         // keybd_event( ASC( "V" ), 0, 0, 0 )
+         // keybd_event( ASC( "V" ), 0, KEYEVENTF_KEYUP, 0 )
+         // keybd_event( VK_CONTROL, 0, KEYEVENTF_KEYUP, 0 )
 
          cClsName := SPACE( 1024 ) + CHR( 0 )
          cText := SPACE( 1024 ) + CHR( 0 )
@@ -2983,11 +2858,6 @@ LOCAL acFiles, acTarget
 LOCAL nLeft_Right
 
    iMax := LEN( aNewFiles )
-   //    FOR i := 1 TO iMax
-   //       cFile += aNewFiles[i] + CRLF
-   //    NEXT
-   //    MSGINFO("under construction ..." +CRLF+ "copy files to  "+cTargetDir+CRLF+cFile)
-
    IF iMax > 0
       acFiles := {}
       acTarget := {}
@@ -3269,13 +3139,6 @@ STATIC lIsrunning := .F.
 
       DO CASE
          CASE cForm = "WinLeft"
-
-            // IF aWatchThread[ 1 ] <> NIL
-            //    hb_threadDetach( aWatchThread[ 1 ] )
-            // *   hb_threadQuitRequest( aWatchThread[ 1 ] )                      // terminate thread
-            //    aWatchThread[ 1 ] := NIL
-            // ENDIF
-
             Domethod( "WinLeft", cObj, "DisableUpdate" )
             Domethod( "WinLeft", cObj, "DeleteAllItems" )
 
@@ -3305,12 +3168,6 @@ STATIC lIsrunning := .F.
             AddBackLog( 1, cNewPath )
 
          CASE cForm = "WinRight"
-            // IF aWatchThread[ 2 ] <> NIL
-            //    hb_threadDetach( aWatchThread[ 2 ] )
-            // *   hb_threadQuitRequest( aWatchThread[ 2 ] )                      // terminate thread
-            //    aWatchThread[ 2 ] := NIL
-            // ENDIF
-
             Domethod( "WinRight", cObj, "DisableUpdate" )
             Domethod( "WinRight", cObj, "DeleteAllItems" )
 
@@ -3380,30 +3237,23 @@ STATIC lIsrunning := .F.
          CASE cForm = "WinLeft"
             nDimStack := nDimLeft
             Domethod( "WinLeft", cObj, "SetFocus" )
-            // Domethod( "WinLeft", cObj, "DisableUpdate" )
 
          CASE cForm = "WinRight"
             nDimStack := nDimRight
             Domethod( "WinRight", cObj, "SetFocus" )
-            // Domethod( "WinRight", cObj, "DisableUpdate" )
       ENDCASE
 
       IF nDimStack > 1
          DO CASE
             CASE cForm = "WinLeft"
-               // Domethod( "WinLeft", cObj, "EnableUpdate" )
-               // Domethod( "WinLeft", cObj, "Refresh" )
                Domethod( "WinLeft", cObj, "SetFocus" )
             CASE cForm = "WinRight"
-               // Domethod( "WinRight", cObj, "EnableUpdate" )
-               // Domethod( "WinRight", cObj, "Refresh" )
                Domethod( "WinRight", cObj, "SetFocus" )
          ENDCASE
          DO EVENTS
       ENDIF
 
       SP_lDirWatch( .T. )
-      //    WatchDirSwitch(cForm,cNewPath)
       DO EVENTS
 
       lIsrunning := .F.
@@ -3438,27 +3288,12 @@ LOCAL cName, nPosi, nIndex, cFull, nLen, cFile, cAttr, nFileHandle, hIcon
       ENDIF
       SetProperty( cForm, cObj, "ImageIndex", i, 1, nIndex )
 
+      // need to DestroyIcon()
       IF VALTYPE( hIcon ) != "U"
          IF DestroyIcon( hIcon )
             hIcon := NIL
          ENDIF
       ENDIF
-
-      // **********************************************************************
-      //       IF cForm = "WinLeft"
-      //          nPosi := ASCAN( aFiles_Left, { | e | e[ BT_DIRECTORYINFO_NAME ] = cName } )
-      //          IF nPosi > 0
-      //             nIndex := aFiles_Left[ nPosi ] [ BT_DIRECTORYINFO_INTERNALDATA_IMAGEINDEX ]
-      //             SetProperty( cForm, cObj, "ImageIndex", i, 1, nIndex )
-      //          ENDIF
-      //       ELSE
-      //          nPosi := ASCAN( aFiles_Right, { | e | e[ BT_DIRECTORYINFO_NAME ] = cName } )
-      //          IF nPosi > 0
-      //      nIndex := aFiles_Right[ nPosi ] [ BT_DIRECTORYINFO_INTERNALDATA_IMAGEINDEX ]
-      //      SetProperty( cForm, cObj, "ImageIndex", i, 1, nIndex )
-      //   ENDIF
-      //ENDIF
-      // **********************************************************************
 
    NEXT
 
@@ -3754,39 +3589,6 @@ LOCAL nTab
       nGridFocus := 2
    ENDIF
 
-   /********************************************************************
-   DO CASE
-      CASE LEN( Stack_Left )  = 1 .AND. LEN( Stack_Right ) = 1
-
-      OTHERWISE
-
-         IF nGridFocus = 1
-            nTab := Getproperty( "WinLeft", "Tab_Left", "Value" )
-            nTab ++
-            IF nTab > LEN( Stack_Left )
-               nDimLeft := 1
-            ELSE
-               nDimLeft := nTab
-            ENDIF
-            WinLeft.Tab_Left.Value := nDimLeft
-            Tab_Change_Left()
-
-         ELSE
-            nTab := Getproperty( "WinRight", "Tab_Right", "Value" )
-            nTab ++
-            IF nTab > LEN( Stack_Right )
-               nDimRight := 1
-            ELSE
-               nDimRight := nTab
-            ENDIF
-            WinRight.Tab_Right.Value := nDimRight
-            Tab_Change_Right()
-
-         ENDIF
-   ENDCASE
-
-********************************************************************/
-
    HMG_CleanLastVirtualKeyDown()
 
 RETURN
@@ -3987,7 +3789,6 @@ LOCAL hGridO
    //  ------------------------------------------------------------------ *
 
    // first Target (while Focus stay on last)
-   //
    jMax := LEN( aTarget )
    FOR jj := 1 TO jMax
       cName := TRIM( aTarget[ jj ] [ F_NAME ] )
@@ -4036,7 +3837,6 @@ LOCAL hGridO
    //  ------------------------------------------------------------------ *
 
    // now Source. Focus stay on last which is Source
-   //
    iMax := LEN( aSource )
    FOR ii := 1 TO iMax
       cName := TRIM( aSource[ ii ] [ F_NAME ] )
@@ -4335,6 +4135,7 @@ LOCAL cPath, cText, cExt
          cForm := "WinRight"
          cObj := cGrid_Right
    ENDCASE
+
    aItem := GetProperty( cForm, cObj, "Value" )
    IF LEN( aItem ) > 0
       nItem := aItem[ 1 ]
@@ -4365,8 +4166,8 @@ LOCAL cPath, cText, cExt
          CASE ".RTF" $ UPPER( cText )
             RTF_Edit( cPath + cText, lEdit )
 
-         CASE cExt $ ".BMP.GIF.JPG.TIF.WMF.EMF.CUR.PNG"
-            Image_Edit( cPath + cText )
+         CASE cExt $ ".BMP.GIF.JPG.JPEG.TIF.TIFF.WMF.EMF.PNG"
+            Image_Edit( cPath, cText, 0, lEdit )
 
          CASE cExt $ ".HTM.HTML"
             //  ShowHTML(cPath + cText)
@@ -4484,12 +4285,6 @@ LOCAL cForm, cObj, cStart, aDir
       ENDIF
 
       IF !EMPTY( cNewPath )
-         // IF nGridFocus = 1
-         //    FillWithDir( "WinLeft", cGrid_Left, cNewPath, "TREEDN" )
-         // ELSE
-         //    FillWithDir( "WinRight", cGrid_Right, cNewPath, "TREEDN" )
-         // ENDIF
-
          FillWithDir( cForm, cObj, cNewPath, "TREEDN" )
 
          nPosi := ASCAN( aDir, { | e | e[ F_NAME ] = cNewFile } )
@@ -4790,7 +4585,7 @@ STATIC PROCEDURE WatchDirSwitch( cForm, cNewPath )
 
          IF aWatchThread[ 1 ] <> NIL
             hb_threadDetach( aWatchThread[ 1 ] )
-            //    hb_threadQuitRequest( aWatchThread[ 1 ] )                      // terminate thread
+            // hb_threadQuitRequest( aWatchThread[ 1 ] )                      // terminate thread
          ENDIF
          //  aWatchThread[ 1 ] :=  hb_threadStart( HB_THREAD_INHERIT_PUBLIC, @WatchDirLeft(), cNewPath )
          aWatchThread[ 1 ] := hb_threadStart( HB_BITOR( HB_THREAD_INHERIT_PUBLIC, HB_THREAD_MEMVARS_COPY ), @WatchDirLeft(), cNewPath )
@@ -4803,7 +4598,7 @@ STATIC PROCEDURE WatchDirSwitch( cForm, cNewPath )
 
          IF aWatchThread[ 2 ] <> NIL
             hb_threadDetach( aWatchThread[ 2 ] )
-            //    hb_threadQuitRequest( aWatchThread[ 2 ] )                      // terminate thread
+            // hb_threadQuitRequest( aWatchThread[ 2 ] )                      // terminate thread
          ENDIF
          //  aWatchThread[ 2 ] :=  hb_threadStart( HB_THREAD_INHERIT_PUBLIC, @WatchDirRight(), cNewPath )
          aWatchThread[ 2 ] := hb_threadStart( HB_BITOR( HB_THREAD_INHERIT_PUBLIC, HB_THREAD_MEMVARS_COPY ), @WatchDirRight(), cNewPath )
@@ -4880,7 +4675,6 @@ LOCAL nMask  := hb_BitOr( LVIS_SELECTED, LVIS_FOCUSED )
 
    DEFAULT lAll TO .T.
 
-   // ::lockUpdate( .T. )
    // zurest den markierten
    nSel := ListView_GetSelectionMark( hGrid )
    LISTVIEW_SETITEMSTATE( hGrid, nSel, 0, nMask )
@@ -4903,11 +4697,7 @@ LOCAL nMask  := hb_BitOr( LVIS_SELECTED, LVIS_FOCUSED )
          ENDIF
       ENDDO
    ENDIF
-   // ::lockUpdate( .F. )
 
-   IF lAll
-      // ::aMarkSource := {}
-   ENDIF
    DO EVENTS
 
 RETURN
@@ -5320,6 +5110,10 @@ LOCAL aTabs2   := {}
    DelTemp_FI_BMP()
    CloseAllThread()
 
+#IFDEF Use_FreeImage
+   FREE_Deinitialise()
+#ENDIF
+
 RETURN
 
 *+--------------------------------------------------------------------
@@ -5412,17 +5206,6 @@ LOCAL i, iMax, nPosi
    ENDIF
 
 RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Function _GetTabPageCount()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC FUNCTION _GetTabPageCount( TabName, ParentForm )
-
-LOCAL i := GetControlIndex( TabName, ParentForm )
-RETURN HMG_LEN( _HMG_SYSDATA[ 7 ] [ i ] )
 
 *+--------------------------------------------------------------------
 *+
@@ -5594,10 +5377,6 @@ LOCAL cPath, cName, cFile, lChange := .f.
       MODAL ;
       NOSIZE
 
-   //       BACKCOLOR SP_nColor1() ;
-   //       FONT 'MS Sans Serif'          ;
-   //       SIZE 9
-
    @  4,  5 FRAME FA_Frame_1 CAPTION "Change attributes" WIDTH 284 HEIGHT 118
 
    @ 26, 14 CHECKBOX FA_Check_1 ;
@@ -5736,8 +5515,8 @@ LOCAL xInput := ""
          cText := aDir[ i ] [ F_NAME ]
          cExt := UPPER( FindExt( cText ) )
          DO CASE
-            CASE cExt $ ".BMP.GIF.JPG.TIF.WMF.EMF.CUR.PNG"
-               Image_Edit( cPath + cText, nMilliSec )
+            CASE cExt $ ".BMP.GIF.JPG.JPEG.TIF.TIFF.WMF.EMF.PNG"
+               Image_Edit( cPath, cText, nMilliSec )
                nKey := SP_nSlideShow()
          ENDCASE
          DO EVENTS
@@ -5837,48 +5616,6 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Function IsHMGFile()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC FUNCTION IsHMGFile( aFiles )
-
-LOCAL cFullName, cExt := NIL
-LOCAL nRow
-
-   IF VALTYPE( aFiles ) <> "A"
-      RETURN 0
-   ENDIF
-
-   nRow := This.CellRowIndex
-   IF nRow <= LEN( aFiles )
-      IF "D" $ aFiles[ nRow ] [ F_ATTR ]
-         RETURN 1
-      ELSE
-         // cFullName := aFiles [This.CellRowIndex] [F_NAME]
-         // HB_FNameSplit (cFullName, NIL, NIL, @cExt, NIL)
-         // cExt := HMG_UPPER (cExt)
-         // IF cExt == ".HBP"
-         //    RETURN 1
-         // ELSEIF  cExt == ".PRG"
-         //    RETURN 2
-         // ENDIF
-      ENDIF
-   ENDIF
-RETURN 0
-
-*+--------------------------------------------------------------------
-*+
-*+    Function GetMainWindowHandle()
-*+
-*+--------------------------------------------------------------------
-*+
-FUNCTION GetMainWindowHandle()                                        // Called from hbdevice.prg
-
-RETURN Win_1.HANDLE
-
-*+--------------------------------------------------------------------
-*+
 *+    Procedure MarkFromThumbs()
 *+
 *+    Called from ( thumbs.prg )   1 - procedure prep4grid()
@@ -5916,7 +5653,6 @@ LOCAL aDir, nPosi, cFile
       nPosi := ASCAN( aDir, { | e | e[ F_NAME ] = cFile } )
       IF nPosi > 0
          AADD( aSelect, nPosi )
-         //    ItemMark( hGrid, nPosi )
       ENDIF
    NEXT
 
@@ -6046,8 +5782,6 @@ LOCAL cDir    := "C:\"
       FillWithDir( "WinRight", cGrid_Right, cdir, "TREEDN" )
    ENDIF
 
-   //   SP_lDirWatch( .T. )
-
 RETURN NIL
 
 *+--------------------------------------------------------------------
@@ -6077,7 +5811,7 @@ LOCAL aDir
    ENDIF
 
    // watch file name changes ( file was CREATED, RENAMED or DELETED)
-   //    pChangeHandle := wapi_FindFirstChangeNotification( cDir, .F., FILE_NOTIFY_CHANGE_FILE_NAME )
+   // pChangeHandle := wapi_FindFirstChangeNotification( cDir, .F., FILE_NOTIFY_CHANGE_FILE_NAME )
    pChangeHandle := wapi_FindFirstChangeNotification( cDir, .F., FILE_NOTIFY_CHANGE_NAME )
 
    IF INVALID_HANDLE_VALUE( pChangeHandle )
@@ -6087,7 +5821,8 @@ LOCAL aDir
 
    // Change notification is set. Now we can wait on notification handle.
    DO WHILE lRunAnyway
-      //  MsgInfo( "Waiting for notification...")
+      // MsgInfo( "Waiting for notification...")
+
       // If the function succeeds, the return value indicates
       // the event that caused the function to return.
       nWaitStatus = wapi_WaitForSingleObject( pChangeHandle, INFINITE )
@@ -6096,7 +5831,6 @@ LOCAL aDir
          onDummy( TIME(), "_WatchDirLeft", "SP_lDirWatch(.F.)" )
          RETURN 0
       ELSE
-         //          SP_lDirWatch(.F.)
 
          DO CASE
             CASE nWaitStatus = WAIT_OBJECT_0
@@ -6112,9 +5846,6 @@ LOCAL aDir
                ELSE
                   wapi_FindCloseChangeNotification( pChangeHandle )
                ENDIF
-               //  onDummy(TIME(),"_WatchDirLeft",nWaitStatus)
-               //  ReRead( 1 )
-               //  RETURN 0
 
             CASE nWaitStatus = WAIT_TIMEOUT
                // A timeout occurred, this would happen if some value other
@@ -6163,7 +5894,7 @@ LOCAL aDir
    ENDIF
 
    // watch file name changes ( file was CREATED, RENAMED or DELETED)
-   //    pChangeHandle := wapi_FindFirstChangeNotification( cDir, .F., FILE_NOTIFY_CHANGE_FILE_NAME )
+   // pChangeHandle := wapi_FindFirstChangeNotification( cDir, .F., FILE_NOTIFY_CHANGE_FILE_NAME )
    pChangeHandle := wapi_FindFirstChangeNotification( cDir, .F., FILE_NOTIFY_CHANGE_NAME )
 
    IF INVALID_HANDLE_VALUE( pChangeHandle )
@@ -6174,6 +5905,7 @@ LOCAL aDir
    // Change notification is set. Now we can wait on notification handle.
    DO WHILE lRunAnyway
       //  MsgInfo( "Waiting for notification...")
+
       // If the function succeeds, the return value indicates
       // the event that caused the function to return.
       nWaitStatus = wapi_WaitForSingleObject( pChangeHandle, INFINITE )
@@ -6182,7 +5914,6 @@ LOCAL aDir
          onDummy( TIME(), "_WatchDirRight", "SP_lDirWatch(.F.)" )
          RETURN 0
       ELSE
-         //          SP_lDirWatch(.F.)
 
          DO CASE
 
@@ -6199,9 +5930,6 @@ LOCAL aDir
                ELSE
                   wapi_FindCloseChangeNotification( pChangeHandle )
                ENDIF
-               //  onDummy(TIME(),"_WatchDirRight",nWaitStatus)
-               //  ReRead( 2 )
-               //  RETURN 0
 
             CASE nWaitStatus = WAIT_TIMEOUT
                // A timeout occurred, this would happen if some value other
@@ -6220,7 +5948,6 @@ LOCAL aDir
       ENDIF
 
    END WHILE
-   //    MsgInfo( "EXIT: Quit signal was received.")
 
 RETURN 0
 
@@ -6391,7 +6118,6 @@ RETURN
 *+                ( thumbs.prg )   4 - procedure thumbs()
 *+                ( viewer.prg )   4 - procedure txt_edit()
 *+                                   4 - procedure rtf_edit()
-*+                                   4 - function image_edit()
 *+                                   4 - procedure showpdf()
 *+
 *+--------------------------------------------------------------------
@@ -6524,6 +6250,9 @@ RETURN
 *+
 *+    Static Procedure DoFolderSize()
 *+
+*+    Called from ( fmgrid.prg )   1 - static procedure dogridkey1()
+*+                                   1 - static procedure dogridkey2()
+*+
 *+--------------------------------------------------------------------
 *+
 STATIC PROCEDURE DoFolderSize( nForm )
@@ -6551,7 +6280,7 @@ LOCAL cForm, cObj
    ELSEIF cText = ".." .AND. "D" $ cAttr
    ELSE
       IF "D" $ cAttr
-
+         ShowProperty( nForm )
       ENDIF
    ENDIF
 RETURN

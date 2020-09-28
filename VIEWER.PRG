@@ -11,6 +11,7 @@
 *+               Function Image_Edit()
 *+               Static Procedure ImageRelease()
 *+               Procedure SlideshowEnd()
+*+               Static Procedure ViewRotate()
 *+               Static Procedure DoTXTResize()
 *+               Static Procedure DoRTFResize()
 *+               Static Procedure DoBMPResize()
@@ -29,13 +30,19 @@
 *+               Static Procedure OnChanged()
 *+               Function ShowRowCol()
 *+               Static Function RTF_RowCol()
+*+               Static Function PictInfo()
 *+
-*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
+*+    Reformatted by Click! 2.05.34 on Sep-28-2020 at  3:25 am
 *+
 *+--------------------------------------------------------------------
 
 #include "HMG.CH"
 #include "common.CH"
+
+#define Use_FreeImage .T.
+#IFDEF Use_FreeImage
+#include "freeimage.ch"
+#ENDIF
 
 #define WM_USER                  1024
 #define EM_LINEINDEX             187
@@ -142,10 +149,8 @@ STATUSITEM "TXTCtrl()" WIDTH 400
 
    cMemo := " "
    lRunning := .F.
-   lActiveMain = .T.
+   lActiveMain := .T.
    EventRemove( nIndex )
-
-   //   RELEASE MEMORY
 
 RETURN
 
@@ -247,7 +252,7 @@ STATUSITEM "RTFCtrl()" WIDTH 400
    ACTIVATE WINDOW RTFEdit
 
    lRunning := .F.
-   lActiveMain = .T.
+   lActiveMain := .T.
    EventRemove( nIndex )
 
 RETURN
@@ -283,59 +288,122 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-FUNCTION Image_Edit( cFile, nTimeout )
+FUNCTION Image_Edit( cPath, cFile, nTimeout, lEdit )
 
-LOCAL nRet      := 0
-LOCAL nwide     := 0
-LOCAL nheight   := 0
+LOCAL nMode, fname, clone
+LOCAL nRatio, nWidth, nHeight, nW, nH
+LOCAL handle, cSaveFile, aRect, nScrWidth, nScrHeight, nWidthOrig, nHeightOrig
 LOCAL nTitlebar := GETTITLEHEIGHT()
 LOCAL nBorder   := GETBORDERWIDTH()
 
 STATIC lRunning := .F.
 
    DEFAULT nTimeout TO 0
+   DEFAULT lEdit TO .F.
 
    IF lRunning = .T.
       RETURN nil
    ENDIF
    lRunning := .T.
-   //    IF !isWindowDefined(ImageEdit)
+   lActiveMain := .F.
 
-   lActiveMain = .F.
+   // #IFDEF Use_FreeImage
+   //    IF FILE( 'FreeImage.Dll' ) .OR. FILE( 'FreeImage64.Dll' )
+   //       FREE_Initialise()
+   //       //  MsgInfo( Var2char( FREE_GetVersion() ) )
+   //    ELSE
+   //       MsgInfo( "Can't found the FreeImage.Dll" )
+   //       RETURN NIL
+   //    ENDIF
+   // #ENDIF
 
-   SetCursorWait( "WinLeft", .T. )
-   SetCursorWait( "WinRight", .T. )
-   DO EVENTS
+   aRect := GetDesktopArea()
+   nScrWidth := aRect[ 3 ] - aRect[ 1 ]
+   nScrHeight := aRect[ 4 ] - aRect[ 2 ]
 
    DEFINE WINDOW ImageEdit ;
       AT 249, 410 ;
-      WIDTH nwide ;
-      HEIGHT nheight + nTitlebar ;
-      TITLE cFile ;
+      WIDTH 0 ;
+      HEIGHT 0 ;
+      TITLE cPath + cFile ;
       TOPMOST ;
-      ON INIT DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
+      ON INIT nil ;
       ON SIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
       ON MAXIMIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
-      ON RELEASE ImageRelease( cFile ) ;
+      ON GOTFOCUS ImageEdit.Image_Edit.setfocus() ;
+      ON RELEASE ImageRelease( cPath + cFile ) ;
       BACKCOLOR SP_nColor1()
+
+   DEFINE CONTEXT MENU OF ImageEdit
+      IF lEdit = .T.
+         MENUITEM "rotate &right" IMAGE "MYROTATER16" ACTION ViewRotate( - 90, cPath, cFile )
+         MENUITEM "rotate &left" IMAGE "MYROTATEL16" ACTION ViewRotate( 90, cPath, cFile )
+         SEPARATOR
+         MENUITEM "rotate 180" ACTION ViewRotate( 180, cPath, cFile )
+         SEPARATOR
+      ELSE
+      ENDIF
+      MENUITEM "Pic Info" IMAGE "MYINFO16" ACTION PictInfo( cPath, cFile, nWidthOrig, nHeightOrig )
+   END MENU
 
    DEFINE IMAGE Image_Edit
       ROW 0
       COL 0
       WIDTH 0
       HEIGHT 0
-      PICTURE cFile
+      PICTURE nil
       VISIBLE .T.
       STRETCH .T.
    END IMAGE
 
    END WINDOW
 
-   nwide := ImageEdit.Image_Edit.Width
-   nheight := ImageEdit.Image_Edit.Height
+   ALTD()
 
-   ImageEdit.Width := nwide + 4
-   ImageEdit.Height := nheight + nTitlebar + ( 2 * nBorder )
+   cSaveFile := GetTempFolder() + "FI_" + cFile + ".bmp"
+
+   fname := cPath + cFile
+
+   handle := FREE_Load( FREE_GetFileType( fname, 0 ), fname, 0 )
+
+   nWidth := FREE_GetWidth( handle )
+   nHeight := FREE_GetHeight( handle )
+   nRatio := nWidth / nHeight
+
+   nWidthOrig := nWidth
+   nHeightOrig := nHeight
+
+   nMode := IF( nWidth < nScrWidth .AND. nHeight < nScrHeight, 0, 2 )
+
+   IF nWidth > nScrWidth .OR. nHeight > nScrHeight                    // .OR. nWidthOrig >= nScrWidth .OR. nHeightOrig >= nScrHeight
+      nW := nScrWidth
+      nH := nScrHeight
+      IF nRatio >= 1
+         nH := ROUND( nHeight * ( 10 * nW / nWidth ) / 10, 0 )
+      ELSE
+         nW := ROUND( nWidth * ( 10 * nH / nHeight ) / 10, 0 )
+      ENDIF
+      nWidth := nW
+      nHeight := nH
+      clone := FREE_Clone( handle )
+      FREE_Unload( handle )
+      handle := FREE_Rescale( clone, nWidth, nHeight, FILTER_BICUBIC )
+      FREE_Unload( clone )
+   ENDIF
+
+   FREE_Save( FIF_BMP, handle, cSaveFile, BMP_DEFAULT )
+   FREE_Unload( handle )
+
+   SetProperty( "ImageEdit", "Width", nWidth )
+   SetProperty( "ImageEdit", "Height", nHeight )
+   SetProperty( "ImageEdit", "Image_Edit", "PICTURE", cSaveFile )
+
+   //  ERASE WINDOW ImageEdit
+   //  DrawPicture( GetFormHandle( "ImageEdit" ), cSaveFile, nMode )
+
+   //    SetCursorWait( "WinLeft", .F. )
+   //    SetCursorWait( "WinRight", .F. )
+   //    DO EVENTS
 
    IF !EMPTY( nTimeout )
 
@@ -352,18 +420,19 @@ STATIC lRunning := .F.
       ON KEY ESCAPE OF ImageEdit ACTION ImageEdit.Release
    ENDIF
 
-   SetCursorWait( "WinLeft", .F. )
-   SetCursorWait( "WinRight", .F. )
-   DO EVENTS
-
    CENTER WINDOW ImageEdit
-   ImageEdit.Image_Edit.setfocus()
+   //    ImageEdit.Image_Edit.setfocus()
    ACTIVATE WINDOW ImageEdit
 
+   FERASE( cSaveFile )
    lRunning := .F.
-   lActiveMain = .T.
+   lActiveMain := .T.
 
-RETURN nRet
+   // #IFDEF Use_FreeImage
+   //    FREE_Deinitialise()
+   // #ENDIF
+
+RETURN nil
 
 *+--------------------------------------------------------------------
 *+
@@ -375,7 +444,7 @@ RETURN nRet
 *+
 STATIC PROCEDURE ImageRelease( cFile )
 
-   //    Domethod( "ImageEdit", "Image_Edit", "PICTURE", "" )
+   SetProperty( "ImageEdit", "Image_Edit", "PICTURE", nil )
 RETURN
 
 *+--------------------------------------------------------------------
@@ -394,6 +463,43 @@ PROCEDURE SlideshowEnd( nNo )
       ImageEdit.show()
       ImageEdit.Release
    ENDIF
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure ViewRotate()
+*+
+*+    Called from ( viewer.prg )   3 - function image_edit()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE ViewRotate( nRad, cPath, cFile )
+
+LOCAL cThumbsFile, nType
+LOCAL handle, clone, new_handle
+
+#IFDEF Use_FreeImage
+   nType := FREE_GetFileType( cPath + cFile, 0 )
+   handle := FREE_Load( nType, cPath + cFile, 0 )
+
+   IF !EMPTY( handle )
+      clone := FREE_Clone( handle )
+      FREE_Unload( handle )
+      IF !( ( new_handle := FREE_RotateClassic( clone, nRad ) ) == Nil )
+         FREE_Unload( clone )
+         handle := new_handle
+
+         IF FILE( cPath + cFile )
+            FERASE( cPath + cFile )
+         ENDIF
+         FREE_Save( FIF_BMP, handle, cPath + cFile, nType )           // BMP_DEFAULT )
+
+         SetProperty( "ImageEdit", "Image_Edit", "PICTURE", cPath + cFile )
+         FREE_Unload( handle )
+      ENDIF
+   ENDIF
+#ENDIF
+
 RETURN
 
 *+--------------------------------------------------------------------
@@ -452,7 +558,7 @@ RETURN
 *+
 *+    Static Procedure DoBMPResize()
 *+
-*+    Called from ( viewer.prg )   3 - function image_edit()
+*+    Called from ( viewer.prg )   2 - function image_edit()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -464,8 +570,17 @@ LOCAL mainWidth  := GetProperty( cForm, 'Width' )
 LOCAL mainHeight := GetProperty( cForm, 'Height' )
 LOCAL nBorder    := GETBORDERWIDTH()
 LOCAL nTitlebar  := GETTITLEHEIGHT()
+LOCAL nDeskWide  := GETDESKTOPWIDTH()
+LOCAL nDeskHigh  := GETDESKTOPHEIGHT()
 
    Domethod( cForm, "hide" )
+
+   IF mainWidth > nDeskWide
+      mainWidth := nDeskWide
+   ENDIF
+   IF mainHeight > nDeskHigh
+      mainHeight := nDeskHigh
+   ENDIF
 
    Setproperty( cForm, cObj, "Width", mainWidth - ( 2 * nBorder ) )
    Setproperty( cForm, cObj, "Height", mainHeight - nTitlebar - ( 2 * nBorder ) )
@@ -943,12 +1058,84 @@ STATIC FUNCTION RTF_RowCol( cForm, cObj )
 LOCAL hRtf, nRow, nCol, nSelStart := 1
 
    hRtf := GetControlHandle( cObj, cForm )
-   //    SendMessage(hRtf,EM_SCROLLCARET,0,0)
    nSelStart := GetProperty( cForm, cObj, "CaretPos" )
-   //   nRow := SendMessage(hRtf, EM_LINEFROMCHAR, nSelStart , 0)
    nRow := SendMessage( hRtf, EM_EXLINEFROMCHAR, 0, nSelStart )
    nCol := nSelStart - SendMessage( hRtf, EM_LINEINDEX, nRow, 0 )
 
 RETURN ( { nRow + 1, nCol } )
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function PictInfo()
+*+
+*+    Called from ( viewer.prg )   1 - function image_edit()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION PictInfo( cPath, cFile, nWidth, nHeight )
+
+LOCAL cExt   := UPPER( cFileExt( cFile ) )
+LOCAL aLabel := {}, cLabel, aText := {}, cText, n
+
+   AADD( aLabel, "File name:" )
+   AADD( aLabel, "Folder:" )
+   AADD( aLabel, "Compression:" )
+   AADD( aLabel, "Original size:" )
+   AADD( aLabel, "Disk size:" )
+   AADD( aLabel, "File date/time:" )
+   //    AAdd( aLabel, "Loaded in:" )
+
+   AADD( aText, cFile )
+   AADD( aText, cPath )
+   AADD( aText, cExt )
+   AADD( aText, hb_ntos( nWidth ) + " x " + hb_ntos( nHeight ) + " Pixels" )
+   AADD( aText, hb_ntos( FILESIZE( cPath + cFile ) / 1024 ) + " KB" )
+   AADD( aText, DTOC( FILEDATE( cPath + cFile ) ) )
+
+   DEFINE WINDOW Form_Info AT 0, 0 ;
+      WIDTH 360 HEIGHT 300 ;
+      TITLE "Image properties" ;
+      TOPMOST ;
+      CHILD ;
+      NOSIZE ;
+      NOSYSMENU ;
+      ON INIT Form_Info.Button_OK.SetFocus ;
+      FONT 'MS Sans Serif' ;
+      SIZE 9
+
+   @  8,  8 FRAME Frame_1 ;
+           WIDTH 338 ;
+           HEIGHT 212
+
+   FOR n := 1 TO LEN( aLabel )
+      cLabel := "Label_" + hb_ntos( n )
+      @ ( n - 1 ) * 24 + 23, 20 LABEL &cLabel ;
+          VALUE aLabel[ n ] ;
+          WIDTH 100 HEIGHT 20
+   NEXT
+
+   FOR n := 1 TO LEN( aText )
+      cText := "Text_" + hb_ntos( n )
+      @ ( n - 1 ) * 24 + 21, 134 TEXTBOX &cText ;
+          VALUE aText[ n ] ;
+          HEIGHT 20 ;
+          WIDTH 200 ;
+          READONLY
+   NEXT
+
+   @ Form_Info.Height - 68 - IF( IsXPThemeActive(), 4, 0 ), Form_Info.Width / 2 - 50 BUTTON Button_OK ;
+           CAPTION "OK" ;
+           ACTION Form_Info.Release ;
+           WIDTH 96 HEIGHT 32
+
+   END WINDOW
+
+   CENTER WINDOW Form_Info
+
+   ACTIVATE WINDOW Form_Info
+
+   ImageEdit.setfocus()
+
+RETURN NIL
 
 *+ EOF: VIEWER.PRG

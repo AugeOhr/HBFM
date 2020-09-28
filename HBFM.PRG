@@ -14,7 +14,7 @@
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
+*+    Reformatted by Click! 2.05.34 on Sep-28-2020 at  3:25 am
 *+
 *+--------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ REQUEST HB_CODEPAGE_RU1251
 REQUEST HB_CODEPAGE_SRWIN
 REQUEST HB_CODEPAGE_SLWIN
 
-STATIC cVersion     := "v1.30"
+STATIC cVersion     := "v1.31"
 MEMVAR _HMG_SYSDATA
 
 *+--------------------------------------------------------------------
@@ -440,6 +440,7 @@ LOCAL aStructure
 RETURN
 
 // ***************************************************************
+//  v.1.31 27.09.2020 FreeImage now also use for Viewer and Picture > Screen
 //  v.1.30 26.09.2020 Problem when delete many Files. now BEGIN SEQUENCE
 //  v.1.29 22.09.2020 BUG GETICOINDEX() sind v1.17 in FMGRID.PRG DirImageColor()
 //  v.1.28 21.09.2020 integrate VFP Type "I" and "@" (Timestamp)
