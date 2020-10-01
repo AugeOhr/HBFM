@@ -12,6 +12,7 @@
 *+               Static Procedure ImageRelease()
 *+               Procedure SlideshowEnd()
 *+               Static Procedure ViewRotate()
+*+               Function Get_FIF()
 *+               Static Procedure DoTXTResize()
 *+               Static Procedure DoRTFResize()
 *+               Static Procedure DoBMPResize()
@@ -30,9 +31,12 @@
 *+               Static Procedure OnChanged()
 *+               Function ShowRowCol()
 *+               Static Function RTF_RowCol()
-*+               Static Function PictInfo()
+*+               Function PictInfo()
+*+               Static Procedure ListJPEGData()
+*+               Static Function FindJPEGMarker()
+*+               Static Function PaintWindow()
 *+
-*+    Reformatted by Click! 2.05.34 on Sep-28-2020 at  3:25 am
+*+    Reformatted by Click! 2.05.35 on Oct-1-2020 at  2:35 am
 *+
 *+--------------------------------------------------------------------
 
@@ -43,18 +47,27 @@
 #IFDEF Use_FreeImage
 #include "freeimage.ch"
 #ENDIF
+#include 'Directry.ch'        // Directory Array Definitions
+#include 'FileIO.ch'          // Low-Level File Access Definitions
 
-#define WM_USER                  1024
-#define EM_LINEINDEX             187
-#define EM_LINEFROMCHAR          201
-#define EM_SCROLLCARET           ( WM_USER + 49 )
-#define EM_EXLINEFROMCHAR        ( WM_USER + 54 )
+#define SOI_MARKER            chr(255) + chr(216)     // FFD8 -- Start Of Image Marker
+#define EOI_MARKER            chr(255) + chr(217)     // FFD9 -- End Of Image Marker
+#define JFIF_MARKER           chr(255) + chr(224)     // FFE0 -- JFIF ==> JPEG File Interchange Format Marker
+#define EXIF_MARKER           chr(255) + chr(225)     // FFE1 -- EXIF ==> Extended (TIFF) Interchange Format Marker
+#define JFIF_SIGNATURE        "JFIF" + chr(0)
+#define EXIF_SIGNATURE        "Exif" + chr(0) + chr(0)
 
-#define BMP_INFO_WIDTH           0
-#define BMP_INFO_HEIGHT          1
-#define BMP_INFO_BITSPIXEL       2
+#define WM_USER               1024
+#define EM_LINEINDEX          187
+#define EM_LINEFROMCHAR       201
+#define EM_SCROLLCARET        ( WM_USER + 49 )
+#define EM_EXLINEFROMCHAR     ( WM_USER + 54 )
 
-#define OFFSET_DLG               30
+#define BMP_INFO_WIDTH        0
+#define BMP_INFO_HEIGHT       1
+#define BMP_INFO_BITSPIXEL    2
+
+#define OFFSET_DLG            30
 
 STATIC cLastSeek  := ""
 STATIC cReplace   := ""
@@ -62,14 +75,15 @@ STATIC lDown      := .T.
 STATIC lWholeWord := .F.
 STATIC lMatchCase := .F.
 STATIC lChanged   := .F.
+STATIC nKoef      := 1
 
-MEMVAR _HMG_SYSDATA, lActiveMain
+MEMVAR _HMG_SYSDATA, lActiveMain, nGridFocus
 
 *+--------------------------------------------------------------------
 *+
 *+    Procedure TXT_Edit()
 *+
-*+    Called from ( fmgrid.prg )   3 - static procedure dataviewer()
+*+    Called from ( fmgrid.prg )   4 - static procedure dataviewer()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -97,38 +111,38 @@ STATIC lRunning := .F.
    cMemo := HB_MEMOREAD( cFile )
 
    DEFINE WINDOW TXTEdit ;
-      AT 240, 384 ;
-      WIDTH 800 ;
-      HEIGHT 600 ;
-      TITLE cFile ;
-      ON SIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
-      ON MAXIMIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
-      ON RELEASE TXTRelease( lEdit, cFile ) ;
-      BACKCOLOR SP_nColor1()
+         AT 240, 384 ;
+         WIDTH 800 ;
+         HEIGHT 600 ;
+         TITLE cFile ;
+         ON SIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
+         ON MAXIMIZE DoTXTResize( ThisWindow.Name, "TXTCtrl" ) ;
+         ON RELEASE TXTRelease( lEdit, cFile ) ;
+         BACKCOLOR SP_nColor1()
 
-   DEFINE STATUSBAR PARENT TXTEdit
+      DEFINE STATUSBAR PARENT TXTEdit
 STATUSITEM "TXTCtrl()" WIDTH 400
-   END STATUSBAR
+      END STATUSBAR
 
-   DEFINE EDITBOX TXTCtrl
-      ROW 10
-      COL 10
-      WIDTH 760
-      HEIGHT 520
-      VALUE cMemo
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-      READONLY !lEdit
-      HSCROLLBAR lEdit
-      VSCROLLBAR .T.
-      DISABLEDBACKCOLOR SP_nColor13()
-      DISABLEDFONTCOLOR SP_nColor14()
-      BACKCOLOR SP_nColor5()
-      FONTCOLOR SP_nColor6()
-      ONCHANGE OnChanged()
-   END EDITBOX
+      DEFINE EDITBOX TXTCtrl
+         ROW 10
+         COL 10
+         WIDTH 760
+         HEIGHT 520
+         VALUE cMemo
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY !lEdit
+         HSCROLLBAR lEdit
+         VSCROLLBAR .T.
+         DISABLEDBACKCOLOR SP_nColor13()
+         DISABLEDFONTCOLOR SP_nColor14()
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         ONCHANGE OnChanged()
+      END EDITBOX
 
    END WINDOW
 
@@ -201,31 +215,31 @@ STATIC lRunning := .F.
    DO EVENTS
 
    DEFINE WINDOW RTFEdit ;
-      AT 292, 562 ;
-      WIDTH 800 ;
-      HEIGHT 600 ;
-      TITLE cFile ;
-      ON SIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
-      ON MAXIMIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
-      ON RELEASE RTFRelease( lEdit, cFile ) ;
-      BACKCOLOR SP_nColor1()
+         AT 292, 562 ;
+         WIDTH 800 ;
+         HEIGHT 600 ;
+         TITLE cFile ;
+         ON SIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
+         ON MAXIMIZE DoRTFResize( ThisWindow.Name, "RTFCtrl" ) ;
+         ON RELEASE RTFRelease( lEdit, cFile ) ;
+         BACKCOLOR SP_nColor1()
 
-   DEFINE STATUSBAR PARENT RTFEdit
+      DEFINE STATUSBAR PARENT RTFEdit
 STATUSITEM "RTFCtrl()" WIDTH 400
-   END STATUSBAR
+      END STATUSBAR
 
-   DEFINE RICHEDITBOX RTFCtrl
-      ROW 10
-      COL 10
-      WIDTH 760
-      HEIGHT 520
-      FONTNAME SP_cFontName()
-      TABSTOP .T.
-      VISIBLE .T.
-      READONLY !lEdit
-      BACKCOLOR Nil
-      ONCHANGE OnChanged()
-   END RICHEDITBOX
+      DEFINE RICHEDITBOX RTFCtrl
+         ROW 10
+         COL 10
+         WIDTH 760
+         HEIGHT 520
+         FONTNAME SP_cFontName()
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY !lEdit
+         BACKCOLOR Nil
+         ONCHANGE OnChanged()
+      END RICHEDITBOX
 
    END WINDOW
 
@@ -282,19 +296,26 @@ RETURN
 *+
 *+    Function Image_Edit()
 *+
-*+    Called from ( fmgrid.prg )   1 - static procedure dataviewer()
-*+                                   1 - static procedure slideshow()
+*+    Called from ( fmgrid.prg )   2 - static procedure dataviewer()
+*+                                   2 - static procedure slideshow()
 *+                ( thumbs.prg )   1 - static procedure doshow()
 *+
 *+--------------------------------------------------------------------
 *+
 FUNCTION Image_Edit( cPath, cFile, nTimeout, lEdit )
 
-LOCAL nMode, fname, clone
+LOCAL nMode, nClone, nType
 LOCAL nRatio, nWidth, nHeight, nW, nH
-LOCAL handle, cSaveFile, aRect, nScrWidth, nScrHeight, nWidthOrig, nHeightOrig
-LOCAL nTitlebar := GETTITLEHEIGHT()
-LOCAL nBorder   := GETBORDERWIDTH()
+LOCAL nFreeHandle, cWorkFile, aRect, nScrWidth, nScrHeight, nWidthOrig, nHeightOrig
+LOCAL nTitlebar   := GETTITLEHEIGHT()
+LOCAL nBorder     := GETBORDERWIDTH()
+LOCAL cExt        := LOWER( cFileExt( cFile ) )
+LOCAL nFormat     := 0
+LOCAL nFif        := Get_FIF( cExt, @nFormat )
+LOCAL acFiles     := {}
+LOCAL acTarget    := {}
+LOCAL nFormWidth, nFormHeight
+LOCAL bError
 
 STATIC lRunning := .F.
 
@@ -306,104 +327,139 @@ STATIC lRunning := .F.
    ENDIF
    lRunning := .T.
    lActiveMain := .F.
+   lChanged := .F.
+   nKoef := 1
 
+   // open in FmGrid.PRG
+   //
    // #IFDEF Use_FreeImage
    //    IF FILE( 'FreeImage.Dll' ) .OR. FILE( 'FreeImage64.Dll' )
    //       FREE_Initialise()
-   //       //  MsgInfo( Var2char( FREE_GetVersion() ) )
    //    ELSE
    //       MsgInfo( "Can't found the FreeImage.Dll" )
    //       RETURN NIL
    //    ENDIF
    // #ENDIF
 
+   bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+   BEGIN SEQUENCE
+      nType := FREE_GetFileType( cPath + cFile, 0 )
+      nFreeHandle := FREE_Load( nType, cPath + cFile, 0 )
+      // nFreeHandle := FREE_Load( nFif, cPath + cFile, 0 )
+   END SEQUENCE
+   ERRORBLOCK( bError )
+
+   IF EMPTY( nFreeHandle )
+      Msginfo( "Error loading : " + cPath + cFile )
+      RETURN nil
+   ENDIF
+
+   nWidth := FREE_GetWidth( nFreeHandle )
+   nHeight := FREE_GetHeight( nFreeHandle )
+   nRatio := nWidth / nHeight
+
+   // if empty(nWidth) .or. empty(nHeight)
+   //    Msginfo( str(nWidth)+"/"+STR(nHeight),STR(nRatio))
+   // ENDIF
+
+   nWidthOrig := nWidth
+   nHeightOrig := nHeight
+
+   // create temp. file
+   cWorkFile := GetTempFolder() + "FI_" + cFile                       // + ".bmp"
+
    aRect := GetDesktopArea()
    nScrWidth := aRect[ 3 ] - aRect[ 1 ]
    nScrHeight := aRect[ 4 ] - aRect[ 2 ]
 
    DEFINE WINDOW ImageEdit ;
-      AT 249, 410 ;
-      WIDTH 0 ;
-      HEIGHT 0 ;
-      TITLE cPath + cFile ;
-      TOPMOST ;
-      ON INIT nil ;
-      ON SIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
-      ON MAXIMIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
-      ON GOTFOCUS ImageEdit.Image_Edit.setfocus() ;
-      ON RELEASE ImageRelease( cPath + cFile ) ;
-      BACKCOLOR SP_nColor1()
+         AT 0, 0 ;
+         WIDTH 0 ;
+         HEIGHT 0 ;
+         TITLE IF( nWidth < 33, "", cPath + cFile ) ;
+         ICON "ICOINFO" ;
+         TOPMOST ;
+         NOMINIMIZE ;
+         ON INIT nil ;
+         ON SIZE DoBMPResize( ThisWindow.Name, cWorkFile, 2 ) ;
+         ON MAXIMIZE DoBMPResize( ThisWindow.Name, cWorkFile, 2 ) ;
+         ON RELEASE ImageRelease( cPath, cFile, cWorkFile ) ;
+         BACKCOLOR SP_nColor1()
 
-   DEFINE CONTEXT MENU OF ImageEdit
-      IF lEdit = .T.
-         MENUITEM "rotate &right" IMAGE "MYROTATER16" ACTION ViewRotate( - 90, cPath, cFile )
-         MENUITEM "rotate &left" IMAGE "MYROTATEL16" ACTION ViewRotate( 90, cPath, cFile )
-         SEPARATOR
-         MENUITEM "rotate 180" ACTION ViewRotate( 180, cPath, cFile )
-         SEPARATOR
-      ELSE
-      ENDIF
-      MENUITEM "Pic Info" IMAGE "MYINFO16" ACTION PictInfo( cPath, cFile, nWidthOrig, nHeightOrig )
-   END MENU
+      // ON MAXIMIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
+      // ON GOTFOCUS ImageEdit.Image_Edit.setfocus() ;
 
-   DEFINE IMAGE Image_Edit
-      ROW 0
-      COL 0
-      WIDTH 0
-      HEIGHT 0
-      PICTURE nil
-      VISIBLE .T.
-      STRETCH .T.
-   END IMAGE
+      DEFINE CONTEXT MENU OF ImageEdit
+         IF lEdit = .T.
+            MENUITEM "rotate &right" IMAGE "MYROTATER16" ACTION ViewRotate( - 90, cWorkFile, cFile, nType )
+            MENUITEM "rotate &left" IMAGE "MYROTATEL16" ACTION ViewRotate( 90, cWorkFile, cFile, nType )
+            SEPARATOR
+            MENUITEM "rotate 180" ACTION ViewRotate( 180, cWorkFile, cFile, nType )
+            SEPARATOR
+         ENDIF
+         MENUITEM "Pic Info" IMAGE "MYINFO16" ACTION PictInfo( cPath, cFile, nWidthOrig, nHeightOrig, nFreeHandle )
+      END MENU
+
+      // DEFINE IMAGE Image_Edit
+      //    ROW 0
+      //    COL 0
+      //    WIDTH 0
+      //    HEIGHT 0
+      //    PICTURE nil
+      //    VISIBLE .T.
+      //    STRETCH .T.
+      // END IMAGE
 
    END WINDOW
 
-   ALTD()
+   nFormWidth := nWidth
+   nFormHeight := nHeight + GetTitleHeight() + ( 3 * GetBorderHeight() )
 
-   cSaveFile := GetTempFolder() + "FI_" + cFile + ".bmp"
-
-   fname := cPath + cFile
-
-   handle := FREE_Load( FREE_GetFileType( fname, 0 ), fname, 0 )
-
-   nWidth := FREE_GetWidth( handle )
-   nHeight := FREE_GetHeight( handle )
-   nRatio := nWidth / nHeight
-
-   nWidthOrig := nWidth
-   nHeightOrig := nHeight
-
-   nMode := IF( nWidth < nScrWidth .AND. nHeight < nScrHeight, 0, 2 )
+   //  nMode := IF( nWidth < nScrWidth .AND. nHeight < nScrHeight, 0, 2 )
+   //  nMode := 0
+   //  nMode := 1
+   nMode := 2
 
    IF nWidth > nScrWidth .OR. nHeight > nScrHeight                    // .OR. nWidthOrig >= nScrWidth .OR. nHeightOrig >= nScrHeight
-      nW := nScrWidth
-      nH := nScrHeight
-      IF nRatio >= 1
-         nH := ROUND( nHeight * ( 10 * nW / nWidth ) / 10, 0 )
-      ELSE
-         nW := ROUND( nWidth * ( 10 * nH / nHeight ) / 10, 0 )
+      DO WHILE.T.
+      nFormWidth := ROUND( nWidth * nKoef, 0 )                        // + GetBorderWidth() + 4
+      nFormHeight := ROUND( nHeight * nKoef, 0 ) + GetTitleHeight() + ( 3 * GetBorderHeight() )                                             //  + GetMenuBarHeight() // + IF( HMG_IsWinVistaOrLater(), 60, 56 )
+      IF nFormWidth <= nScrWidth .OR. nKoef < 0.11
+         IF nFormHeight <= nScrHeight .OR. nKoef < 0.11
+            nWidth := nFormWidth                                      // - (GetBorderWidth() + 4 )
+            nHeight := nFormHeight - ( GetTitleHeight() + ( 3 * GetBorderHeight() ) )                                                       //  + GetMenuBarHeight() ) // + IF( HMG_IsWinVistaOrLater(), 60, 56 ) )
+            // Msginfo( str(nWidth)+"/"+STR(nHeight),STR(nKoef))
+            EXIT
+         ENDIF
       ENDIF
-      nWidth := nW
-      nHeight := nH
-      clone := FREE_Clone( handle )
-      FREE_Unload( handle )
-      handle := FREE_Rescale( clone, nWidth, nHeight, FILTER_BICUBIC )
-      FREE_Unload( clone )
+      nKoef -= 0.01
+   ENDDO
+
+   nClone := FREE_Clone( nFreeHandle )
+   FREE_Unload( nFreeHandle )
+   nFreeHandle := FREE_Rescale( nClone, nWidth, nHeight, FILTER_BICUBIC )
+   FREE_Unload( nClone )
    ENDIF
 
-   FREE_Save( FIF_BMP, handle, cSaveFile, BMP_DEFAULT )
-   FREE_Unload( handle )
+   // MUST be Bitmap for FREE_DRAWPICTURE()
+   FREE_Save( FIF_BMP, nFreeHandle, cWorkFile, BMP_DEFAULT )
+   //    FREE_Save( nFif, nFreeHandle, cWorkFile, nFormat )
+   //    FREE_Unload( nFreeHandle )
 
-   SetProperty( "ImageEdit", "Width", nWidth )
-   SetProperty( "ImageEdit", "Height", nHeight )
-   SetProperty( "ImageEdit", "Image_Edit", "PICTURE", cSaveFile )
+   SetProperty( "ImageEdit", "Width", nFormWidth )
+   SetProperty( "ImageEdit", "Height", nFormHeight )
+   //    SetProperty( "ImageEdit", "Image_Edit", "PICTURE", cWorkFile )
 
-   //  ERASE WINDOW ImageEdit
-   //  DrawPicture( GetFormHandle( "ImageEdit" ), cSaveFile, nMode )
+   ERASE WINDOW ImageEdit
+   // GetSystemMetrics (SM_CXSCREEN)
+   // GetSystemMetrics (SM_CYSCREEN)
+   // FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode )
+   FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode, nFormWidth, nFormHeight )
+   FREE_Unload( nFreeHandle )
 
-   //    SetCursorWait( "WinLeft", .F. )
-   //    SetCursorWait( "WinRight", .F. )
-   //    DO EVENTS
+   //  SetCursorWait( "WinLeft", .F. )
+   //  SetCursorWait( "WinRight", .F. )
+   //  DO EVENTS
 
    IF !EMPTY( nTimeout )
 
@@ -424,13 +480,37 @@ STATIC lRunning := .F.
    //    ImageEdit.Image_Edit.setfocus()
    ACTIVATE WINDOW ImageEdit
 
-   FERASE( cSaveFile )
    lRunning := .F.
    lActiveMain := .T.
 
+   // closed in FmGrid.PRG
+   //
    // #IFDEF Use_FreeImage
    //    FREE_Deinitialise()
    // #ENDIF
+
+   IF lChanged = .T.
+      IF msgyesno( "Save Change ?", "Image have change" ) == .T.
+         IF FERASE( cPath + cFile ) = 0
+            //  RENAME (cWorkFile) TO (cPath+cFile)
+            //  COPY FILE (cWorkFile) TO (cPath+cFile)
+            //  FERASE( cWorkFile )
+
+            AADD( acFiles, cWorkFile )
+            AADD( acTarget, cPath + cFile )
+            DoSH3func( "MOVE", .f., .f., .f., acFiles, acTarget )
+
+            ReRead( nGridFocus )
+         ELSE
+            msgInfo( "Problem to move file,  ", "Error FERASE " )
+         ENDIF
+      ELSE
+         FERASE( cWorkFile )
+      ENDIF
+   ELSE
+      FERASE( cWorkFile )
+   ENDIF
+   lChanged := .F.
 
 RETURN nil
 
@@ -442,9 +522,9 @@ RETURN nil
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE ImageRelease( cFile )
+STATIC PROCEDURE ImageRelease( cPath, cFile, cWorkFile )
 
-   SetProperty( "ImageEdit", "Image_Edit", "PICTURE", nil )
+   //    SetProperty( "ImageEdit", "Image_Edit", "PICTURE", nil )
 RETURN
 
 *+--------------------------------------------------------------------
@@ -473,34 +553,158 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE ViewRotate( nRad, cPath, cFile )
+STATIC PROCEDURE ViewRotate( nRad, cWorkFile, cFile, nType )
 
-LOCAL cThumbsFile, nType
-LOCAL handle, clone, new_handle
+LOCAL cThumbsFile
+LOCAL nFreeHandle, nClone, new_handle
+LOCAL cExt        := LOWER( cFileExt( cFile ) )
+LOCAL nFormat     := 0                                                // 0 = DEFAULT
+LOCAL nFif        := Get_FIF( cExt, @nFormat )
+LOCAL nWidth
+LOCAL nHeight
+LOCAL bError      := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
 
 #IFDEF Use_FreeImage
-   nType := FREE_GetFileType( cPath + cFile, 0 )
-   handle := FREE_Load( nType, cPath + cFile, 0 )
 
-   IF !EMPTY( handle )
-      clone := FREE_Clone( handle )
-      FREE_Unload( handle )
-      IF !( ( new_handle := FREE_RotateClassic( clone, nRad ) ) == Nil )
-         FREE_Unload( clone )
-         handle := new_handle
+   bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+   BEGIN SEQUENCE
+      // nFreeHandle := FREE_Load( nType, cWorkFile, 0 )
+      nFreeHandle := FREE_Load( nFif, cWorkFile, 0 )
+   END SEQUENCE
+   ERRORBLOCK( bError )
 
-         IF FILE( cPath + cFile )
-            FERASE( cPath + cFile )
+   IF !EMPTY( nFreeHandle )
+      nClone := FREE_Clone( nFreeHandle )
+      FREE_Unload( nFreeHandle )
+      IF !( ( new_handle := FREE_RotateClassic( nClone, nRad ) ) == Nil )
+         FREE_Unload( nClone )
+         nFreeHandle := new_handle
+
+         IF FILE( cWorkFile )
+            FERASE( cWorkFile )
          ENDIF
-         FREE_Save( FIF_BMP, handle, cPath + cFile, nType )           // BMP_DEFAULT )
+         FREE_Save( nFif, nFreeHandle, cWorkFile, nFormat )           // BMP_DEFAULT )
+         nWidth := FREE_GetWidth( nFreeHandle )
+         nHeight := FREE_GetHeight( nFreeHandle )
 
-         SetProperty( "ImageEdit", "Image_Edit", "PICTURE", cPath + cFile )
-         FREE_Unload( handle )
+         // SetProperty( "ImageEdit", "Image_Edit", "PICTURE", cWorkFile )
+
+         ERASE WINDOW ImageEdit
+         FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, 2, nWidth, nHeight )
+
+         FREE_Unload( nFreeHandle )
+
+         lChanged := .T.
       ENDIF
    ENDIF
 #ENDIF
 
 RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Function Get_FIF()
+*+
+*+    Called from ( thumbs.prg )   1 - procedure thumbs()
+*+                                   1 - static procedure thumbsrotate()
+*+                ( viewer.prg )   1 - function image_edit()
+*+                                   1 - static procedure viewrotate()
+*+
+*+--------------------------------------------------------------------
+*+
+FUNCTION Get_FIF( cExt, nDef )
+
+LOCAL nFif := FIF_UNKNOWN                                             // -1
+
+   DO CASE
+      CASE cExt == ".bmp"
+         nFif := FIF_BMP                                              // 0
+         nDef := BMP_DEFAULT
+      CASE cExt == ".ico"
+         nFif := FIF_ICO                                              // 1
+         nDef := ICO_DEFAULT
+      CASE cExt == ".jpg" .OR. cExt == ".jpeg"
+         nFif := FIF_JPEG                                             // 2
+         nDef := JPEG_DEFAULT
+      CASE cExt == ".jng"
+         nFif := FIF_JNG                                              // 3
+         nDef := 0
+      CASE cExt == ".koala"
+         nFif := FIF_KOALA                                            // 4
+         nDef := KOALA_DEFAULT
+      CASE cExt == ".lbm"
+         nFif := FIF_LBM                                              // 5
+         nDef := LBM_DEFAULT
+      CASE cExt == ".iff"
+         nFif := FIF_IFF                                              // FIF_LBM
+         nDef := IFF_DEFAULT
+      CASE cExt == ".mng"
+         nFif := FIF_MNG                                              // 6
+         nDef := MNG_DEFAULT
+      CASE cExt == ".pbm"
+         nFif := FIF_PBM                                              // 7
+         nDef := 0
+      CASE cExt == ".pbmraw"
+         nFif := FIF_PBMRAW                                           // 8
+         nDef := 0
+      CASE cExt == ".pcd"
+         nFif := FIF_PCD                                              // 9
+         nDef := PCD_DEFAULT
+      CASE cExt == ".pcx"
+         nFif := FIF_PCX                                              // 10
+         nDef := PCX_DEFAULT
+      CASE cExt == ".pgm"
+         nFif := FIF_PGM                                              // 11
+         nDef := 0
+      CASE cExt == ".pgmraw"
+         nFif := FIF_PGMRAW                                           // 12
+         nDef := 0
+      CASE cExt == ".png"
+         nFif := FIF_PNG                                              // 13
+         nDef := PNG_DEFAULT
+      CASE cExt == ".ppm"
+         nFif := FIF_PPM                                              // 14
+         nDef := 0
+      CASE cExt == ".ppmraw"
+         nFif := FIF_PPMRAW                                           // 15
+         nDef := 0
+      CASE cExt == ".ras"
+         nFif := FIF_RAS                                              // 16
+         nDef := RAS_DEFAULT
+      CASE cExt == ".targa"
+         nFif := FIF_TARGA                                            // 17
+         nDef := TARGA_DEFAULT
+      CASE cExt == ".tiff"
+         nFif := FIF_TIFF                                             // 18
+         nDef := TIFF_DEFAULT
+      CASE cExt == ".wbmp"
+         nFif := FIF_WBMP                                             // 19
+         nDef := WBMP_DEFAULT
+      CASE cExt == ".psd"
+         nFif := FIF_PSD                                              // 20
+         nDef := PSD_DEFAULT
+      CASE cExt == ".cut"
+         nFif := FIF_CUT                                              // 21
+         nDef := CUT_DEFAULT
+      CASE cExt == ".xbm"
+         nFif := FIF_XBM                                              // 22
+      CASE cExt == ".xpm"
+         nFif := FIF_XPM                                              // 23
+         nDef := XPM_DEFAULT
+      CASE cExt == ".dds"
+         nFif := FIF_DDS                                              // 24
+         nDef := DDS_DEFAULT
+      CASE cExt == ".gif"
+         nFif := FIF_GIF                                              // 25
+         nDef := GIF_DEFAULT
+      CASE cExt == ".hdr"
+         nFif := FIF_HDR                                              // 26
+         nDef := HDR_DEFAULT
+      OTHERWISE
+         nFif := FIF_UNKNOWN                                          // -1
+         nDef := 0
+   ENDCASE
+RETURN nFif
 
 *+--------------------------------------------------------------------
 *+
@@ -562,7 +766,7 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE DoBMPResize( cForm, cObj )
+STATIC PROCEDURE DoBMPResize( cForm, cWorkFile, nMode )
 
 LOCAL mainRow    := GetProperty( cForm, 'Row' )
 LOCAL mainCol    := GetProperty( cForm, 'Col' )
@@ -582,10 +786,16 @@ LOCAL nDeskHigh  := GETDESKTOPHEIGHT()
       mainHeight := nDeskHigh
    ENDIF
 
-   Setproperty( cForm, cObj, "Width", mainWidth - ( 2 * nBorder ) )
-   Setproperty( cForm, cObj, "Height", mainHeight - nTitlebar - ( 2 * nBorder ) )
+   //    IF !EMPTY(cObj)
+   //       Setproperty( cForm, cObj, "Width", mainWidth - ( 2 * nBorder ) )
+   //       Setproperty( cForm, cObj, "Height", mainHeight - nTitlebar - ( 2 * nBorder ) )
+   //    ENDIF
 
    Domethod( cForm, "show" )
+
+   ERASE WINDOW ImageEdit
+   FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode, mainWidth, mainHeight )
+   //   PaintWindow( GetFormHandle( "ImageEdit" ), mainHeight, mainWidth)
 
 RETURN
 
@@ -629,24 +839,24 @@ STATIC cLast    := ""
       DO EVENTS
 
       DEFINE WINDOW &cForm ;
-         ROW 10 ;
-         COL 10 ;
-         WIDTH 1024 ;
-         HEIGHT 1024 ;
-         TITLE cFile ;
-         ICON "ICOPDF" ;
-         ON MAXIMIZE DoPDFResize( cForm, "PdfView" ) ;
-         ON SIZE DoPDFResize( cForm, "PdfView" ) ;
-         BACKCOLOR { 250, 241, 228 }
+            ROW 10 ;
+            COL 10 ;
+            WIDTH 1024 ;
+            HEIGHT 1024 ;
+            TITLE cFile ;
+            ICON "ICOPDF" ;
+            ON MAXIMIZE DoPDFResize( cForm, "PdfView" ) ;
+            ON SIZE DoPDFResize( cForm, "PdfView" ) ;
+            BACKCOLOR { 250, 241, 228 }
 
-      DEFINE WINDOW PdfView ;
-         ROW 10 ;
-         COL 10 ;
-         WIDTH 1000 ;
-         HEIGHT 960 ;
-         PANEL ;
-         BACKCOLOR { 250, 241, 228 }
-      END WINDOW
+         DEFINE WINDOW PdfView ;
+               ROW 10 ;
+               COL 10 ;
+               WIDTH 1000 ;
+               HEIGHT 960 ;
+               PANEL ;
+               BACKCOLOR { 250, 241, 228 }
+         END WINDOW
       END WINDOW
 
       cHwnd := ALLTRIM( STR( GETFORMHANDLE( 'PdfView' ) ) )
@@ -689,39 +899,39 @@ LOCAL cText := ""
    cText += "Ctrl-6 : Singe-Side    Ctrl-7 : Double-Side    Ctrl-8 : Book-view" + CRLF
 
    DEFINE WINDOW DoPDFHelp ;
-      ROW 0 ;
-      COL 0 ;
-      WIDTH 1280 - 80 ;
-      HEIGHT 1024 - 50 ;
-      TITLE "Help" ;
-      ICON "ICOPDF" ;
-      NOMAXIMIZE ;
-      NOSIZE ;
-      BACKCOLOR NIL
+         ROW 0 ;
+         COL 0 ;
+         WIDTH 1280 - 80 ;
+         HEIGHT 1024 - 50 ;
+         TITLE "Help" ;
+         ICON "ICOPDF" ;
+         NOMAXIMIZE ;
+         NOSIZE ;
+         BACKCOLOR NIL
 
-   DEFINE IMAGE HelpInfo
-      ROW 0
-      COL 0
-      WIDTH nWide
-      HEIGHT nHigh
-      PICTURE "MYSUMATRA"
-      VISIBLE .T.
-      TRANSPARENT .F.
-      BACKGROUNDCOLOR SP_nColor1()
-   END IMAGE
+      DEFINE IMAGE HelpInfo
+         ROW 0
+         COL 0
+         WIDTH nWide
+         HEIGHT nHigh
+         PICTURE "MYSUMATRA"
+         VISIBLE .T.
+         TRANSPARENT .F.
+         BACKGROUNDCOLOR SP_nColor1()
+      END IMAGE
 
-   DEFINE LABEL PathInfo
-      ROW nHigh + 20
-      COL 0
-      VALUE cText
-      WIDTH nWide
-      HEIGHT 100
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      BACKCOLOR SP_nColor1()
-      FONTCOLOR SP_nColor2()
-      ALIGNMENT Left
-   END LABEL
+      DEFINE LABEL PathInfo
+         ROW nHigh + 20
+         COL 0
+         VALUE cText
+         WIDTH nWide
+         HEIGHT 100
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+         ALIGNMENT Left
+      END LABEL
 
    END WINDOW
 
@@ -1066,16 +1276,18 @@ RETURN ( { nRow + 1, nCol } )
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Function PictInfo()
+*+    Function PictInfo()
 *+
-*+    Called from ( viewer.prg )   1 - function image_edit()
+*+    Called from ( thumbs.prg )   1 - static procedure pre_picinfo()
+*+                ( viewer.prg )   1 - function image_edit()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC FUNCTION PictInfo( cPath, cFile, nWidth, nHeight )
+FUNCTION PictInfo( cPath, cFile, nWidth, nHeight, handle )
 
 LOCAL cExt   := UPPER( cFileExt( cFile ) )
-LOCAL aLabel := {}, cLabel, aText := {}, cText, n
+LOCAL aLabel := {}, cLabel, aText := {}, cText, n, cInOut := ""
+LOCAL aFocus := StoreLastFocus()
 
    AADD( aLabel, "File name:" )
    AADD( aLabel, "Folder:" )
@@ -1083,7 +1295,6 @@ LOCAL aLabel := {}, cLabel, aText := {}, cText, n
    AADD( aLabel, "Original size:" )
    AADD( aLabel, "Disk size:" )
    AADD( aLabel, "File date/time:" )
-   //    AAdd( aLabel, "Loaded in:" )
 
    AADD( aText, cFile )
    AADD( aText, cPath )
@@ -1092,50 +1303,200 @@ LOCAL aLabel := {}, cLabel, aText := {}, cText, n
    AADD( aText, hb_ntos( FILESIZE( cPath + cFile ) / 1024 ) + " KB" )
    AADD( aText, DTOC( FILEDATE( cPath + cFile ) ) )
 
+   IF !EMPTY( handle )
+      AADD( aLabel, "Bits per Pixel:" )
+      AADD( aText, Var2char( FREE_GETBPP( handle ) ) )
+   ENDIF
+
+   ListJPEGData( cFile, cPath, @cInOut )
+   IF !EMPTY( cInOut )
+      AADD( aLabel, "Exif Info:" )
+      AADD( aText, cInOut )
+   ENDIF
+
    DEFINE WINDOW Form_Info AT 0, 0 ;
-      WIDTH 360 HEIGHT 300 ;
-      TITLE "Image properties" ;
-      TOPMOST ;
-      CHILD ;
-      NOSIZE ;
-      NOSYSMENU ;
-      ON INIT Form_Info.Button_OK.SetFocus ;
-      FONT 'MS Sans Serif' ;
-      SIZE 9
+         WIDTH 360 HEIGHT 300 ;
+         TITLE "Image properties" ;
+         TOPMOST ;
+         CHILD ;
+         NOSIZE ;
+         NOSYSMENU ;
+         ON INIT Form_Info.Button_OK.SetFocus ;
+         FONT 'MS Sans Serif' ;
+         SIZE 9
 
-   @  8,  8 FRAME Frame_1 ;
-           WIDTH 338 ;
-           HEIGHT 212
+      @  8,  8 FRAME Frame_1 ;
+              WIDTH 338 ;
+              HEIGHT 212
 
-   FOR n := 1 TO LEN( aLabel )
-      cLabel := "Label_" + hb_ntos( n )
-      @ ( n - 1 ) * 24 + 23, 20 LABEL &cLabel ;
-          VALUE aLabel[ n ] ;
-          WIDTH 100 HEIGHT 20
-   NEXT
+      FOR n := 1 TO LEN( aLabel )
+         cLabel := "Label_" + hb_ntos( n )
+         @ ( n - 1 ) * 24 + 23, 20 LABEL &cLabel ;
+             VALUE aLabel[ n ] ;
+             WIDTH 100 HEIGHT 20
+      NEXT
 
-   FOR n := 1 TO LEN( aText )
-      cText := "Text_" + hb_ntos( n )
-      @ ( n - 1 ) * 24 + 21, 134 TEXTBOX &cText ;
-          VALUE aText[ n ] ;
-          HEIGHT 20 ;
-          WIDTH 200 ;
-          READONLY
-   NEXT
+      FOR n := 1 TO LEN( aText )
+         cText := "Text_" + hb_ntos( n )
+         @ ( n - 1 ) * 24 + 21, 134 TEXTBOX &cText ;
+             VALUE aText[ n ] ;
+             HEIGHT 20 ;
+             WIDTH 200 ;
+             READONLY
+      NEXT
 
-   @ Form_Info.Height - 68 - IF( IsXPThemeActive(), 4, 0 ), Form_Info.Width / 2 - 50 BUTTON Button_OK ;
-           CAPTION "OK" ;
-           ACTION Form_Info.Release ;
-           WIDTH 96 HEIGHT 32
+      @ Form_Info.Height - 68 - IF( IsXPThemeActive(), 4, 0 ), Form_Info.Width / 2 - 50 BUTTON Button_OK ;
+              CAPTION "OK" ;
+              ACTION Form_Info.Release ;
+              WIDTH 96 HEIGHT 32
 
    END WINDOW
 
+   ON KEY ESCAPE OF Form_Info ACTION Form_Info.Release
    CENTER WINDOW Form_Info
 
    ACTIVATE WINDOW Form_Info
 
-   ImageEdit.setfocus()
+   //    IF isWindowDefined( ImageEdit )
+   //       ImageEdit.setfocus()
+   //    ENDIF
+   RestoreLastFocus( aFocus[ 1 ], aFocus[ 2 ] )
 
 RETURN NIL
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure ListJPEGData()
+*+
+*+    Called from ( viewer.prg )   1 - function pictinfo()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE ListJPEGData( cFileName, cPath, cInOut )
+
+LOCAL nLength  := 0                                                   // 2 bytes: Length of Marker Header
+LOCAL nMajVers := 0                                                   // 1 bytes: (01)
+LOCAL nMinVers := 0                                                   // 1 bytes: (02)
+LOCAL nUnits   := 0                                                   // 1 byte: 0 = Aspect Ratio, 1 = DPI (Inches), 2 = DPC (cm)
+LOCAL nXSize   := 0                                                   // 2 bytes
+LOCAL nYSize   := 0                                                   // 2 bytes
+LOCAL nFileLen := 0                                                   // Length of JPEG File
+LOCAL nHandle  := 0
+LOCAL lValid   := .f.
+LOCAL cText    := SPACE( 2 ), nTextLen, nOffSet
+LOCAL bError   := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+
+   BEGIN SEQUENCE
+
+      IF ( nHandle := FOPEN( cPath + cFileName, FO_READ + FO_SHARED ) ) > 0
+         nTextLen := FSEEK( nHandle, 0, FS_END )
+         FSEEK( nHandle, 0, FS_SET )
+         IF ( lValid := FREAD( nHandle, @cText, 2 ) == 2 .AND. cText == SOI_MARKER )
+            FSEEK( nHandle, - 2, FS_END )
+            IF ( lValid := FREAD( nHandle, @cText, 2 ) == 2 .AND. cText == EOI_MARKER )
+               IF ( nLength := FindJPEGMarker( nHandle, JFIF_MARKER ) ) > 0
+                  cText := SPACE( nLength )
+                  IF FREAD( nHandle, @cText, nLength ) == nLength
+                     nOffSet := LEN( JFIF_SIGNATURE )
+                     IF LEFT( cText, nOffSet ) == JFIF_SIGNATURE
+                        nMajVers := ASC( SUBSTR( cText, ++ nOffSet, 1 ) )
+                        nMinVers := ASC( SUBSTR( cText, ++ nOffSet, 1 ) )
+                        nUnits := ASC( SUBSTR( cText, ++ nOffSet, 1 ) )
+                        nXSize := ASC( SUBSTR( cText, ++ nOffSet, 1 ) ) * 256 + ASC( SUBSTR( cText, ++ nOffSet, 1 ) )
+                        nYSize := ASC( SUBSTR( cText, ++ nOffSet, 1 ) ) * 256 + ASC( SUBSTR( cText, ++ nOffSet, 1 ) )
+                        cInOut := ( " -- X/Y " + IIF( nUnits == 1 .OR. nUnits == 2, "Resolution", "Aspect-Ratio" ) + ": " + ALLTRIM( STR( nXSize ) ) + "/" + ALLTRIM( STR( nYSize ) ) + IIF( nUnits == 1, " DPI", IIF( nUnits == 2, " DPC", "" ) ) )
+                     ELSE
+                        cInOut := ""                                  // ( ' -- Not a valid JFIF file...' )
+                     ENDIF
+                  ELSE
+                     cInOut := ( " -- Invalid/Corrupted JFIF Header..." )
+                  ENDIF
+               ELSEIF ( nLength := FindJPEGMarker( nHandle, EXIF_MARKER ) ) > 0
+                  cText := SPACE( nLength )
+                  IF FREAD( nHandle, @cText, nLength ) == nLength
+                     nOffSet := LEN( EXIF_SIGNATURE )
+                     IF LEFT( cText, nOffSet ) == EXIF_SIGNATURE
+                        cInOut := ( " -- Can't (yet) deceipher EXIF Application Markers..." )
+                     ELSE
+                        cInOut := ""                                  // ( ' -- Not a valid EXIF file...' )
+                     ENDIF
+                  ELSE
+                     cInOut := ( " -- Invalid/Corrupted EXIF Header..." )
+                  ENDIF
+               ELSE
+                  cInOut := ( " -- Could not find valid (JFIF/EXIF) Application Marker..." )
+               ENDIF
+            ENDIF
+         ENDIF
+         FCLOSE( nHandle )
+      ENDIF
+
+   END SEQUENCE
+   ERRORBLOCK( bError )
+
+   IF .NOT. lValid
+      cInOut := ""                                                    // ( " -- Not a valid JPEG file..." )
+   ENDIF
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function FindJPEGMarker()
+*+
+*+    Called from ( viewer.prg )   2 - static procedure listjpegdata()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION FindJPEGMarker( nHandle, cMarker )
+
+LOCAL nLength := 0
+LOCAL cHeader := SPACE( 2 )
+LOCAL cBuffer := SPACE( 2 )
+   FSEEK( nHandle, 2, FS_SET )
+   WHILE FREAD( nHandle, @cHeader, 2 ) == 2 .AND. cHeader # EOI_MARKER
+      IF FREAD( nHandle, @cBuffer, 2 ) == 2
+         nLength := ASC( SUBSTR( cBuffer, 1, 1 ) ) * 256 + ASC( SUBSTR( cBuffer, 2, 1 ) ) - 2
+         IF cHeader == cMarker
+            EXIT
+         ELSE
+            cHeader := SPACE( 2 )
+            cBuffer := SPACE( nLength )
+            IF FREAD( nHandle, @cBuffer, nLength ) # nLength
+               nLength := 0
+               EXIT
+            ENDIF
+            nLength := 0
+         ENDIF
+      ELSE
+         nLength := 0
+         EXIT
+      ENDIF
+   ENDDO
+RETURN ( nLength )
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function PaintWindow()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION PaintWindow( handle, nHeight, nWidth )
+
+LOCAL pps, hDC
+
+   IF handle == Nil
+      RETURN - 1
+   ENDIF
+
+   hDC := BeginPaint( ImageEdit.Handle, @pps )
+
+   FREE_WinDraw( handle, hDC, 36, 0, ROUND( nHeight * nKoef, 0 ) + 36, ROUND( nWidth * nKoef, 0 ) )
+
+   EndPaint( ImageEdit.Handle, pps )
+
+   InvalidateRect( ImageEdit.Handle, 0 )
+
+RETURN 0
 
 *+ EOF: VIEWER.PRG

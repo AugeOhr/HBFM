@@ -12,6 +12,7 @@
 
 #include <mgdefs.h>
 
+#include "HMG_UNICODE.h"
 
 ITaskbarList3* TBL_SetProgressState(HWND hWnd, TBPFLAG state)
 {
@@ -36,33 +37,32 @@ ITaskbarList3* TBL_SetProgressState(HWND hWnd, TBPFLAG state)
    return NULL;
 }
 
-#ifndef _WIN64
-   #define GETHWND ( HWND ) hb_parnl( 1 )
-#else
-   #define GETHWND ( HWND ) hb_parnll( 1 )
-#endif
+#define NIL                        (0)  // Nothing...
+#define CENTER                      0
+#define TILE                        1
+#define STRETCH                     2
 
 HB_FUNC( TBL_RESET )
 {
-   TBL_SetProgressState(GETHWND,TBPF_NOPROGRESS);
+   TBL_SetProgressState(( HWND ) HMG_parnl( 1 ),TBPF_NOPROGRESS);
 }
 
 HB_FUNC( TBL_PROCESSING )
 {
-   TBL_SetProgressState(GETHWND,TBPF_INDETERMINATE);
+   TBL_SetProgressState(( HWND ) HMG_parnl( 1 ),TBPF_INDETERMINATE);
 }
 
 HB_FUNC( TBL_SETPROGRESS )
 {
-   TBL_SetProgressState(GETHWND,TBPF_NORMAL);
+   TBL_SetProgressState(( HWND ) HMG_parnl( 1 ),TBPF_NORMAL);
 }
 
 HB_FUNC( TBL_SETVALUE )
 {
-   HWND hWnd = GETHWND;
+   HWND hWnd = ( HWND ) HMG_parnl( 1 );
    ULONGLONG n = hb_parnll( 2 );
    ULONGLONG m = hb_parnll( 3 );
-   ITaskbarList3* m_pTaskBarlist = TBL_SetProgressState( GETHWND, (TBPFLAG) -1 );
+   ITaskbarList3* m_pTaskBarlist = TBL_SetProgressState( ( HWND ) HMG_parnl( 1 ), (TBPFLAG) -1 );
 
    if( m_pTaskBarlist )
    {
@@ -76,12 +76,12 @@ HB_FUNC( TBL_SETVALUE )
 
 HB_FUNC( TBL_SETERROR )
 {
-   TBL_SetProgressState( GETHWND, TBPF_ERROR );
+   TBL_SetProgressState( ( HWND ) HMG_parnl( 1 ), TBPF_ERROR );
 }
 
-HB_FUNC( TBL_SETPAUSE )
+HB_FUNC( xTBL_SETPAUSE )
 {
-   TBL_SetProgressState( GETHWND, TBPF_PAUSED );
+   TBL_SetProgressState( ( HWND ) HMG_parnl( 1 ), TBPF_PAUSED );
 }
 
 #ifndef __XHARBOUR__
@@ -97,7 +97,7 @@ HB_FUNC(BMP_FILL)
    HBRUSH hbrush;
    PAINTSTRUCT ps;
 
-   hWnd   = (HWND)    hb_parnl (1);
+   hWnd   = ( HWND ) HMG_parnl( 1 ) ;
    GetClientRect(hWnd, &rect);
    hbrush = CreateSolidBrush( (COLORREF) RGB(hb_parvni(2, 1),
                                              hb_parvni(2, 2),
@@ -113,7 +113,9 @@ HB_FUNC(BMP_FILL)
  */
 HB_FUNC( DRAGQUERYFILES )
 {
-   HDROP hDrop  = ( HDROP ) hb_parnl( 1 );
+   HDROP hDrop;
+
+   hDrop  = (HDROP) HMG_parnl( 1 )  ;
    int   iFiles = DragQueryFile( hDrop, 0xFFFFFFFF, 0, 0 );
    int   i;
    char  bBuffer[ 250 ];
@@ -131,7 +133,7 @@ HB_FUNC ( SHELLFILEOPERATION )
 {
    SHFILEOPSTRUCT sh;
 
-   sh.hwnd   = (HWND) hb_parnl(1);
+   sh.hwnd   = ( HWND ) HMG_parnl( 1 );
    sh.pFrom  = hb_parc(2);
    sh.pTo    = hb_parc(3);
    sh.wFunc  = hb_parnl(4);
@@ -150,7 +152,7 @@ HB_FUNC( PAINTBKGND )
     RECT recClie;
     HDC hdc;
 
-    hwnd  = (HWND) hb_parnl (1);
+    hwnd  = ( HWND ) HMG_parnl( 1 );
     hdc   = GetDC (hwnd);
 
     GetClientRect(hwnd, &recClie);
@@ -173,7 +175,7 @@ HB_FUNC( PAINTBKGND )
 HB_FUNC (DEVICECHANGEINFO) // DeviceChangeInfo( wParam, lParam )
 {
 //   WPARAM wParam = hb_parnl( 1 );
-   PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR) hb_parnl( 2 );
+   PDEV_BROADCAST_HDR lpdb = (PDEV_BROADCAST_HDR) HMG_parnl( 2 ) ;
 //   TCHAR szMsg[80];
 
    if ( lpdb->dbch_devicetype == DBT_DEVTYP_VOLUME )
@@ -193,7 +195,7 @@ HB_FUNC( PAINTTAB )
     UINT  nOffSet;
     UINT  nheight;
 
-    hwnd  = (HWND) hb_parnl (1);
+    hwnd  = ( HWND ) HMG_parnl( 1 );
     hdc   = GetDC (hwnd);
     nOffSet = hb_parnl (3);
     nheight = hb_parnl (4);
@@ -298,7 +300,7 @@ HB_FUNC( INVALID_HANDLE_VALUE )
        //GetWindowText2(nHWnd) --> text from control created in another process
 HB_FUNC( GETWINDOWTEXT2 )
 {
-  HWND   hWnd = (HWND)   hb_parnl(1);
+  HWND   hWnd = ( HWND ) HMG_parnl( 1 );
   INT    nLen = (INT)    SendMessage(hWnd, WM_GETTEXTLENGTH, 0, 0) + 1;
   LPTSTR Text = (LPTSTR) hb_xgrab(nLen * sizeof(TCHAR));
 
@@ -331,7 +333,7 @@ HB_FUNC( TRACKMOUSEEVENT )
 
   tmi.cbSize      = sizeof(TRACKMOUSEEVENT);
   tmi.dwFlags     = hb_parnidef(2, TME_LEAVE);
-  tmi.hwndTrack   = (HWND) hb_parnl(1);
+  tmi.hwndTrack   = ( HWND ) HMG_parnl( 1 );
   tmi.dwHoverTime = hb_parnidef(3, HOVER_DEFAULT);
 
   hb_retl(TrackMouseEvent(&tmi));
@@ -390,6 +392,129 @@ HB_FUNC( GETICOINDEX )
    #else
       hb_retnll( ( LONGLONG ) sfi.iIcon );
    #endif
+}
+
+
+// BOOL WINAPI DestroyIcon( HICON hIcon )
+HB_FUNC( DESTROYICON )
+{
+   hb_retl( DestroyIcon( ( HICON ) ( LONG_PTR ) HMG_parnl( 1 ) ) );
+}
+
+
+HB_FUNC ( FREE_DRAWPICTURE )
+{
+    HWND hWnd = ( HWND ) HMG_parnl( 1 );
+    HDC        dc = GetDC( hWnd );
+    HANDLE     picture;
+    BITMAP     bitmap;
+    HDC        nHDC;
+    HANDLE     old;
+
+    POINT      size;
+    POINT      origin = { 0,0 };
+
+    RECT       box;
+    int        row;
+    int        col;
+
+    int desktopx = hb_parnl( 4 ) ;
+    int desktopy = hb_parnl( 5 ) ;
+
+    if ((picture = LoadImage (NIL,hb_parc(2),IMAGE_BITMAP,NIL,NIL,LR_LOADFROMFILE)) == NULL) {
+        hb_retl (FALSE);
+        }
+
+    if ((nHDC = CreateCompatibleDC (dc)) == NULL) {
+        DeleteObject (picture);
+        hb_retl (FALSE);
+        }
+
+    if ((old = SelectObject (nHDC,picture)) == NULL) {
+        DeleteObject (picture);
+        DeleteDC (nHDC);
+        hb_retl (FALSE);
+        }
+
+    SetMapMode (nHDC,GetMapMode (dc));
+
+    if (!GetObject (picture,sizeof (BITMAP), (LPSTR) &bitmap)) {
+        SelectObject (nHDC,old);
+        DeleteObject (picture);
+        DeleteDC (nHDC);
+        hb_retl (FALSE);
+        }
+
+    size.x = bitmap.bmWidth;
+    size.y = bitmap.bmHeight;
+    DPtoLP (dc,&size,1);
+
+    origin.x = NIL;
+    origin.y = NIL;
+    DPtoLP (nHDC,&origin,1);
+
+    switch (hb_parnl(3)) {
+
+        case CENTER :
+
+             box.left = (desktopx - size.x) / 2;
+             box.top  = (desktopy - size.y) / 2;
+
+             BitBlt (dc,
+                     box.left,
+                     box.top,
+                     size.x,
+                     size.y,
+                     nHDC,
+                     origin.x,
+                     origin.y,
+                     SRCCOPY);
+             break;
+
+        case TILE :
+
+             for (row = NIL; row < ((desktopy / size.y) + 1); row++) {
+
+                 for (col = NIL; col < ((desktopx / size.x) + 1); col++) {
+
+                     box.left = col * size.x;
+                     box.top = row * size.y;
+
+                     BitBlt (dc,
+                             box.left,
+                             box.top,
+                             size.x,
+                             size.y,
+                             nHDC,
+                             origin.x,
+                             origin.y,
+                             SRCCOPY);
+                     }
+                 }
+              break;
+
+         case STRETCH :
+
+              StretchBlt (dc,
+                          NIL,
+                          NIL,
+                          desktopx,
+                          desktopy,
+                          nHDC,
+                          origin.x,
+                          origin.y,
+                          size.x,
+                          size.y,
+                          SRCCOPY);
+              break;
+              }
+
+    SelectObject (nHDC,old);
+    DeleteDC     (nHDC);
+    DeleteObject (picture);
+    ReleaseDC(hWnd, dc);
+
+    hb_retl (TRUE);
 }
 
 
