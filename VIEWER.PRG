@@ -1,6 +1,6 @@
 *+--------------------------------------------------------------------
 *+
-*+ Source Module => c:\hmg.3.4.4\0\HBFM\\VIEWER.PRG
+*+ Source Module => x:\hmg.3.4.4\0\HBFM\\VIEWER.PRG
 *+
 *+    Copyright(C) 1983-2020 by Auge & Ohr
 *+
@@ -36,7 +36,7 @@
 *+               Static Function FindJPEGMarker()
 *+               Static Function PaintWindow()
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-1-2020 at  2:35 am
+*+    Reformatted by Click! 2.05.35 on Oct-3-2020 at  7:32 am
 *+
 *+--------------------------------------------------------------------
 
@@ -304,7 +304,7 @@ RETURN
 *+
 FUNCTION Image_Edit( cPath, cFile, nTimeout, lEdit )
 
-LOCAL nMode, nClone, nType
+LOCAL nMode, nClone, nType, cOldFile
 LOCAL nRatio, nWidth, nHeight, nW, nH
 LOCAL nFreeHandle, cWorkFile, aRect, nScrWidth, nScrHeight, nWidthOrig, nHeightOrig
 LOCAL nTitlebar   := GETTITLEHEIGHT()
@@ -491,15 +491,27 @@ STATIC lRunning := .F.
 
    IF lChanged = .T.
       IF msgyesno( "Save Change ?", "Image have change" ) == .T.
-         IF FERASE( cPath + cFile ) = 0
+         SP_lDirWatch( .F. )
+
+         cOldFile := STRTRAN( cPath + cFile, ".", "_" )
+         IF FILE( cOldFile + ".BAK" )
+            FERASE( cOldFile + ".BAK" )
+         ENDIF
+
+         RENAME( cPath + cFile ) TO ( cOldFile + ".BAK" )
+         IF FILE( cOldFile + ".BAK" )
+            RENAME( cWorkFile ) TO ( cPath + cFile )
+
+            // IF FERASE( cPath + cFile ) = 0
             //  RENAME (cWorkFile) TO (cPath+cFile)
             //  COPY FILE (cWorkFile) TO (cPath+cFile)
             //  FERASE( cWorkFile )
 
-            AADD( acFiles, cWorkFile )
-            AADD( acTarget, cPath + cFile )
-            DoSH3func( "MOVE", .f., .f., .f., acFiles, acTarget )
+            //  AADD( acFiles, cWorkFile )
+            //  AADD( acTarget, cPath + cFile )
+            //  DoSH3func( "MOVE", .f., .f., .f., acFiles, acTarget )
 
+            SP_lDirWatch( .T. )
             ReRead( nGridFocus )
          ELSE
             msgInfo( "Problem to move file,  ", "Error FERASE " )

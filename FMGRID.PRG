@@ -1,6 +1,6 @@
 *+--------------------------------------------------------------------
 *+
-*+ Source Module => c:\hmg.3.4.4\0\HBFM\\FMGRID.PRG
+*+ Source Module => x:\hmg.3.4.4\0\HBFM\\FMGRID.PRG
 *+
 *+    Copyright(C) 1983-2020 by Auge & Ohr
 *+
@@ -117,7 +117,7 @@
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-1-2020 at  2:35 am
+*+    Reformatted by Click! 2.05.35 on Oct-3-2020 at  7:32 am
 *+
 *+--------------------------------------------------------------------
 
@@ -1158,10 +1158,10 @@ LOCAL hGrid
    hGrid := GetControlHandle( cGrid_Right, "WinRight" )
    ItemMark( hGrid, 1 )
 
-   //    Keybd_Event( VK_TAB, .F. )                                         // KeyDown
-   //    Keybd_Event( VK_TAB, .T. )                                         // KeyUp
-   //    Keybd_Event( VK_TAB, .F. )                                         // KeyDown
-   //    Keybd_Event( VK_TAB, .T. )                                         // KeyUp
+   Keybd_Event( VK_TAB, .F. )                                         // KeyDown
+   Keybd_Event( VK_TAB, .T. )                                         // KeyUp
+   Keybd_Event( VK_TAB, .F. )                                         // KeyDown
+   Keybd_Event( VK_TAB, .T. )                                         // KeyUp
 
 RETURN
 
@@ -1298,6 +1298,7 @@ LOCAL nRow, nCol, nHeight, hGrid
            ON HEADCLICK { { || HeadLeft( F_NAME ) }, { || HeadLeft( F_SIZE ) }, { || HeadLeft( F_DATE ) }, { || HeadLeft( F_TIME ) }, { || HeadLeft( F_ATTR ) } } ;
            ON CHANGE InfoGridChange1( aDir_Left, 1 ) ;
            MULTISELECT ;
+           NOLINES ;
            JUSTIFY { GRID_JTFY_LEFT, GRID_JTFY_RIGHT, GRID_JTFY_RIGHT, GRID_JTFY_LEFT, GRID_JTFY_LEFT } ;
            ON KEY DoGridKey1( cForm, cObj )
 
@@ -1353,6 +1354,7 @@ LOCAL nRow, nCol, nHeight, hGrid
            ON DBLCLICK Doit( ThisWindow.Name, This.Name ) ;
            ON HEADCLICK { { || HeadRight( F_NAME ) }, { || HeadRight( F_SIZE ) }, { || HeadRight( F_DATE ) }, { || HeadRight( F_TIME ) }, { || HeadRight( F_ATTR ) } } ;
            MULTISELECT ;
+           NOLINES ;
            JUSTIFY { GRID_JTFY_LEFT, GRID_JTFY_RIGHT, GRID_JTFY_RIGHT, GRID_JTFY_LEFT, GRID_JTFY_LEFT } ;
            ON KEY DoGridKey2( cForm, cObj )
 
@@ -1600,7 +1602,6 @@ RETURN
 *+
 *+    Called from ( fmgrid.prg )   1 - function dosh2func()
 *+                                   1 - procedure addfile2grid()
-*+                ( viewer.prg )   1 - function image_edit()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1658,8 +1659,8 @@ LOCAL lRet  := .F.
    DO EVENTS
 
    IF lAdjustTime = .T. .AND. cAction <> "DELETE"
-      //      AdjustTime(acFiles, acTarget,cSourceDir,cTargetDir)
-      DO EVENTS
+      // AdjustTime(acFiles, acTarget,cSourceDir,cTargetDir)
+      // DO EVENTS
    ENDIF
 
 RETURN lRet
@@ -1937,7 +1938,6 @@ LOCAL cUser    := GETENV( "USERPROFILE" )
       cNewPath := UpPath( cPath )
 
       FillWithDir( cForm, cObj, cNewPath, "TREEUP" )
-      DO EVENTS
 
    ELSE
 
@@ -1960,12 +1960,13 @@ LOCAL cUser    := GETENV( "USERPROFILE" )
 
          RunByExtension( cPath, cText )
       ENDIF
-      DO EVENTS
 
    ENDIF
 
    hGrid := GetControlHandle( cObj, cForm )
    InvalidateRect( hGrid, 0 )
+
+   DO EVENTS
 
 RETURN
 
@@ -3229,14 +3230,6 @@ STATIC lIsrunning := .F.
             ENDIF
       ENDCASE
 
-      ItemMark( hGrid, nGoTo, nState, nMask )
-      ListView_EnsureVisible( hGrid, nGoTo )
-      DO EVENTS
-
-      iMax := MAX( iMax, ListViewGetCountPerPage( hGrid ) )
-      ListView_RedrawItems( hGrid, 1, iMax )
-      DO EVENTS
-
       DO CASE
          CASE cForm = "WinLeft"
             nDimStack := nDimLeft
@@ -3254,8 +3247,13 @@ STATIC lIsrunning := .F.
             CASE cForm = "WinRight"
                Domethod( "WinRight", cObj, "SetFocus" )
          ENDCASE
-         DO EVENTS
       ENDIF
+
+      ItemMark( hGrid, nGoTo, nState, nMask )
+      ListView_EnsureVisible( hGrid, nGoTo )
+
+      iMax := MAX( iMax, ListViewGetCountPerPage( hGrid ) )
+      ListView_RedrawItems( hGrid, 1, iMax )
 
       SP_lDirWatch( .T. )
       DO EVENTS
@@ -3487,6 +3485,7 @@ STATIC nPageRight := 1
    ENDIF
 
    aDirTemp := NIL
+   DO EVENTS
 
 RETURN
 
@@ -5155,7 +5154,6 @@ LOCAL cGrid, cPath
       ENDCASE
 
       NewTab( cPath )
-      DO EVENTS
    NEXT
 
 RETURN
@@ -5191,7 +5189,6 @@ LOCAL i, iMax, nPosi
             IF nPosi > 0
             ELSE
                NewTab( cPath )
-               DO EVENTS
             ENDIF
          NEXT
          WinLeft.Tab_Left.Value := SP_ViewLeft( )
@@ -5212,7 +5209,6 @@ LOCAL i, iMax, nPosi
             IF nPosi > 0
             ELSE
                NewTab( cPath )
-               DO EVENTS
             ENDIF
          NEXT
          WinRight.Tab_Right.Value := SP_ViewRight()

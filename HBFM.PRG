@@ -1,6 +1,6 @@
 *+--------------------------------------------------------------------
 *+
-*+ Source Module => c:\hmg.3.4.4\0\HBFM\\HBFM.PRG
+*+ Source Module => x:\hmg.3.4.4\0\HBFM\\HBFM.PRG
 *+
 *+    Copyright(C) 1983-2020 by Auge & Ohr
 *+
@@ -14,7 +14,7 @@
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-1-2020 at  2:35 am
+*+    Reformatted by Click! 2.05.35 on Oct-3-2020 at  7:32 am
 *+
 *+--------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ REQUEST HB_CODEPAGE_RU1251
 REQUEST HB_CODEPAGE_SRWIN
 REQUEST HB_CODEPAGE_SLWIN
 
-STATIC cVersion     := "v1.34"
+STATIC cVersion     := "v1.35"
 MEMVAR _HMG_SYSDATA
 
 *+--------------------------------------------------------------------
@@ -440,6 +440,8 @@ LOCAL aStructure
 RETURN
 
 // ***************************************************************
+//  v.1.35 03.10.2020 BUG DestroyIcon() for HMG_*
+//
 //  v.1.34 30.09.2020 HB_FUNC.PRG "64 Bit ready" using HMG_* instead of hb.*
 //  v.1.33 29.09.2020 FreeImage : HB_FUNC ( FREE_DRAWPICTURE ) re-size
 //  v.1.32 28.09.2020 FreeImage Workfile when view or rotate.

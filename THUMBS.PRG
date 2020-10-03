@@ -1,6 +1,6 @@
 *+--------------------------------------------------------------------
 *+
-*+ Source Module => c:\hmg.3.4.4\0\HBFM\\THUMBS.PRG
+*+ Source Module => x:\hmg.3.4.4\0\HBFM\\THUMBS.PRG
 *+
 *+    Copyright(C) 1983-2020 by Auge & Ohr
 *+
@@ -25,7 +25,7 @@
 *+               Function StoreLastFocus()
 *+               Procedure RestoreLastFocus()
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-1-2020 at  2:35 am
+*+    Reformatted by Click! 2.05.35 on Oct-3-2020 at  7:32 am
 *+
 *+--------------------------------------------------------------------
 
