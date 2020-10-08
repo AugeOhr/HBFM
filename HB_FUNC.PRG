@@ -398,7 +398,7 @@ HB_FUNC( GETICOINDEX )
 // BOOL WINAPI DestroyIcon( HICON hIcon )
 HB_FUNC( DESTROYICON )
 {
-   hb_retl( DestroyIcon( ( HICON ) ( LONG_PTR ) HMG_parnl( 1 ) ) );
+   hb_retl( DestroyIcon( ( HICON ) ( LONG ) HMG_parnl( 1 ) ) );
 }
 
 

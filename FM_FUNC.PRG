@@ -11,7 +11,6 @@
 *+               Function FT_MKDIR()
 *+               Function GetDesktopArea()
 *+               Procedure RunByExtension()
-*+               Function SHELLOPENFILE()
 *+               Function GetTabName()
 *+               Function GetDrives()
 *+               Function UpPath()
@@ -26,11 +25,7 @@
 *+               Function ListView_GETSELECTEDCOUNT()
 *+               Function ListView_GETSELECTIONMARK()
 *+               Function ListView_GETNEXTITEM()
-*+               Function Findwindow()
 *+               Function Comboboxshowlist()
-*+               Function DRAGACCEPTFILES()
-*+               Function GETDRIVETYPE()
-*+               Function GETVOLUMEINFORMATION()
 *+               Function DLL6432()
 *+               Function ColumnIndexToColumnLetter()
 *+               Function AppFolder()
@@ -40,19 +35,19 @@
 *+               Static Procedure TestBreak()
 *+               Procedure StopSplash()
 *+
-*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
 #include "HMG.CH"
 #include "common.ch"
 #include "Shell32.ch"
-#include "dll.ch"
+//  #include "dll.ch"
 #include "Directry.ch"
 #include "fileio.ch"
 
 #include "HBFM.CH"
-#include "SHFILE.CH"
+//  #include "SHFILE.CH"
 
 #define LVM_FIRST             0x1000
 #define LVM_GETSELECTEDCOUNT  (LVM_FIRST+50)
@@ -173,6 +168,8 @@ RETURN 0
 *+
 *+    Function GetDesktopArea()
 *+
+*+    Called from ( viewer.prg )   1 - function image_edit()
+*+
 *+--------------------------------------------------------------------
 *+
 FUNCTION GetDesktopArea()
@@ -213,104 +210,6 @@ LOCAL nPosi, cPara, cFull
    ENDIF
 
 RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Function SHELLOPENFILE()
-*+
-*+    Called from ( fmtool.prg )   4 - static procedure runwinmsc()
-*+                ( fm_func.prg )   3 - procedure runbyextension()
-*+                ( hbeject.prg )   1 - function ejectmedia()
-*+
-*+--------------------------------------------------------------------
-*+
-FUNCTION SHELLOPENFILE( cPath, cFILE, cPara, cHome )
-
-LOCAL lSuccess
-LOCAL Retvar   := .F.
-
-   DEFAULT cPath TO ""
-   DEFAULT cFILE TO ""
-   DEFAULT cPara TO ""
-   DEFAULT cHome TO CURDIR()
-
-   //  #define SW_HIDE             0
-   //  #define SW_NORMAL           1
-   //  #define SW_SHOWMINIMIZED    2
-   //  #define SW_SHOWMAXIMIZED    3
-   //  #define SW_MAXIMIZE         3
-   //  #define SW_SHOWNOACTIVATE   4
-   //  #define SW_SHOW             5
-   //  #define SW_MINIMIZE         6
-   //  #define SW_SHOWMINNOACTIVE  7
-   //  #define SW_SHOWNA           8
-   //  #define SW_RESTORE          9
-   //  #define SW_SHOWDEFAULT      10
-   //#define SE_ERR_NOASSOC      31
-
-   IF Is64Bit()
-      HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "Wow64EnableWow64FsRedirection", FALSE )                                                      // disable bevor API Call
-   ENDIF
-
-   lSuccess := ShellExecute( 0, ;
-                             "open", ;
-                             cPath + cFILE, ;
-                             cPara, ;
-                             cHome, ;
-                             SW_NORMAL )
-
-   DO CASE
-
-      CASE lSuccess > 32                                              // Aufruf erfolgreich
-         Retvar := .T.
-
-      CASE lSuccess = SE_ERR_NOASSOC                                  // Keine verknÅpfte Anwendung
-
-         // Falls ShowOpenWithDialog = True, wird der Dialog
-         // "ôffnen mit" fÅr diese Datei angezeigt:
-         // Shell "RunDLL32 shell32.dll,OpenAs_RunDLL " & Filename
-
-         HMG_CallDLL( "shell32", DLL_OSAPI, "OpenAs_RunDLL", 0, ;
-                      0, ;
-                      cPath + cFile, ;
-                      0, ;
-                      cPara, ;
-                      SW_HIDE )                                       // SW_NORMAL
-
-         //  Die Auswahlmîglichkeit wird als Erfolg gewertet:
-         Retvar := .T.
-
-      OTHERWISE
-         // ShellExecute war erfolglos.
-         // Boolean-Standardwert False zurÅckgeben
-         DO CASE
-            CASE lSuccess = SE_ERR_FNF
-               MsgInfo( "File not found.", cPath + cFILE )
-            CASE lSuccess = SE_ERR_PNF
-               MsgInfo( "Path not found.", cPath + cFILE )
-            CASE lSuccess = SE_ERR_ACCESSDENIED
-               MsgInfo( "Access denied !", cPath + cFILE )
-            CASE lSuccess = SE_ERR_OOM
-               MsgInfo( "Out of memory !", cPath + cFILE )
-            CASE lSuccess = SE_ERR_SHARE
-               MsgInfo( "Cannot share an open file.", cPath + cFILE )
-            CASE lSuccess = SE_ERR_ASSOCINCOMPLETE
-               MsgInfo( "File association information not complete.", cPath + cFILE )
-            CASE lSuccess = SE_ERR_DDETIMEOUT
-               MsgInfo( "DDE operation timed out.", cPath + cFILE )
-            CASE lSuccess = SE_ERR_DDEFAIL
-               MsgInfo( "DDE operation failed.", cPath + cFILE )
-            CASE lSuccess = SE_ERR_DDEBUSY
-               MsgInfo( "DDE operation is busy.", cPath + cFILE )
-         ENDCASE
-         Retvar := .F.
-   ENDCASE
-
-   IF Is64Bit()
-      HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "Wow64EnableWow64FsRedirection", TRUE )                                                       // enable again
-   ENDIF
-
-RETURN Retvar
 
 *+--------------------------------------------------------------------
 *+
@@ -423,12 +322,12 @@ RETURN cVolume
 *+
 *+    Function Is64Bit()
 *+
-*+    Called from ( fmgrid.prg )   2 - static procedure showosk()
-*+                ( fmregdb.prg )   2 - static function setstartnode()
-*+                ( fmtool.prg )   2 - static procedure runwinmsc()
-*+                ( fm_func.prg )   2 - function shellopenfile()
-*+                                   1 - function appfolder()
+*+    Called from ( fmregdb.prg )   2 - static function setstartnode()
+*+                ( fm_func.prg )   1 - function appfolder()
 *+                                   1 - function ft_origin()
+*+                ( hmgdll.prg )   2 - function shellopenfile()
+*+                                   2 - procedure runwinmsc()
+*+                                   2 - procedure showosk()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -449,6 +348,8 @@ RETURN IF( FILE( "C:\WINDOWS\SysWOW64\Format.COM" ), .T., .F. )
 *+                ( hbftp.prg )   2 - static function ondummy()
 *+                ( modistru.prg )   1 - static procedure maxitemlen()
 *+                                   2 - static function writeado2sdf()
+*+                ( thumbs.prg )   2 - procedure restorelastfocus()
+*+                ( viewer.prg )   1 - function pictinfo()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -463,6 +364,7 @@ RETURN STRTRAN( cOut, '"', '' )
 *+
 *+    Called from ( hbevery.prg )   1 - static function domore()
 *+                ( hbfm.prg )   2 - function main()
+*+                ( hbfm64.prg )   2 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -628,17 +530,6 @@ RETURN nRet
 
 *+--------------------------------------------------------------------
 *+
-*+    Function Findwindow()
-*+
-*+--------------------------------------------------------------------
-*+
-FUNCTION Findwindow( cTitle )
-
-LOCAL hWnd := HMG_Calldll( "User32.dll", DLL_OSAPI, "FindWindowA", 0, cTitle )
-RETURN hWnd
-
-*+--------------------------------------------------------------------
-*+
 *+    Function Comboboxshowlist()
 *+
 *+    Called from ( fmgrid.prg )   2 - procedure dualgrid()
@@ -650,70 +541,6 @@ FUNCTION Comboboxshowlist( HWND )
 LOCAL nRet := 0
    nRet := SendMessage( HWND, CB_SHOWDROPDOWN, 1, 0 )
 RETURN nRet
-
-*+--------------------------------------------------------------------
-*+
-*+    Function DRAGACCEPTFILES()
-*+
-*+    Called from ( fmgrid.prg )   1 - procedure dualgrid()
-*+
-*+--------------------------------------------------------------------
-*+
-FUNCTION DRAGACCEPTFILES( HWND, lOnOff )
-
-   HMG_Calldll( "Shell32.dll", DLL_OSAPI, "DragAcceptFiles", HWND, lOnOff )
-RETURN NIL
-
-*+--------------------------------------------------------------------
-*+
-*+    Function GETDRIVETYPE()
-*+
-*+    Called from ( fm_func.prg )   1 - function getdrives()
-*+
-*+--------------------------------------------------------------------
-*+
-FUNCTION GETDRIVETYPE( cDrive )
-
-LOCAL nDriveType, cRoot := cDrive + ":\" + CHR( 0 )
-   nDriveType := HMG_Calldll( "Kernel32.DLL", DLL_OSAPI, "GetDriveTypeA", @cRoot )
-RETURN nDriveType
-
-*+--------------------------------------------------------------------
-*+
-*+    Function GETVOLUMEINFORMATION()
-*+
-*+    Called from ( fm_func.prg )   1 - function getdrives()
-*+
-*+--------------------------------------------------------------------
-*+
-FUNCTION GETVOLUMEINFORMATION( WHATDRV )
-
-LOCAL cDrive
-LOCAL cVolName := SPACE( 256 )
-LOCAL nVolLen  := 256
-LOCAL nVolSer  := 0
-LOCAL nCompLen := 0
-LOCAL nFSFlags := 0
-LOCAL cFSName  := SPACE( 32 )
-LOCAL nFSLen   := 32
-
-   IF PCOUNT() = 0
-      cDrive := "C:\"
-   ELSE
-      cDrive := WHATDRV
-   ENDIF
-
-   HMG_Calldll( "Kernel32.DLL", DLL_OSAPI, "GetVolumeInformationA", @cDrive, @cVolname, nVolLen, @nVolSer, @nCompLen, @nFSFlags, @cFSName, nFSLen )
-   cVolName := TRIM( cVolName )
-   cVolName := STRTRAN( cVolName, CHR( 0 ), "" )
-
-   // ? cVolName
-   // ? nVolSer
-   // ? nCompLen
-   // ? nFSFlags
-   // ? cFSName
-
-RETURN ( cVolName )
 
 *+--------------------------------------------------------------------
 *+
@@ -783,7 +610,6 @@ RETURN colLetter
 *+    Function AppFolder()
 *+
 *+    Called from ( fmgrid.prg )   1 - procedure dualgrid()
-*+                ( fmregdb.prg )   1 - procedure regdbform()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -892,17 +718,17 @@ LOCAL nAnimateSeconds := 2
    lStop := .F.
 
    DEFINE WINDOW SplashForm ;
-              AT 0, 0 ;
-              WIDTH Image_Width HEIGHT Image_Height ;
-              TITLE 'DEMO4' ;
-              NOCAPTION ;
-              NOSYSMENU ;
-              NOSIZE ;
-              NOMINIMIZE ;
-              NOMAXIMIZE ;
-              TOPMOST ;
-              BACKCOLOR Image_BackColor ;
-              ON INIT &cFormRun
+         AT 0, 0 ;
+         WIDTH Image_Width HEIGHT Image_Height ;
+         TITLE 'DEMO4' ;
+         NOCAPTION ;
+         NOSYSMENU ;
+         NOSIZE ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         TOPMOST ;
+         BACKCOLOR Image_BackColor ;
+         ON INIT &cFormRun
 
       SET WINDOW SplashForm TRANSPARENT TO COLOR Image_BackColor
 
@@ -955,5 +781,7 @@ PROCEDURE StopSplash()
 
    lStop := .T.
 RETURN
+
+//
 
 *+ EOF: FM_FUNC.PRG

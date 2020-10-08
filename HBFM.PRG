@@ -1,6 +1,6 @@
 *+--------------------------------------------------------------------
 *+
-*+ Source Module => x:\hmg.3.4.4\0\HBFM\\HBFM.PRG
+*+ Source Module => c:\hmg.3.4.4\0\HBFM\\HBFM.PRG
 *+
 *+    Copyright(C) 1983-2020 by Auge & Ohr
 *+
@@ -14,7 +14,7 @@
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-3-2020 at  7:32 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ REQUEST HB_CODEPAGE_RU1251
 REQUEST HB_CODEPAGE_SRWIN
 REQUEST HB_CODEPAGE_SLWIN
 
-STATIC cVersion     := "v1.35"
+STATIC cVersion     := "v1.37"
 MEMVAR _HMG_SYSDATA
 
 *+--------------------------------------------------------------------
@@ -103,13 +103,16 @@ LOCAL cFile    := "FMSETUP.DBF"
 
    IF nCountry = 1031
       SET LANGUAGE TO GERMAN
-      SET CODEPAGE TO GERMAN
+      //    SET CODEPAGE TO GERMAN
       SET DATE GERMAN
    ELSE
       SET LANGUAGE TO ENGLISH
-      SET CODEPAGE TO ENGLISH
+      //    SET CODEPAGE TO ENGLISH
       SET DATE AMERICAN
    ENDIF
+   // use UTF8 -> "W" instead of "A" API Function
+   SET( _SET_CODEPAGE, "UTF8" )
+   //  msgdebug ( hb_cdpSelect() )
 
    IF !isdir( cAppData )
       DIRMAKE( cAppData )
@@ -440,6 +443,8 @@ LOCAL aStructure
 RETURN
 
 // ***************************************************************
+//  v.1.37 07.10.2020 enhance HMG_Calldll() "A" and "W"
+//  v.1.36 06.10.2020 change to Codepage UTF8
 //  v.1.35 03.10.2020 BUG DestroyIcon() for HMG_*
 //
 //  v.1.34 30.09.2020 HB_FUNC.PRG "64 Bit ready" using HMG_* instead of hb.*

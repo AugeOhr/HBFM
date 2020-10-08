@@ -18,7 +18,7 @@
 *+       Tables: USE (cAppFolder+"HBREG.DBF") VIA "DBFCDX" NEW EXCLUSIV
 *+               USE (datei) ALIAS "HBREG" VIA "DBFCDX" NEW EXCLUSIV
 *+
-*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -73,212 +73,212 @@ LOCAL cAppFolder := SP_cMainPath()                                    // AppFold
    USE (cAppFolder+"HBREG.DBF") VIA "DBFCDX" NEW EXCLUSIV
 
    DEFINE WINDOW RegDbForm ;
-      AT 139, 288 ;
-      WIDTH 800 ;
-      HEIGHT 600 ;
-      TITLE "Registry Database" + xVersion ;
-      ICON "ICOREG" ;
-      NOMAXIMIZE ;
-      NOMINIMIZE ;
-      NOSIZE ;
-      BACKCOLOR SP_nColor1()                                          //{8,8,8} ;
+         AT 139, 288 ;
+         WIDTH 800 ;
+         HEIGHT 600 ;
+         TITLE "Registry Database" + xVersion ;
+         ICON "ICOREG" ;
+         NOMAXIMIZE ;
+         NOMINIMIZE ;
+         NOSIZE ;
+         BACKCOLOR SP_nColor1()                                       //{8,8,8} ;
 
-   DEFINE BROWSE Browse_Reg
-      ROW 10
-      COL 10
-      WIDTH 760
-      HEIGHT 300 - 10
-      VALUE 0
-      WIDTHS { 560, 170 }
-      HEADERS { 'HKLM', 'KEY' }
-      WORKAREA HBREG
-      FIELDS { 'HBREG->HKLM', 'HBREG->KEY' }
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      ONCHANGE LoadDetail()
-      ONDBLCLICK SetStartNode()
-      ALLOWEDIT .F.
-      ALLOWAPPEND .F.
-      ALLOWDELETE .F.
-      LOCK .F.
-      VSCROLLBAR .T.
-      BACKCOLOR SP_nColor1()                                          //{8,8,8}
-      FONTCOLOR SP_nColor2()                                          //{128,255,255}
-   END BROWSE
+      DEFINE BROWSE Browse_Reg
+         ROW 10
+         COL 10
+         WIDTH 760
+         HEIGHT 300 - 10
+         VALUE 0
+         WIDTHS { 560, 170 }
+         HEADERS { 'HKLM', 'KEY' }
+         WORKAREA HBREG
+         FIELDS { 'HBREG->HKLM', 'HBREG->KEY' }
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         ONCHANGE LoadDetail()
+         ONDBLCLICK SetStartNode()
+         ALLOWEDIT .F.
+         ALLOWAPPEND .F.
+         ALLOWDELETE .F.
+         LOCK .F.
+         VSCROLLBAR .T.
+         BACKCOLOR SP_nColor1()                                       //{8,8,8}
+         FONTCOLOR SP_nColor2()                                       //{128,255,255}
+      END BROWSE
 
-   DEFINE BUTTON Button_New
-      ROW 316
-      COL 10
-      WIDTH 100
-      HEIGHT 50
-      ACTION OnAppend()
-      CAPTION "&New"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-   END BUTTON
+      DEFINE BUTTON Button_New
+         ROW 316
+         COL 10
+         WIDTH 100
+         HEIGHT 50
+         ACTION OnAppend()
+         CAPTION "&New"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+      END BUTTON
 
-   DEFINE BUTTON Button_Save
-      ROW 316
-      COL 120                                                         // 670
-      WIDTH 100
-      HEIGHT 50
-      ACTION OnSave()
-      CAPTION "&Save"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-   END BUTTON
+      DEFINE BUTTON Button_Save
+         ROW 316
+         COL 120                                                      // 670
+         WIDTH 100
+         HEIGHT 50
+         ACTION OnSave()
+         CAPTION "&Save"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+      END BUTTON
 
-   // DEFINE BUTTON Button_Edit
-   //     ROW    316
-   //     COL    120     // 557
-   //     WIDTH  100
-   //     HEIGHT 50
-   //     CAPTION "&Edit"
-   //     FONTNAME SP_cFontName()
-   //     FONTSIZE SP_nFontSize()
-   //     TABSTOP .T.
-   //     VISIBLE .T.
-   // END BUTTON
+      // DEFINE BUTTON Button_Edit
+      //     ROW    316
+      //     COL    120     // 557
+      //     WIDTH  100
+      //     HEIGHT 50
+      //     CAPTION "&Edit"
+      //     FONTNAME SP_cFontName()
+      //     FONTSIZE SP_nFontSize()
+      //     TABSTOP .T.
+      //     VISIBLE .T.
+      // END BUTTON
 
-   DEFINE BUTTON Button_Exit
-      ROW 316
-      COL 670                                                         // 557
-      WIDTH 103
-      HEIGHT 50
-      ACTION RegDbForm.Release
-      CAPTION "&Exit"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-   END BUTTON
+      DEFINE BUTTON Button_Exit
+         ROW 316
+         COL 670                                                      // 557
+         WIDTH 103
+         HEIGHT 50
+         ACTION RegDbForm.Release
+         CAPTION "&Exit"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+      END BUTTON
 
-   DEFINE TEXTBOX Text_HKLM
-      ROW 380
-      COL 70
-      WIDTH 690
-      HEIGHT 30
-      FIELD HBREG->HKLM
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-      READONLY .F.
-      CASECONVERT NONE
-      BACKCOLOR SP_nColor5()                                          //{192,192,192}
-      FONTCOLOR SP_nColor6()                                          //{0,0,1}
-      VALUE ""
-   END TEXTBOX
+      DEFINE TEXTBOX Text_HKLM
+         ROW 380
+         COL 70
+         WIDTH 690
+         HEIGHT 30
+         FIELD HBREG->HKLM
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         CASECONVERT NONE
+         BACKCOLOR SP_nColor5()                                       //{192,192,192}
+         FONTCOLOR SP_nColor6()                                       //{0,0,1}
+         VALUE ""
+      END TEXTBOX
 
-   DEFINE TEXTBOX Text_KEY
-      ROW 412
-      COL 70
-      WIDTH 360
-      HEIGHT 30
-      FIELD HBREG->KEY
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-      READONLY .F.
-      CASECONVERT NONE
-      BACKCOLOR SP_nColor5()                                          //{192,192,192}
-      FONTCOLOR SP_nColor6()                                          //{0,0,1}
-      VALUE ""
-   END TEXTBOX
+      DEFINE TEXTBOX Text_KEY
+         ROW 412
+         COL 70
+         WIDTH 360
+         HEIGHT 30
+         FIELD HBREG->KEY
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         CASECONVERT NONE
+         BACKCOLOR SP_nColor5()                                       //{192,192,192}
+         FONTCOLOR SP_nColor6()                                       //{0,0,1}
+         VALUE ""
+      END TEXTBOX
 
-   DEFINE TEXTBOX Text_URL
-      ROW 444
-      COL 70
-      WIDTH 690
-      HEIGHT 30
-      FIELD HBREG->WHEREURL
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-      READONLY .F.
-      CASECONVERT NONE
-      BACKCOLOR SP_nColor5()                                          //{192,192,192}
-      FONTCOLOR SP_nColor6()                                          //{0,0,1}
-      VALUE ""
-   END TEXTBOX
+      DEFINE TEXTBOX Text_URL
+         ROW 444
+         COL 70
+         WIDTH 690
+         HEIGHT 30
+         FIELD HBREG->WHEREURL
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         CASECONVERT NONE
+         BACKCOLOR SP_nColor5()                                       //{192,192,192}
+         FONTCOLOR SP_nColor6()                                       //{0,0,1}
+         VALUE ""
+      END TEXTBOX
 
-   DEFINE EDITBOX Edit_Memo
-      ROW 476
-      COL 70
-      WIDTH 690
-      HEIGHT 70
-      FIELD HBREG->COMMENT
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-      READONLY .F.
-      HSCROLLBAR .T.
-      VSCROLLBAR .T.
-      BACKCOLOR SP_nColor5()                                          //{192,192,192}
-      FONTCOLOR SP_nColor6()                                          //{0,0,1}
-   END EDITBOX
+      DEFINE EDITBOX Edit_Memo
+         ROW 476
+         COL 70
+         WIDTH 690
+         HEIGHT 70
+         FIELD HBREG->COMMENT
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         HSCROLLBAR .T.
+         VSCROLLBAR .T.
+         BACKCOLOR SP_nColor5()                                       //{192,192,192}
+         FONTCOLOR SP_nColor6()                                       //{0,0,1}
+      END EDITBOX
 
-   DEFINE LABEL Label_1
-      ROW 383
-      COL 10
-      WIDTH 50
-      HEIGHT 24
-      VALUE "HKLM"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      VISIBLE .T.
-      BACKCOLOR SP_nColor1()                                          //{8,8,8}
-      FONTCOLOR SP_nColor2()                                          //{0,255,255}
-      RIGHTALIGN .T.
-   END LABEL
+      DEFINE LABEL Label_1
+         ROW 383
+         COL 10
+         WIDTH 50
+         HEIGHT 24
+         VALUE "HKLM"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         VISIBLE .T.
+         BACKCOLOR SP_nColor1()                                       //{8,8,8}
+         FONTCOLOR SP_nColor2()                                       //{0,255,255}
+         RIGHTALIGN .T.
+      END LABEL
 
-   DEFINE LABEL Label_2
-      ROW 415
-      COL 10
-      WIDTH 50
-      HEIGHT 24
-      VALUE "Key"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      VISIBLE .T.
-      BACKCOLOR SP_nColor1()                                          //{8,8,8}
-      FONTCOLOR SP_nColor2()                                          //{0,255,255}
-      RIGHTALIGN .T.
-   END LABEL
+      DEFINE LABEL Label_2
+         ROW 415
+         COL 10
+         WIDTH 50
+         HEIGHT 24
+         VALUE "Key"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         VISIBLE .T.
+         BACKCOLOR SP_nColor1()                                       //{8,8,8}
+         FONTCOLOR SP_nColor2()                                       //{0,255,255}
+         RIGHTALIGN .T.
+      END LABEL
 
-   DEFINE BUTTON Button_GoURL
-      ROW 444
-      COL 10
-      WIDTH 50
-      HEIGHT 28
-      ACTION GoToURL()
-      CAPTION "GO Url"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TABSTOP .T.
-      VISIBLE .T.
-   END BUTTON
+      DEFINE BUTTON Button_GoURL
+         ROW 444
+         COL 10
+         WIDTH 50
+         HEIGHT 28
+         ACTION GoToURL()
+         CAPTION "GO Url"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TABSTOP .T.
+         VISIBLE .T.
+      END BUTTON
 
-   DEFINE LABEL Label_3
-      ROW 477
-      COL 10
-      WIDTH 50
-      HEIGHT 24
-      VALUE "Note"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      VISIBLE .T.
-      BACKCOLOR SP_nColor1()                                          //{8,8,8}
-      FONTCOLOR SP_nColor2()                                          //{0,255,255}
-      RIGHTALIGN .T.
-   END LABEL
+      DEFINE LABEL Label_3
+         ROW 477
+         COL 10
+         WIDTH 50
+         HEIGHT 24
+         VALUE "Note"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         VISIBLE .T.
+         BACKCOLOR SP_nColor1()                                       //{8,8,8}
+         FONTCOLOR SP_nColor2()                                       //{0,255,255}
+         RIGHTALIGN .T.
+      END LABEL
 
    END WINDOW
 
@@ -390,8 +390,14 @@ LOCAL bOldError
 LOCAL oError
 LOCAL xValue    := ""
 LOCAL cTitle    := "Registrierungs-Editor"
-LOCAL hWndDlg   := HMG_CallDLL( "User32.dll", DLL_OSAPI, "FindWindow", 0, cTitle )
+LOCAL hWndDlg
 LOCAL cWin      := GETENV( "windir" )
+
+   IF hb_cdpSelect() = "UTF8"
+      hWndDlg := HMG_CallDLL( "User32.dll", DLL_OSAPI, "FindWindowW", 0, cTitle )
+   ELSE
+      hWndDlg := HMG_CallDLL( "User32.dll", DLL_OSAPI, "FindWindowA", 0, cTitle )
+   ENDIF
 
    IF !( hWndDlg == 0 )
       HMG_CallDLL( "User32.dll", DLL_OSAPI, "SetForegroundWindow", hWndDlg )

@@ -19,7 +19,7 @@
 *+               Static Function FillDeviceGrid()
 *+               Static Procedure SayInfo()
 *+
-*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -74,14 +74,14 @@ PUBLIC bColorUSB := { || IF( USB_DeviceColor(), SP_nColor2(), SP_nColor13() ) }
    FillDeviceGrid()
 
    DEFINE WINDOW Win_Device ;
-              AT 317, 574 ;
-              WIDTH 442 ;
-              HEIGHT 479 ;
-              TITLE "Eject Device" ;
-              ICON "ICOUSB" ;
-              NOMAXIMIZE ;
-              NOMINIMIZE ;
-              BACKCOLOR SP_nColor1()
+         AT 317, 574 ;
+         WIDTH 442 ;
+         HEIGHT 479 ;
+         TITLE "Eject Device" ;
+         ICON "ICOUSB" ;
+         NOMAXIMIZE ;
+         NOMINIMIZE ;
+         BACKCOLOR SP_nColor1()
 
       DEFINE GRID Grid_Device
          ROW 20
@@ -370,13 +370,23 @@ LOCAL nAttrib   := 0                                                  // FILE_FL
    cPath += ":"
 
    // Kernel32
-   hVolWrite := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CreateFile", cPath, ;                                                              // lpFileName
-                             nAccess, ;                               // dwDesiredAccess
-                             nShare, ;                                // dwShareMode
-                             NULL, ;                                  // lpSecurityAttributes
-                             nDispo, ;                                // dwCreationDisposition
-                             nAttrib, ;                               // dwFlagsAndAttributes
-                             NULL )                                   // hTemplateFile
+   IF hb_cdpSelect() = "UTF8"
+      hVolWrite := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CreateFileW", cPath, ;                                                          // lpFileName
+                                nAccess, ;                            // dwDesiredAccess
+                                nShare, ;                             // dwShareMode
+                                NULL, ;                               // lpSecurityAttributes
+                                nDispo, ;                             // dwCreationDisposition
+                                nAttrib, ;                            // dwFlagsAndAttributes
+                                NULL )                                // hTemplateFile
+   ELSE
+      hVolWrite := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CreateFile", cPath, ;                                                           // lpFileName
+                                nAccess, ;                            // dwDesiredAccess
+                                nShare, ;                             // dwShareMode
+                                NULL, ;                               // lpSecurityAttributes
+                                nDispo, ;                             // dwCreationDisposition
+                                nAttrib, ;                            // dwFlagsAndAttributes
+                                NULL )                                // hTemplateFile
+   ENDIF
 
    IF hVolWrite = - 1
       RETURN hVolWrite
@@ -396,14 +406,25 @@ LOCAL nAttrib   := 0                                                  // FILE_FL
    // open again RO
    //
    nAccess := GENERIC_READ
+
    // Kernel32
-   hVolRead := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CreateFile", cPath, ;                                                               // lpFileName
-                            nAccess, ;                                // dwDesiredAccess
-                            nShare, ;                                 // dwShareMode
-                            NULL, ;                                   // lpSecurityAttributes
-                            nDispo, ;                                 // dwCreationDisposition
-                            nAttrib, ;                                // dwFlagsAndAttributes
-                            NULL )                                    // hTemplateFile
+   IF hb_cdpSelect() = "UTF8"
+      hVolRead := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CreateFileW", cPath, ;                                                           // lpFileName
+                               nAccess, ;                             // dwDesiredAccess
+                               nShare, ;                              // dwShareMode
+                               NULL, ;                                // lpSecurityAttributes
+                               nDispo, ;                              // dwCreationDisposition
+                               nAttrib, ;                             // dwFlagsAndAttributes
+                               NULL )                                 // hTemplateFile
+   ELSE
+      hVolRead := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CreateFile", cPath, ;                                                            // lpFileName
+                               nAccess, ;                             // dwDesiredAccess
+                               nShare, ;                              // dwShareMode
+                               NULL, ;                                // lpSecurityAttributes
+                               nDispo, ;                              // dwCreationDisposition
+                               nAttrib, ;                             // dwFlagsAndAttributes
+                               NULL )                                 // hTemplateFile
+   ENDIF
 
 RETURN hVolRead
 
@@ -493,7 +514,11 @@ STATIC FUNCTION CloseVolume( hVolRead )
 
 LOCAL lClose
    // Kernel32
-   lClose := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CloseHandleA", hVolRead )
+   IF hb_cdpSelect() = "UTF8"
+      lClose := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CloseHandleW", hVolRead )
+   ELSE
+      lClose := HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "CloseHandleA", hVolRead )
+   ENDIF
 RETURN lClose
 
 *+--------------------------------------------------------------------

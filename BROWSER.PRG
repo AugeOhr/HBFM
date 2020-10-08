@@ -32,7 +32,6 @@
 *+               Static Procedure SaveCreate()
 *+               Static Procedure CloseForm2()
 *+               Static Function AtInside()
-*+               Procedure DoFindWin()
 *+               Static Function NeedOEMConvert()
 *+               Static Procedure ThisDbfInfo()
 *+               Static Procedure QueryTest()
@@ -59,7 +58,7 @@
 *+
 *+      Indexes: INDEX ON &cKey TO &cFile ADDITIVE
 *+
-*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -283,239 +282,239 @@ PUBLIC aBackColorHBP
 
       //      DEFINE WINDOW &oBrowse ;
       DEFINE WINDOW &cBroMacro ;
-         AT 371, 498 ;
-         WIDTH 800 ;
-         HEIGHT 600 ;
-         TITLE cDBF ;
-         ICON "A1MAIN" ;
-         ON SIZE DoResize( cBroMacro, "BrowserView", aStruc ) ;
-         ON MAXIMIZE DoResize( cBroMacro, "BrowserView", aStruc ) ;
-         ON GOTFOCUS DoFindSelf( ThisWindow.Name, cDBF ) ;
-         ON LOSTFOCUS WinTans( ThisWindow.Name, .F. ) ;
-         ON RELEASE MultiBrowseRelease( cBroMacro, cPath, cDBF ) ;
-         BACKCOLOR SP_nColor1()
+            AT 371, 498 ;
+            WIDTH 800 ;
+            HEIGHT 600 ;
+            TITLE cDBF ;
+            ICON "A1MAIN" ;
+            ON SIZE DoResize( cBroMacro, "BrowserView", aStruc ) ;
+            ON MAXIMIZE DoResize( cBroMacro, "BrowserView", aStruc ) ;
+            ON GOTFOCUS DoFindSelf( ThisWindow.Name, cDBF ) ;
+            ON LOSTFOCUS WinTans( ThisWindow.Name, .F. ) ;
+            ON RELEASE MultiBrowseRelease( cBroMacro, cPath, cDBF ) ;
+            BACKCOLOR SP_nColor1()
 
-      DEFINE CONTEXT MENU OF &cBroMacro
-         MENUITEM "Test" IMAGE 'MYRAMDISK16' ACTION NIL
-      END MENU
+         DEFINE CONTEXT MENU OF &cBroMacro
+            MENUITEM "Test" IMAGE 'MYRAMDISK16' ACTION NIL
+         END MENU
 
-      DEFINE STATUSBAR PARENT oBrowse
+         DEFINE STATUSBAR PARENT oBrowse
 STATUSITEM "" WIDTH 800
-      END STATUSBAR
+         END STATUSBAR
 
 #define Use_DataBrowse
 #IFDEF Use_DataBrowse
 
-      DEFINE BROWSE BrowserView
-         PARENT &oBrowse
-         ROW 10
-         COL 10
-         WIDTH 764
-         HEIGHT 500 - 24
-         HEADERS aHead
-         WIDTHS aWide
-         WORKAREA &cWorkArea
-         FIELDS aFeld
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontlarge()
-         TOOLTIP ""
-         ON CHANGE ShowDelete( oBrowse, "BrowserView" )
-         // ALLOWEDIT lEdit
-         ALLOWAPPEND lEdit
-         // ALLOWDELETE lEdit
-         LOCK IF( lEdit = .T., lShare, .F. )
-         VSCROLLBAR .T.
-         BACKCOLOR SP_nColor9()
-         FONTCOLOR SP_nColor10()
-         NOLINES .F.
-         JUSTIFY aJustify
-      END BROWSE
+         DEFINE BROWSE BrowserView
+            PARENT &oBrowse
+            ROW 10
+            COL 10
+            WIDTH 764
+            HEIGHT 500 - 24
+            HEADERS aHead
+            WIDTHS aWide
+            WORKAREA &cWorkArea
+            FIELDS aFeld
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontlarge()
+            TOOLTIP ""
+            ON CHANGE ShowDelete( oBrowse, "BrowserView" )
+            // ALLOWEDIT lEdit
+            ALLOWAPPEND lEdit
+            // ALLOWDELETE lEdit
+            LOCK IF( lEdit = .T., lShare, .F. )
+            VSCROLLBAR .T.
+            BACKCOLOR SP_nColor9()
+            FONTCOLOR SP_nColor10()
+            NOLINES .F.
+            JUSTIFY aJustify
+         END BROWSE
 #ELSE
-      DEFINE GRID BrowserView
-         PARENT &oBrowse
-         ROW 10
-         COL 10
-         WIDTH 764
-         HEIGHT 500 - 24
-         HEADERS aHead
-         WIDTHS aWide
-         ROWSOURCE( cWorkArea )
-         COLUMNFIELDS aFeld
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontlarge()
-         TOOLTIP ""
-         ON CHANGE ShowDelete( oBrowse, "BrowserView" )
-         // ALLOWEDIT lEdit
-         ALLOWAPPEND lEdit
-         ALLOWDELETE lEdit
-         LOCK IF( lEdit = .T., lShare, .F. )
-         VSCROLLBAR .T.
-         BACKCOLOR SP_nColor9()
-         FONTCOLOR SP_nColor10()
-         NOLINES .F.
-      END GRID
+         DEFINE GRID BrowserView
+            PARENT &oBrowse
+            ROW 10
+            COL 10
+            WIDTH 764
+            HEIGHT 500 - 24
+            HEADERS aHead
+            WIDTHS aWide
+            ROWSOURCE( cWorkArea )
+            COLUMNFIELDS aFeld
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontlarge()
+            TOOLTIP ""
+            ON CHANGE ShowDelete( oBrowse, "BrowserView" )
+            // ALLOWEDIT lEdit
+            ALLOWAPPEND lEdit
+            ALLOWDELETE lEdit
+            LOCK IF( lEdit = .T., lShare, .F. )
+            VSCROLLBAR .T.
+            BACKCOLOR SP_nColor9()
+            FONTCOLOR SP_nColor10()
+            NOLINES .F.
+         END GRID
 #ENDIF
 
-      DEFINE BUTTON Button_F1
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL 0
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION ThisDbfInfo( cDBF, cWorkArea )
-         CAPTION "F1 Info"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F1
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL 0
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION ThisDbfInfo( cDBF, cWorkArea )
+            CAPTION "F1 Info"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F2
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 1
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION Do_Modi_Stru( cPath, cDBF, cWorkArea, lEdit )
-         CAPTION "F2 Struct"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F2
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 1
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION Do_Modi_Stru( cPath, cDBF, cWorkArea, lEdit )
+            CAPTION "F2 Struct"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F3
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 2
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION EditDetail( cBroMacro, cWorkArea, cDbf, aFeld, .F. )
-         CAPTION "F3 View"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F3
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 2
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION EditDetail( cBroMacro, cWorkArea, cDbf, aFeld, .F. )
+            CAPTION "F3 View"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F4
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 3
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION EditDetail( cBroMacro, cWorkArea, cDbf, aFeld, lEdit )
-         CAPTION "F4 Edit"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TOOLTIP ""
-         FLAT .F.
-         TABSTOP .F.
-         VISIBLE .T.
-         TRANSPARENT .F.
-         MULTILINE .F.
-         //  PICTURE "d:\ALASKA\RES\GETMAIL.BMP"
-         //  PICTALIGNMENT TOP
-      END BUTTON
+         DEFINE BUTTON Button_F4
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 3
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION EditDetail( cBroMacro, cWorkArea, cDbf, aFeld, lEdit )
+            CAPTION "F4 Edit"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TOOLTIP ""
+            FLAT .F.
+            TABSTOP .F.
+            VISIBLE .T.
+            TRANSPARENT .F.
+            MULTILINE .F.
+            //  PICTURE "d:\ALASKA\RES\GETMAIL.BMP"
+            //  PICTALIGNMENT TOP
+         END BUTTON
 
-      DEFINE BUTTON Button_F5
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 4
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION CopyResult( cPath, cDBF )
-         CAPTION "F5 Copy"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F5
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 4
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION CopyResult( cPath, cDBF )
+            CAPTION "F5 Copy"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F6
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 5
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION Pre_SetNewIndex( cPath, cDBF )
-         CAPTION "F6 Index"
-         TOOLTIP "Ctrl-F6 to create new Index"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F6
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 5
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION Pre_SetNewIndex( cPath, cDBF )
+            CAPTION "F6 Index"
+            TOOLTIP "Ctrl-F6 to create new Index"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F7
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 6
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION DoSeek( cPath, cDBF, lEdit )
-         CAPTION "F7 SEEK"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F7
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 6
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION DoSeek( cPath, cDBF, lEdit )
+            CAPTION "F7 SEEK"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F8
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 7
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION IF( lIdxActiv = .T., DoScope( cPath, cDBF, lEdit ), Dolocate( cPath, cDBF ) )
-         CAPTION IF( lIdxActiv = .T., "F8 Scope", "F8 locate" )
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F8
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 7
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION IF( lIdxActiv = .T., DoScope( cPath, cDBF, lEdit ), Dolocate( cPath, cDBF ) )
+            CAPTION IF( lIdxActiv = .T., "F8 Scope", "F8 locate" )
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F9
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 8
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION IF( lIdxActiv = .T., DoSwitchTags(), )
-         CAPTION "F9 IdxTags"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F9
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 8
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION IF( lIdxActiv = .T., DoSwitchTags(), )
+            CAPTION "F9 IdxTags"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F10
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 9
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION SelecLang( cPath, cDBF, cWorkArea, cBroMacro )
-         CAPTION "Codepage"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F10
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 9
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION SelecLang( cPath, cDBF, cWorkArea, cBroMacro )
+            CAPTION "Codepage"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
-      DEFINE BUTTON Button_F11
-         PARENT &oBrowse
-         ROW 520 - 24
-         COL nPBwide * 10
-         WIDTH nPBwide - 2
-         HEIGHT 40
-         ACTION MakeFMG( cPath + cDBF )
-         CAPTION "F11 FMG"
-         FONTNAME SP_cFontName()
-         FONTSIZE SP_nFontSize()
-         TABSTOP .F.
-         VISIBLE .T.
-      END BUTTON
+         DEFINE BUTTON Button_F11
+            PARENT &oBrowse
+            ROW 520 - 24
+            COL nPBwide * 10
+            WIDTH nPBwide - 2
+            HEIGHT 40
+            ACTION MakeFMG( cPath + cDBF )
+            CAPTION "F11 FMG"
+            FONTNAME SP_cFontName()
+            FONTSIZE SP_nFontSize()
+            TABSTOP .F.
+            VISIBLE .T.
+         END BUTTON
 
       END WINDOW
 
@@ -1175,188 +1174,188 @@ LOCAL nRecno, xValue, cRepl
    ENDIF
 
    DEFINE WINDOW &oBroEdit ;
-      AT 0, 0 ;
-      WIDTH 300 ;
-      HEIGHT nEditHeight ;
-      VIRTUAL WIDTH 9999 ;
-      VIRTUAL HEIGHT( iMax * nItemheight ) + nItemheight + nTitlebar + 1 ;
-      TITLE cTitle ;
-      ICON "A1MAIN" ;
-      TOPMOST ;
-      BACKCOLOR SP_nColor1()
-
-   FOR i := 1 TO iMax
-
-      cType := SUBSTR( aStruc[ i ] [ DBS_TYPE ], 1, 1 )
-
-      cLabel := "LABEL_" + STRZERO( i, 3 )
-      cObj := "TEXT_" + STRZERO( i, 3 )
-      nRow := 32 * ( i - 1 )
-      nSize := aStruc[ i ] [ DBS_LEN ]
-      nDec := aStruc[ i ] [ DBS_DEC ]
-
-      nMaxLen := MAX( nMaxLen, nSize * SP_nFontlarge() )
-
-      cFIELD := aStruc[ i ] [ DBS_NAME ]
-
-      DEFINE LABEL &cLabel
-         ROW nRow
-         COL 10
-         VALUE cFIELD
-         WIDTH 80
-         HEIGHT 30
+         AT 0, 0 ;
+         WIDTH 300 ;
+         HEIGHT nEditHeight ;
+         VIRTUAL WIDTH 9999 ;
+         VIRTUAL HEIGHT( iMax * nItemheight ) + nItemheight + nTitlebar + 1 ;
+         TITLE cTitle ;
+         ICON "A1MAIN" ;
+         TOPMOST ;
          BACKCOLOR SP_nColor1()
-         FONTCOLOR SP_nColor2()
-      END LABEL
 
-      // need ALIAS()
-      cFIELD := "FIELD->" + aStruc[ i ] [ DBS_NAME ]
+      FOR i := 1 TO iMax
 
-      DO CASE
-         CASE aStruc[ i ] [ DBS_TYPE ] = "C"
+         cType := SUBSTR( aStruc[ i ] [ DBS_TYPE ], 1, 1 )
 
-            cRepl := REPLICATE( "!", nSize )
+         cLabel := "LABEL_" + STRZERO( i, 3 )
+         cObj := "TEXT_" + STRZERO( i, 3 )
+         nRow := 32 * ( i - 1 )
+         nSize := aStruc[ i ] [ DBS_LEN ]
+         nDec := aStruc[ i ] [ DBS_DEC ]
 
-            DEFINE TEXTBOX &cObj
-               ROW nRow
-               COL 100
-               HEIGHT 30
-               FIELD &( cFIELD )
-               VALUE &( cFIELD )
-               READONLY !lEdit
-               WIDTH nSize * SP_nFontlarge()
-               FONTNAME SP_cFontName()
-               FONTSIZE SP_nFontSize()
-               TOOLTIP ""
-               BACKCOLOR SP_nColor5()
-               FONTCOLOR SP_nColor6()
-               DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
-               DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
-               ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
-               DATATYPE CHARACTER
-               CASECONVERT NONE
-               RIGHTALIGN .F.
-               VISIBLE .T.
-               TABSTOP .T.
-               INPUTMASK cRepl
-            END TEXTBOX
+         nMaxLen := MAX( nMaxLen, nSize * SP_nFontlarge() )
 
-         CASE aStruc[ i ] [ DBS_TYPE ] = "N" .OR. aStruc[ i ] [ DBS_TYPE ] = "I"
+         cFIELD := aStruc[ i ] [ DBS_NAME ]
 
-            IF nDec = 0
-               cRepl := REPLICATE( "9", nSize )
-            ELSE
-               cRepl := REPLICATE( "9", nSize - nDec - 1 )
-               cRepl += "."
-               cRepl += REPLICATE( "9", nDec )
-            ENDIF
+         DEFINE LABEL &cLabel
+            ROW nRow
+            COL 10
+            VALUE cFIELD
+            WIDTH 80
+            HEIGHT 30
+            BACKCOLOR SP_nColor1()
+            FONTCOLOR SP_nColor2()
+         END LABEL
 
-            DEFINE TEXTBOX &cObj
-               ROW nRow
-               COL 100
-               HEIGHT 30
-               FIELD &( cFIELD )
-               VALUE &( cFIELD )
-               READONLY !lEdit
-               WIDTH nSize * SP_nFontlarge()
-               FONTNAME SP_cFontName()
-               FONTSIZE SP_nFontSize()
-               BACKCOLOR SP_nColor5()
-               FONTCOLOR SP_nColor6()
-               DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
-               DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
-               ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
-               DATATYPE NUMERIC
-               VISIBLE .T.
-               TABSTOP .T.
-               INPUTMASK cRepl
-            END TEXTBOX
+         // need ALIAS()
+         cFIELD := "FIELD->" + aStruc[ i ] [ DBS_NAME ]
 
-         CASE aStruc[ i ] [ DBS_TYPE ] = "D"
-            DEFINE TEXTBOX &cObj
-               ROW nRow
-               COL 100
-               HEIGHT 30
-               FIELD &( cFIELD )
-               VALUE &( cFIELD )
-               READONLY !lEdit
-               WIDTH nSize * SP_nFontlarge()
-               FONTNAME SP_cFontName()
-               FONTSIZE SP_nFontSize()
-               BACKCOLOR SP_nColor5()
-               FONTCOLOR SP_nColor6()
-               DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
-               DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
-               ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
-               DATATYPE DATE
-               VISIBLE .T.
-               TABSTOP .T.
-            END TEXTBOX
+         DO CASE
+            CASE aStruc[ i ] [ DBS_TYPE ] = "C"
 
-         CASE aStruc[ i ] [ DBS_TYPE ] = "L"
+               cRepl := REPLICATE( "!", nSize )
 
-            DEFINE CHECKBOX &cObj
-               ROW nRow
-               COL 100
-               CAPTION ""
-               HEIGHT 30
-               FIELD &( cFIELD )
-               VALUE &( cFIELD )
-               WIDTH 50
-               BACKCOLOR SP_nColor5()
-               FONTCOLOR SP_nColor6()
-               DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
-               DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
-               ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
-               VISIBLE .T.
-               TABSTOP .T.
-            END CHECKBOX
+               DEFINE TEXTBOX &cObj
+                  ROW nRow
+                  COL 100
+                  HEIGHT 30
+                  FIELD &( cFIELD )
+                  VALUE &( cFIELD )
+                  READONLY !lEdit
+                  WIDTH nSize * SP_nFontlarge()
+                  FONTNAME SP_cFontName()
+                  FONTSIZE SP_nFontSize()
+                  TOOLTIP ""
+                  BACKCOLOR SP_nColor5()
+                  FONTCOLOR SP_nColor6()
+                  DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
+                  DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
+                  ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
+                  DATATYPE CHARACTER
+                  CASECONVERT NONE
+                  RIGHTALIGN .F.
+                  VISIBLE .T.
+                  TABSTOP .T.
+                  INPUTMASK cRepl
+               END TEXTBOX
 
-         CASE aStruc[ i ] [ DBS_TYPE ] = "M"
+            CASE aStruc[ i ] [ DBS_TYPE ] = "N" .OR. aStruc[ i ] [ DBS_TYPE ] = "I"
 
-            DEFINE BUTTON &cObj
-               ROW nRow
-               COL 100
-               WIDTH 100
-               HEIGHT 30
-               ACTION ShowMemo( cFIELD )
-               CAPTION "Memo"
-               FONTNAME SP_cFontName()
-               FONTSIZE SP_nFontSize()
-               TABSTOP .F.
-               VISIBLE .T.
-            END BUTTON
+               IF nDec = 0
+                  cRepl := REPLICATE( "9", nSize )
+               ELSE
+                  cRepl := REPLICATE( "9", nSize - nDec - 1 )
+                  cRepl += "."
+                  cRepl += REPLICATE( "9", nDec )
+               ENDIF
 
-         CASE aStruc[ i ] [ DBS_TYPE ] = "T" .OR. aStruc[ i ] [ DBS_TYPE ] = "@"
-            //               cRepl := REPLICATE( "!", nSize )
-            DEFINE TEXTBOX &cObj
-               ROW nRow
-               COL 100
-               HEIGHT 30
-               FIELD &( cFIELD )
-               VALUE hb_TSToStr( &cFIELD, .T. )
-               READONLY !lEdit
-               WIDTH( nSize + 6 ) * SP_nFontlarge()
-               FONTNAME SP_cFontName()
-               FONTSIZE SP_nFontSize()
-               TOOLTIP ""
-               BACKCOLOR SP_nColor5()
-               FONTCOLOR SP_nColor6()
-               DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
-               DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
-               ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
-               CASECONVERT NONE
-               RIGHTALIGN .F.
-               VISIBLE .T.
-               TABSTOP .T.
-               INPUTMASK nil                                          // cRepl
-            END TEXTBOX
+               DEFINE TEXTBOX &cObj
+                  ROW nRow
+                  COL 100
+                  HEIGHT 30
+                  FIELD &( cFIELD )
+                  VALUE &( cFIELD )
+                  READONLY !lEdit
+                  WIDTH nSize * SP_nFontlarge()
+                  FONTNAME SP_cFontName()
+                  FONTSIZE SP_nFontSize()
+                  BACKCOLOR SP_nColor5()
+                  FONTCOLOR SP_nColor6()
+                  DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
+                  DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
+                  ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
+                  DATATYPE NUMERIC
+                  VISIBLE .T.
+                  TABSTOP .T.
+                  INPUTMASK cRepl
+               END TEXTBOX
 
-            //    DATATYPE nil
+            CASE aStruc[ i ] [ DBS_TYPE ] = "D"
+               DEFINE TEXTBOX &cObj
+                  ROW nRow
+                  COL 100
+                  HEIGHT 30
+                  FIELD &( cFIELD )
+                  VALUE &( cFIELD )
+                  READONLY !lEdit
+                  WIDTH nSize * SP_nFontlarge()
+                  FONTNAME SP_cFontName()
+                  FONTSIZE SP_nFontSize()
+                  BACKCOLOR SP_nColor5()
+                  FONTCOLOR SP_nColor6()
+                  DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
+                  DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
+                  ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
+                  DATATYPE DATE
+                  VISIBLE .T.
+                  TABSTOP .T.
+               END TEXTBOX
 
-      ENDCASE
+            CASE aStruc[ i ] [ DBS_TYPE ] = "L"
 
-   NEXT
+               DEFINE CHECKBOX &cObj
+                  ROW nRow
+                  COL 100
+                  CAPTION ""
+                  HEIGHT 30
+                  FIELD &( cFIELD )
+                  VALUE &( cFIELD )
+                  WIDTH 50
+                  BACKCOLOR SP_nColor5()
+                  FONTCOLOR SP_nColor6()
+                  DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
+                  DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
+                  ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
+                  VISIBLE .T.
+                  TABSTOP .T.
+               END CHECKBOX
+
+            CASE aStruc[ i ] [ DBS_TYPE ] = "M"
+
+               DEFINE BUTTON &cObj
+                  ROW nRow
+                  COL 100
+                  WIDTH 100
+                  HEIGHT 30
+                  ACTION ShowMemo( cFIELD )
+                  CAPTION "Memo"
+                  FONTNAME SP_cFontName()
+                  FONTSIZE SP_nFontSize()
+                  TABSTOP .F.
+                  VISIBLE .T.
+               END BUTTON
+
+            CASE aStruc[ i ] [ DBS_TYPE ] = "T" .OR. aStruc[ i ] [ DBS_TYPE ] = "@"
+               //               cRepl := REPLICATE( "!", nSize )
+               DEFINE TEXTBOX &cObj
+                  ROW nRow
+                  COL 100
+                  HEIGHT 30
+                  FIELD &( cFIELD )
+                  VALUE hb_TSToStr( &cFIELD, .T. )
+                  READONLY !lEdit
+                  WIDTH( nSize + 6 ) * SP_nFontlarge()
+                  FONTNAME SP_cFontName()
+                  FONTSIZE SP_nFontSize()
+                  TOOLTIP ""
+                  BACKCOLOR SP_nColor5()
+                  FONTCOLOR SP_nColor6()
+                  DISABLEDBACKCOLOR IF( lEdit = .T., SP_nColor5(), SP_nColor13() )
+                  DISABLEDFONTCOLOR IF( lEdit = .T., SP_nColor6(), SP_nColor14() )
+                  ONCHANGE IF( lEdit = .T., DoChange( oBroEdit, This.Name, aStruc, cBroMacro ), )
+                  CASECONVERT NONE
+                  RIGHTALIGN .F.
+                  VISIBLE .T.
+                  TABSTOP .T.
+                  INPUTMASK nil                                       // cRepl
+               END TEXTBOX
+
+               //    DATATYPE nil
+
+         ENDCASE
+
+      NEXT
    END WINDOW
 
    nMaxLen += 140
@@ -1562,36 +1561,36 @@ LOCAL oNewIndex := "NewIndex_" + STRZERO( nIndex, 2 )
    NEXT
 
    DEFINE WINDOW &oNewIndex ;
-      AT 348, 589 ;
-      WIDTH 174 ;
-      HEIGHT 755 ;
-      TITLE "" ;
-      ICON "A1MAIN" ;
-      TOPMOST ;
-      NOMINIMIZE ;
-      NOMAXIMIZE ;
-      NOSIZE ;
-      BACKCOLOR SP_nColor1()
+         AT 348, 589 ;
+         WIDTH 174 ;
+         HEIGHT 755 ;
+         TITLE "" ;
+         ICON "A1MAIN" ;
+         TOPMOST ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         NOSIZE ;
+         BACKCOLOR SP_nColor1()
 
-   DEFINE LISTBOX Set_NewIndex
-      PARENT &oNewIndex
-      ROW 10
-      COL 10
-      WIDTH 150
-      HEIGHT 700
-      ITEMS a2List
-      VALUE 1
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      BACKCOLOR SP_nColor9( )
-      FONTCOLOR SP_nColor10()
-      ONDBLCLICK DoMyIndexAction( aSort, cPath, oNewIndex )
-      TABSTOP .T.
-      VISIBLE .T.
-      SORT .F.
-      MULTISELECT .T.
-      DRAGITEMS .F.
-   END LISTBOX
+      DEFINE LISTBOX Set_NewIndex
+         PARENT &oNewIndex
+         ROW 10
+         COL 10
+         WIDTH 150
+         HEIGHT 700
+         ITEMS a2List
+         VALUE 1
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         BACKCOLOR SP_nColor9( )
+         FONTCOLOR SP_nColor10()
+         ONDBLCLICK DoMyIndexAction( aSort, cPath, oNewIndex )
+         TABSTOP .T.
+         VISIBLE .T.
+         SORT .F.
+         MULTISELECT .T.
+         DRAGITEMS .F.
+      END LISTBOX
 
    END WINDOW
 
@@ -1817,36 +1816,36 @@ LOCAL oDoSwTags := "SwTags_" + STRZERO( nIndex, 2 )
    ENDIF
 
    DEFINE WINDOW &oDoSwTags ;
-      AT 348, 589 ;
-      WIDTH 174 ;
-      HEIGHT 355 ;
-      TITLE "" ;
-      ICON "A1MAIN" ;
-      TOPMOST ;
-      NOMINIMIZE ;
-      NOMAXIMIZE ;
-      NOSIZE ;
-      BACKCOLOR SP_nColor1()
+         AT 348, 589 ;
+         WIDTH 174 ;
+         HEIGHT 355 ;
+         TITLE "" ;
+         ICON "A1MAIN" ;
+         TOPMOST ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         NOSIZE ;
+         BACKCOLOR SP_nColor1()
 
-   DEFINE LISTBOX Do_SwitchTags
-      PARENT &oDoSwTags
-      ROW 10
-      COL 10
-      WIDTH 150
-      HEIGHT 300
-      ITEMS aElem
-      VALUE 1
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      BACKCOLOR SP_nColor9( )
-      FONTCOLOR SP_nColor10()
-      ONDBLCLICK DoMySwitchTags( oDoSwTags )
-      TABSTOP .T.
-      VISIBLE .T.
-      SORT .F.
-      MULTISELECT .F.
-      DRAGITEMS .F.
-   END LISTBOX
+      DEFINE LISTBOX Do_SwitchTags
+         PARENT &oDoSwTags
+         ROW 10
+         COL 10
+         WIDTH 150
+         HEIGHT 300
+         ITEMS aElem
+         VALUE 1
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         BACKCOLOR SP_nColor9( )
+         FONTCOLOR SP_nColor10()
+         ONDBLCLICK DoMySwitchTags( oDoSwTags )
+         TABSTOP .T.
+         VISIBLE .T.
+         SORT .F.
+         MULTISELECT .F.
+         DRAGITEMS .F.
+      END LISTBOX
    END WINDOW
 
    ON KEY ESCAPE OF &oDoSwTags ACTION Domethod( oDoSwTags, "Release" )
@@ -1916,47 +1915,47 @@ LOCAL oModiStr  := "ModiForn_" + STRZERO( nIndex, 2 )
    // **********************************************************************
 
    DEFINE WINDOW &oModiStr ;
-      AT 0, 0 ;
-      WIDTH 330 ;
-      HEIGHT nHeight + nTitlebar + 40 + 50 ;
-      TITLE cDbf ;
-      ICON "A1MAIN" ;
-      TOPMOST ;
-      FONTNAME SP_cFontName() ;
-      FONTSIZE SP_nFontlarge() ;
-      NOMINIMIZE ;
-      NOMAXIMIZE ;
-      NOSIZE ;
-      BACKCOLOR SP_nColor1() ;
-      ON RELEASE CloseForm2()
+         AT 0, 0 ;
+         WIDTH 330 ;
+         HEIGHT nHeight + nTitlebar + 40 + 50 ;
+         TITLE cDbf ;
+         ICON "A1MAIN" ;
+         TOPMOST ;
+         FONTNAME SP_cFontName() ;
+         FONTSIZE SP_nFontlarge() ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         NOSIZE ;
+         BACKCOLOR SP_nColor1() ;
+         ON RELEASE CloseForm2()
 
-   IF lEdit = .T.
-      DEFINE TOOLBAR oTOOLBAR BUTTONSIZE 50, 50 FLAT BORDER
-         BUTTON oBtSave ;
-                 TOOLTIP "F5: create DBF" ;
-                 PICTURE "MYOKGREEN" ;
-                 ACTION SaveCreate( aStruc, cDbf, oModiStr )
-      END TOOLBAR
-   ENDIF
-   DEFINE GRID Brow_2
-      PARENT &oModiStr
-      ROW 50
-      COL 10
-      WIDTH 290
-      HEIGHT nHeight
-      HEADERS aCaption
-      WIDTHS aWide
-      ITEMS aItems
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      BACKCOLOR SP_nColor9( )
-      FONTCOLOR SP_nColor10()
-      JUSTIFY aJustify
-      ONDBLCLICK Pre_EditStruRec( ThisWindow.Name, This.Name, aStruc )
-      ITEMCOUNT LEN( aStruc )
-      VIRTUAL .T.
-      ON QUERYDATA OnDataRequestStruct( aStruc, ThisWindow.Name, This.Name )
-   END GRID
+      IF lEdit = .T.
+         DEFINE TOOLBAR oTOOLBAR BUTTONSIZE 50, 50 FLAT BORDER
+            BUTTON oBtSave ;
+                    TOOLTIP "F5: create DBF" ;
+                    PICTURE "MYOKGREEN" ;
+                    ACTION SaveCreate( aStruc, cDbf, oModiStr )
+         END TOOLBAR
+      ENDIF
+      DEFINE GRID Brow_2
+         PARENT &oModiStr
+         ROW 50
+         COL 10
+         WIDTH 290
+         HEIGHT nHeight
+         HEADERS aCaption
+         WIDTHS aWide
+         ITEMS aItems
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         BACKCOLOR SP_nColor9( )
+         FONTCOLOR SP_nColor10()
+         JUSTIFY aJustify
+         ONDBLCLICK Pre_EditStruRec( ThisWindow.Name, This.Name, aStruc )
+         ITEMCOUNT LEN( aStruc )
+         VIRTUAL .T.
+         ON QUERYDATA OnDataRequestStruct( aStruc, ThisWindow.Name, This.Name )
+      END GRID
    END WINDOW
 
    CalcNewBroGridSize( iMax, oModiStr )
@@ -2095,38 +2094,6 @@ LOCAL aRet := {}
    ENDDO
 
 RETURN aRet
-
-*+--------------------------------------------------------------------
-*+
-*+    Procedure DoFindWin()
-*+
-*+    Called from ( browser.prg )   2 - procedure browseview()
-*+                                   1 - static procedure editdetail()
-*+                                   1 - static procedure pre_setnewindex()
-*+                                   1 - static procedure doseek()
-*+                                   1 - static procedure copyresult()
-*+                                   1 - static procedure doscope()
-*+                                   1 - static procedure dolocate()
-*+                ( hbftp.prg )   1 - function hbftp()
-*+                ( viewer.prg )   1 - procedure showpdf()
-*+
-*+--------------------------------------------------------------------
-*+
-PROCEDURE DoFindWin( cTitle )
-
-LOCAL nWin                                                            // := FINDWINDOW( 0, cTitle )
-
-   //    IF EMPTY( nWin )
-   nWin := HMG_CallDLL( "User32.dll", DLL_OSAPI, "FindWindowA", 0, cTitle )
-   //    ENDIF
-
-   IF !EMPTY( nWin )
-      HMG_CallDLL( "User32.dll", DLL_OSAPI, "SetForegroundWindow", nWin )
-      HMG_CallDLL( "User32.dll", DLL_OSAPI, "BringWindowToTop", nWin )
-      HMG_CallDLL( "User32.dll", DLL_OSAPI, "ShowWindow", nWin, 1 )
-      HMG_CallDLL( "User32.dll", DLL_OSAPI, "UpdateWindow", nWin )
-   ENDIF
-RETURN
 
 *+--------------------------------------------------------------------
 *+
@@ -2344,27 +2311,27 @@ LOCAL aLangID := { "EU", ;
                       "ES" }
 
    DEFINE WINDOW wndSelItem ;
-      AT 0, 0 ;
-      WIDTH 245 ;
-      HEIGHT 470 ;
-      TITLE "Codepage" ;
-      ICON "A1MAIN" ;
-      TOPMOST ;
-      NOSIZE ;
-      NOMINIMIZE ;
-      NOMAXIMIZE ;
-      BACKCOLOR SP_nColor1()
+         AT 0, 0 ;
+         WIDTH 245 ;
+         HEIGHT 470 ;
+         TITLE "Codepage" ;
+         ICON "A1MAIN" ;
+         TOPMOST ;
+         NOSIZE ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         BACKCOLOR SP_nColor1()
 
-   @ 20, 20 LISTBOX lbxItems ;
-           WIDTH 200 ;
-           HEIGHT 410 ;
-           ITEMS aLangName ;
-           VALUE 1 ;
-           BACKCOLOR SP_nColor9() ;
-           FONTCOLOR SP_nColor10() ;
-           FONT SP_cFontName() ;
-           SIZE SP_nFontSize() ;
-           ON DBLCLICK { || nItem := wndSelItem.lbxItems.Value, wndSelItem.Release }
+      @ 20, 20 LISTBOX lbxItems ;
+              WIDTH 200 ;
+              HEIGHT 410 ;
+              ITEMS aLangName ;
+              VALUE 1 ;
+              BACKCOLOR SP_nColor9() ;
+              FONTCOLOR SP_nColor10() ;
+              FONT SP_cFontName() ;
+              SIZE SP_nFontSize() ;
+              ON DBLCLICK { || nItem := wndSelItem.lbxItems.Value, wndSelItem.Release }
 
    END WINDOW
 
@@ -2411,159 +2378,159 @@ LOCAL i, iMax
    NEXT
 
    DEFINE WINDOW WinNewIndex ;
-      AT 0, 0 ;
-      WIDTH 550 ;
-      HEIGHT 300 ;
-      TITLE "Create Index" ;
-      ICON "A1MAIN" ;
-      ON INIT Nil ;
-      ON SIZE Nil ;
-      NOMAXIMIZE ;
-      NOMINIMIZE ;
-      TOPMOST ;
-      BACKCOLOR { 8, 8, 8 }
+         AT 0, 0 ;
+         WIDTH 550 ;
+         HEIGHT 300 ;
+         TITLE "Create Index" ;
+         ICON "A1MAIN" ;
+         ON INIT Nil ;
+         ON SIZE Nil ;
+         NOMAXIMIZE ;
+         NOMINIMIZE ;
+         TOPMOST ;
+         BACKCOLOR { 8, 8, 8 }
 
-   DEFINE LABEL Label_Text
-      ROW 10
-      COL 10
-      WIDTH 350
-      HEIGHT 30
-      VALUE ""
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      VISIBLE .T.
-      TRANSPARENT .F.
-      BACKCOLOR { 8, 8, 8 }
-      FONTCOLOR { 0, 255, 255 }
-   END LABEL
+      DEFINE LABEL Label_Text
+         ROW 10
+         COL 10
+         WIDTH 350
+         HEIGHT 30
+         VALUE ""
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         VISIBLE .T.
+         TRANSPARENT .F.
+         BACKCOLOR { 8, 8, 8 }
+         FONTCOLOR { 0, 255, 255 }
+      END LABEL
 
-   DEFINE LABEL Label_2
-      ROW 50
-      COL 10
-      WIDTH 40
-      HEIGHT 30
-      VALUE "File"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      TOOLTIP ""
-      VISIBLE .T.
-      TRANSPARENT .F.
-      BACKCOLOR { 8, 8, 8 }
-      FONTCOLOR { 0, 255, 255 }
-   END LABEL
+      DEFINE LABEL Label_2
+         ROW 50
+         COL 10
+         WIDTH 40
+         HEIGHT 30
+         VALUE "File"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         VISIBLE .T.
+         TRANSPARENT .F.
+         BACKCOLOR { 8, 8, 8 }
+         FONTCOLOR { 0, 255, 255 }
+      END LABEL
 
-   DEFINE LABEL Label_3
-      ROW 90
-      COL 10
-      WIDTH 40
-      HEIGHT 30
-      VALUE "Key"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      TOOLTIP ""
-      VISIBLE .T.
-      TRANSPARENT .F.
-      BACKCOLOR { 8, 8, 8 }
-      FONTCOLOR { 0, 255, 255 }
-   END LABEL
+      DEFINE LABEL Label_3
+         ROW 90
+         COL 10
+         WIDTH 40
+         HEIGHT 30
+         VALUE "Key"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         VISIBLE .T.
+         TRANSPARENT .F.
+         BACKCOLOR { 8, 8, 8 }
+         FONTCOLOR { 0, 255, 255 }
+      END LABEL
 
-   DEFINE LISTBOX List_Fields
-      ROW 10
-      COL 370
-      WIDTH 160
-      HEIGHT 240
-      ITEMS {}
-      VALUE 1
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      TOOLTIP ""
-      BACKCOLOR { 8, 8, 8 }
-      FONTCOLOR { 0, 255, 255 }
-      ONDBLCLICK SetThisField( aItems )
-      TABSTOP .T.
-      VISIBLE .T.
-      SORT .F.
-      MULTISELECT .F.
-   END LISTBOX
+      DEFINE LISTBOX List_Fields
+         ROW 10
+         COL 370
+         WIDTH 160
+         HEIGHT 240
+         ITEMS {}
+         VALUE 1
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         BACKCOLOR { 8, 8, 8 }
+         FONTCOLOR { 0, 255, 255 }
+         ONDBLCLICK SetThisField( aItems )
+         TABSTOP .T.
+         VISIBLE .T.
+         SORT .F.
+         MULTISELECT .F.
+      END LISTBOX
 
-   DEFINE TEXTBOX Text_File
-      ROW 50
-      COL 60
-      WIDTH 300
-      HEIGHT 30
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      TOOLTIP ""
-      ONENTER Nil
-      TABSTOP .T.
-      VISIBLE .T.
-      DISABLEDBACKCOLOR Nil
-      DISABLEDFONTCOLOR Nil
-      CASECONVERT NONE
-      BACKCOLOR Nil
-      FONTCOLOR Nil
-      INPUTMASK Nil
-      FORMAT Nil
-      VALUE ""
-   END TEXTBOX
+      DEFINE TEXTBOX Text_File
+         ROW 50
+         COL 60
+         WIDTH 300
+         HEIGHT 30
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONENTER Nil
+         TABSTOP .T.
+         VISIBLE .T.
+         DISABLEDBACKCOLOR Nil
+         DISABLEDFONTCOLOR Nil
+         CASECONVERT NONE
+         BACKCOLOR Nil
+         FONTCOLOR Nil
+         INPUTMASK Nil
+         FORMAT Nil
+         VALUE ""
+      END TEXTBOX
 
-   DEFINE TEXTBOX Text_Key
-      ROW 90
-      COL 60
-      WIDTH 300
-      HEIGHT 30
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      TOOLTIP ""
-      ONCHANGE Nil
-      ONGOTFOCUS Nil
-      ONLOSTFOCUS Nil
-      ONENTER Nil
-      TABSTOP .T.
-      VISIBLE .T.
-      DISABLEDBACKCOLOR Nil
-      DISABLEDFONTCOLOR Nil
-      CASECONVERT NONE
-      BACKCOLOR Nil
-      FONTCOLOR Nil
-      INPUTMASK Nil
-      FORMAT Nil
-      VALUE ""
-   END TEXTBOX
+      DEFINE TEXTBOX Text_Key
+         ROW 90
+         COL 60
+         WIDTH 300
+         HEIGHT 30
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         ONCHANGE Nil
+         ONGOTFOCUS Nil
+         ONLOSTFOCUS Nil
+         ONENTER Nil
+         TABSTOP .T.
+         VISIBLE .T.
+         DISABLEDBACKCOLOR Nil
+         DISABLEDFONTCOLOR Nil
+         CASECONVERT NONE
+         BACKCOLOR Nil
+         FONTCOLOR Nil
+         INPUTMASK Nil
+         FORMAT Nil
+         VALUE ""
+      END TEXTBOX
 
-   DEFINE BUTTON Button_OK
-      ROW 150
-      COL 10
-      WIDTH 100
-      HEIGHT 100
-      ACTION CreateNewIndex( cPath, cDBF )
-      CAPTION "&OK"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      TOOLTIP ""
-      TABSTOP .T.
-      VISIBLE .T.
-      TRANSPARENT .F.
-      PICTURE Nil
-      PICTALIGNMENT TOP
-   END BUTTON
+      DEFINE BUTTON Button_OK
+         ROW 150
+         COL 10
+         WIDTH 100
+         HEIGHT 100
+         ACTION CreateNewIndex( cPath, cDBF )
+         CAPTION "&OK"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
 
-   DEFINE BUTTON Button_Abort
-      ROW 150
-      COL 260
-      WIDTH 100
-      HEIGHT 100
-      ACTION Domethod( "WinNewIndex", "Release" )
-      CAPTION "&Abort"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontlarge()
-      TOOLTIP ""
-      TABSTOP .T.
-      VISIBLE .T.
-      TRANSPARENT .F.
-      PICTURE Nil
-      PICTALIGNMENT TOP
-   END BUTTON
+      DEFINE BUTTON Button_Abort
+         ROW 150
+         COL 260
+         WIDTH 100
+         HEIGHT 100
+         ACTION Domethod( "WinNewIndex", "Release" )
+         CAPTION "&Abort"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontlarge()
+         TOOLTIP ""
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
 
    END WINDOW
 

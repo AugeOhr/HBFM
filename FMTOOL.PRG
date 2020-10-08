@@ -11,20 +11,18 @@
 *+               Procedure FuncSysFolder()
 *+               Static Procedure FillSysFolder()
 *+               Static Procedure DoMySysAction()
-*+               Static Function GetLongFileName()
+*+               Function GetLongFileName()
 *+               Static Function c_StartMenue()
 *+               Static Function c_PinToTaskbar()
 *+               Procedure FuncMSCFolder()
 *+               Static Procedure DoMyMSCAction()
-*+               Static Procedure RunWinMsc()
-*+               Procedure ShowProperty()
 *+               Procedure SendToDeskTop()
 *+               Procedure SendToStartup()
 *+               Static Function DXE_CreateLink()
 *+               Function DXE_ResolveLink()
 *+               Function Userfolder()
 *+
-*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -269,37 +267,37 @@ LOCAL i, iMax := LEN( aFolder )
    NEXT
 
    DEFINE WINDOW ListSysFolder ;
-      AT 348, 589 ;
-      WIDTH 224 ;
-      HEIGHT 755 ;
-      TITLE "" ;
-      ICON "A1MAIN" ;
-      TOPMOST ;
-      NOMINIMIZE ;
-      NOMAXIMIZE ;
-      NOSIZE ;
-      BACKCOLOR SP_nColor1()
+         AT 348, 589 ;
+         WIDTH 224 ;
+         HEIGHT 755 ;
+         TITLE "" ;
+         ICON "A1MAIN" ;
+         TOPMOST ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         NOSIZE ;
+         BACKCOLOR SP_nColor1()
 
-   DEFINE LISTBOX List_SysFolder
-      PARENT ListSysFolder
-      ROW 10
-      COL 10
-      WIDTH 200
-      HEIGHT 700
-      ITEMS a2List
-      VALUE 1
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontLarge()
-      TOOLTIP ""
-      BACKCOLOR SP_nColor9( )
-      FONTCOLOR SP_nColor10()
-      ONDBLCLICK DoMySysAction( aFolder )
-      TABSTOP .T.
-      VISIBLE .T.
-      SORT .F.
-      MULTISELECT .F.
-      DRAGITEMS .F.
-   END LISTBOX
+      DEFINE LISTBOX List_SysFolder
+         PARENT ListSysFolder
+         ROW 10
+         COL 10
+         WIDTH 200
+         HEIGHT 700
+         ITEMS a2List
+         VALUE 1
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontLarge()
+         TOOLTIP ""
+         BACKCOLOR SP_nColor9( )
+         FONTCOLOR SP_nColor10()
+         ONDBLCLICK DoMySysAction( aFolder )
+         TABSTOP .T.
+         VISIBLE .T.
+         SORT .F.
+         MULTISELECT .F.
+         DRAGITEMS .F.
+      END LISTBOX
 
    END WINDOW
 
@@ -363,13 +361,13 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Function GetLongFileName()
+*+    Function GetLongFileName()
 *+
-*+    Called from ( fmtool.prg )   1 - static function getlongfilename()
+*+    Called from ( fmtool.prg )   1 - function getlongfilename()
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC FUNCTION GetLongFileName( cShortName, lPath )
+FUNCTION GetLongFileName( cShortName, lPath )
 
 LOCAL lFullPath := IIF( lPath == NIL, .f., lPath )
 LOCAL cFileName := IIF( cShortName == NIL, '', ALLTRIM( cShortName ) )
@@ -448,37 +446,37 @@ LOCAL nCountry := HB_bitAND( GETKEYBOARDLAYOUT(), 0xFFFF )
    //   a2List := ASORT(a2List,{|x,y| x < y })
 
    DEFINE WINDOW ListMSCFolder ;
-      AT 348, 589 ;
-      WIDTH 324 ;
-      HEIGHT 755 ;
-      TITLE "" ;
-      ICON "A1MAIN" ;
-      TOPMOST ;
-      NOMINIMIZE ;
-      NOMAXIMIZE ;
-      NOSIZE ;
-      BACKCOLOR SP_nColor1()
+         AT 348, 589 ;
+         WIDTH 324 ;
+         HEIGHT 755 ;
+         TITLE "" ;
+         ICON "A1MAIN" ;
+         TOPMOST ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         NOSIZE ;
+         BACKCOLOR SP_nColor1()
 
-   DEFINE LISTBOX List_MSCFolder
-      PARENT ListMSCFolder
-      ROW 10
-      COL 10
-      WIDTH 300
-      HEIGHT 700
-      ITEMS a2List
-      VALUE 1
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontLarge()
-      TOOLTIP ""
-      BACKCOLOR SP_nColor9( )
-      FONTCOLOR SP_nColor10()
-      ONDBLCLICK DoMyMSCAction( aSort )
-      TABSTOP .T.
-      VISIBLE .T.
-      SORT .F.
-      MULTISELECT .F.
-      DRAGITEMS .F.
-   END LISTBOX
+      DEFINE LISTBOX List_MSCFolder
+         PARENT ListMSCFolder
+         ROW 10
+         COL 10
+         WIDTH 300
+         HEIGHT 700
+         ITEMS a2List
+         VALUE 1
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontLarge()
+         TOOLTIP ""
+         BACKCOLOR SP_nColor9( )
+         FONTCOLOR SP_nColor10()
+         ONDBLCLICK DoMyMSCAction( aSort )
+         TABSTOP .T.
+         VISIBLE .T.
+         SORT .F.
+         MULTISELECT .F.
+         DRAGITEMS .F.
+      END LISTBOX
 
    END WINDOW
 
@@ -516,219 +514,6 @@ LOCAL nRow, cRet
       RunWinMsc( cRet )
    ENDIF
    ListMSCFolder.Release
-RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Procedure RunWinMsc()
-*+
-*+    Called from ( fmtool.prg )   1 - static procedure domymscaction()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC PROCEDURE RunWinMsc( cAction )
-
-LOCAL cRoot
-LOCAL nPosi
-LOCAL cEXE
-LOCAL cPara      := ""
-LOCAL oError
-LOCAL bSaveError
-LOCAL i, iMax
-LOCAL myWinNT    := .T.
-
-   IF .NOT. EMPTY( cAction )
-      IF Is64Bit()
-         HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "Wow64EnableWow64FsRedirection", FALSE )                                                   // disable bevor API Call
-      ENDIF
-
-      //       IF OS( OS_FAMILY ) == "WINNT"
-      IF myWinNT = .T.
-         cRoot := GETENV( "SYSTEMROOT" )
-
-         IF ".CPL" $ UPPER( cAction )
-            //   RUN ( "Shell32,Control_RunDLL " + cAction, cRoot + "\SYSTEM32\RUNDLL32.EXE", .T. )
-            RUN ( cAction )
-
-         ELSEIF ".DLL" $ UPPER( cAction )
-            // ???
-            IF "HOTPLUG.EXE" $ UPPER( cAction )
-               RUN ( "Shell32,Control_RunDLL " + cAction, cRoot + "\SYSTEM32\RUNDLL32.EXE", .T. )
-            ELSE
-               RUN ( "Shell32,Control_RunDLL " + cAction, cRoot + "\SYSTEM32\RUNDLL32.EXE", .T. )
-            ENDIF
-
-         ELSEIF ".MSC" $ UPPER( cAction )
-            //    RUN ( "/C START " + cAction )
-            //  v1.28
-            SHELLOPENFILE( "", cAction )
-
-         ELSE
-            bSaveError := ERRORBLOCK( { | e | BREAK( e ) } )
-            BEGIN SEQUENCE
-
-               IF "OSK.EXE" $ UPPER( cAction )
-                  SHELLOPENFILE( "C:\WINDOWS\system32\", "osk.exe" )
-
-               ELSEIF ".EXE" $ UPPER( cAction )
-
-                  nPosi := AT( " ", cAction )
-                  IF nPosi > 0
-                     cEXE := SUBSTR( cAction, 1, nPosi - 1 )
-                     cPara := SUBSTR( cAction, nPosi + 1, LEN( cAction ) - nPosi )
-                     //  RUN( cPara, cRoot + "\system32\" + cEXE, .T. )
-                     SHELLOPENFILE( "", cEXE, cPara )
-
-                  ELSE
-                     //  RUN( "", cRoot + "\system32\" + cAction, .T. )
-                     //  RUN( "", cAction, .T. )
-                     SHELLOPENFILE( "", cAction )
-                  ENDIF
-               ELSE
-                  //  RUN( "", cAction, .T. )
-                  SHELLOPENFILE( "", cAction )
-               ENDIF
-
-            RECOVER USING oError
-               ERRORBLOCK( bSaveError )
-
-               //  MSGBOX( DosErrorMessage( oError:osCode ), "Error osCode " + LTRIM( STR( oError:osCode ) ) )
-               // IF oError:genCode == 40
-               //    oError:description  : Betriebsystemfehler
-               //    oError:filename     :
-               //    oError:genCode      :         40
-               //    oError:operation    : RUN
-               //    oError:osCode       : DosErrorMessage()
-               // ENDIF
-            END SEQUENCE
-            ERRORBLOCK( bSaveError )
-         ENDIF
-
-      ELSE
-         IF ".CPL" $ UPPER( cAction )
-            RUN ( cAction, "C:\WINDOWS\RUNDLL32.EXE", .T. )
-         ELSEIF ".DLL" $ UPPER( cAction )
-            RUN ( cRoot + "\system32\" + cAction, "C:\WINDOWS\RUNDLL32.EXE", .T. )
-         ELSEIF ".MSC" $ UPPER( cAction )
-            RUN ( "/C " + cAction,, .T. )
-         ELSE
-            RUN ( "/C " + cAction )
-         ENDIF
-      ENDIF
-
-      IF Is64Bit()
-         HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "Wow64EnableWow64FsRedirection", TRUE )                                                    // enable again
-      ENDIF
-
-   ENDIF
-
-RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Procedure ShowProperty()
-*+
-*+    Called from ( fmgrid.prg )   2 - procedure dualgrid()
-*+
-*+--------------------------------------------------------------------
-*+
-PROCEDURE ShowProperty( nNo )
-
-LOCAL cPath := ""
-LOCAL cFile := ""
-LOCAL cAttr := ""
-
-   //    GetPathandFile( nNo, @cPath, @cFile, @cAttr )
-   //    SHOW_FILEPROPERTIES( cPath, cFile, cAttr )
-   //
-   // RETURN
-   //
-   // STATIC PROCEDURE SHOW_FILEPROPERTIES( cPath, cFile , cAttr )
-LOCAL bSaveError, oError
-LOCAL lSuccess
-LOCAL Retvar     := .F.
-LOCAL oShell
-LOCAL oFolder
-LOCAL oItems
-LOCAL oItem
-LOCAL i, iMax
-LOCAL j, jMax
-LOCAL oVerbs
-LOCAL oVerb
-LOCAL cName      := ""
-
-   //    DEFAULT cFile TO ""
-
-   GetPathandFile( nNo, @cPath, @cFile, @cAttr )
-
-   bSaveError := ERRORBLOCK( { | oError | BREAK( oError ) } )
-   BEGIN SEQUENCE
-
-      IF ( ".LNK" ) $ UPPER( cFile )
-         lSuccess := HMG_CallDLL( "SHELL32.DLL", DLL_OSAPI, "ShellExecute", ;
-                                  GetActiveWindow(), ;
-                                  "Properties", ;
-                                  cPath + cFile, ;
-                                  0, ;
-                                  cPath, ;
-                                  SW_NORMAL )
-         DO CASE
-            CASE lSuccess > 32
-               Retvar := .T.
-            OTHERWISE
-               // ShellExecute fail.
-               // Return False
-               Retvar := .F.
-         ENDCASE
-      ELSE
-         oShell := CreateObject( "Shell.Application" )
-         IF NIL <> oShell
-            oFolder := oShell:NameSpace( cPath )
-            IF NIL <> oFolder
-               cFile := UPPER( TRIM( cFile ) )
-               oItems := oFolder:Items()
-
-               iMax := oItems:Count
-               FOR i := 1 TO iMax
-                  oItem := oItems:Item( i - 1 )
-                  IF oItem:IsFolder
-                     IF "D" $ cAttr
-                     ELSE
-                        LOOP
-                     ENDIF
-                  ENDIF
-
-                  IF !EMPTY( oItem )
-                     cName := UPPER( TRIM( oItem:name ) )
-                     IF cFile = cName
-                        oVerbs := oItem:Verbs()
-                        jMax := oVerbs:Count
-
-                        // "Properties" are always last Item
-                        oVerb := oVerbs:Item( jMax - 1 )
-                        oVerb:DoIt()                                  // call Verb
-                        Retvar := .T.
-                        EXIT
-                     ENDIF
-                  ENDIF
-               NEXT
-
-               oFolder:destroy()
-            ENDIF
-            oShell:destroy()
-         ENDIF
-
-         // clean-up ActiveX
-         oVerbs := NIL
-         oFolder := NIL
-         oShell := NIL
-
-      ENDIF
-
-   RECOVER
-   END SEQUENCE
-   ERRORBLOCK( bSaveError )
-
 RETURN
 
 *+--------------------------------------------------------------------
@@ -991,5 +776,7 @@ LOCAL cUser   := GETENV( "USERPROFILE" )
       cNewPath := aPath[ nPosi ] [ 1 ]
    ENDIF
 RETURN cPath
+
+//
 
 *+ EOF: FMTOOL.PRG

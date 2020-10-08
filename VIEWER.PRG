@@ -1,6 +1,6 @@
 *+--------------------------------------------------------------------
 *+
-*+ Source Module => x:\hmg.3.4.4\0\HBFM\\VIEWER.PRG
+*+ Source Module => c:\hmg.3.4.4\0\HBFM\\VIEWER.PRG
 *+
 *+    Copyright(C) 1983-2020 by Auge & Ohr
 *+
@@ -35,8 +35,9 @@
 *+               Static Procedure ListJPEGData()
 *+               Static Function FindJPEGMarker()
 *+               Static Function PaintWindow()
+*+               Static Function Zoom()
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-3-2020 at  7:32 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -75,7 +76,10 @@ STATIC lDown      := .T.
 STATIC lWholeWord := .F.
 STATIC lMatchCase := .F.
 STATIC lChanged   := .F.
-STATIC nKoef      := 1
+
+STATIC nKoef := 1
+// STATIC nShowX     := 0
+// STATIC nShowY     := 0
 
 MEMVAR _HMG_SYSDATA, lActiveMain, nGridFocus
 
@@ -185,6 +189,7 @@ STATIC PROCEDURE TXTRelease( lEdit, cFile )
          ENDIF
       ENDIF
    ENDIF
+
    TXTEdit.TXTCtrl.Value := " "
 RETURN
 
@@ -285,11 +290,11 @@ STATIC PROCEDURE RTFRelease( lEdit, cFile )
       IF lChanged = .T.
          IF msgyesno( "Save Change ?", "RFT have change" ) == .T.
             RTFEdit.RTFCtrl.RTFSaveFile( cFile, .F. )
-
-            RTFEdit.RTFCtrl.VALUE := ""
          ENDIF
       ENDIF
    ENDIF
+
+   RTFEdit.RTFCtrl.VALUE := ""
 RETURN
 
 *+--------------------------------------------------------------------
@@ -321,6 +326,18 @@ STATIC lRunning := .F.
 
    DEFAULT nTimeout TO 0
    DEFAULT lEdit TO .F.
+
+   IF "?" $ cFile
+      MsgInfo( "file " + cPath + cFile + " not found" )
+      RETURN .F.
+   ENDIF
+
+   //    cFile := HMG_UNICODE_TO_ANSI(cFile)
+   IF !FILE( cPath + cFile )
+      //       MsgInfo( "ANSI file " + cPath + cFile + " not found" )
+      MsgInfo( "File not found !" + CRLF + cFile, "Error File" )
+      RETURN .F.
+   ENDIF
 
    IF lRunning = .T.
       RETURN nil
@@ -386,6 +403,8 @@ STATIC lRunning := .F.
          ON RELEASE ImageRelease( cPath, cFile, cWorkFile ) ;
          BACKCOLOR SP_nColor1()
 
+      // VIRTUAL WIDTH nWidth+1   ;
+      // VIRTUAL HEIGHT nHeight+1 ;
       // ON MAXIMIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
       // ON GOTFOCUS ImageEdit.Image_Edit.setfocus() ;
 
@@ -421,39 +440,37 @@ STATIC lRunning := .F.
    nMode := 2
 
    IF nWidth > nScrWidth .OR. nHeight > nScrHeight                    // .OR. nWidthOrig >= nScrWidth .OR. nHeightOrig >= nScrHeight
-      DO WHILE.T.
-      nFormWidth := ROUND( nWidth * nKoef, 0 )                        // + GetBorderWidth() + 4
-      nFormHeight := ROUND( nHeight * nKoef, 0 ) + GetTitleHeight() + ( 3 * GetBorderHeight() )                                             //  + GetMenuBarHeight() // + IF( HMG_IsWinVistaOrLater(), 60, 56 )
-      IF nFormWidth <= nScrWidth .OR. nKoef < 0.11
-         IF nFormHeight <= nScrHeight .OR. nKoef < 0.11
-            nWidth := nFormWidth                                      // - (GetBorderWidth() + 4 )
-            nHeight := nFormHeight - ( GetTitleHeight() + ( 3 * GetBorderHeight() ) )                                                       //  + GetMenuBarHeight() ) // + IF( HMG_IsWinVistaOrLater(), 60, 56 ) )
-            // Msginfo( str(nWidth)+"/"+STR(nHeight),STR(nKoef))
-            EXIT
+      DO WHILE .T.
+         nFormWidth := ROUND( nWidth * nKoef, 0 )                     // + GetBorderWidth() + 4
+         nFormHeight := ROUND( nHeight * nKoef, 0 ) + GetTitleHeight() + ( 3 * GetBorderHeight() )                                          //  + GetMenuBarHeight() // + IF( HMG_IsWinVistaOrLater(), 60, 56 )
+         IF nFormWidth <= nScrWidth .OR. nKoef < 0.11
+            IF nFormHeight <= nScrHeight .OR. nKoef < 0.11
+               nWidth := nFormWidth                                   // - (GetBorderWidth() + 4 )
+               nHeight := nFormHeight - ( GetTitleHeight() + ( 3 * GetBorderHeight() ) )                                                    //  + GetMenuBarHeight() ) // + IF( HMG_IsWinVistaOrLater(), 60, 56 ) )
+               // Msginfo( str(nWidth)+"/"+STR(nHeight),STR(nKoef))
+               EXIT
+            ENDIF
          ENDIF
-      ENDIF
-      nKoef -= 0.01
-   ENDDO
+         nKoef -= 0.01
+      ENDDO
 
-   nClone := FREE_Clone( nFreeHandle )
-   FREE_Unload( nFreeHandle )
-   nFreeHandle := FREE_Rescale( nClone, nWidth, nHeight, FILTER_BICUBIC )
-   FREE_Unload( nClone )
+      nClone := FREE_Clone( nFreeHandle )
+      FREE_Unload( nFreeHandle )
+      nFreeHandle := FREE_Rescale( nClone, nWidth, nHeight, FILTER_BICUBIC )
+      FREE_Unload( nClone )
    ENDIF
+
+   //    nShowX := nFormWidth
+   //    nShowY := nFormHeight
 
    // MUST be Bitmap for FREE_DRAWPICTURE()
    FREE_Save( FIF_BMP, nFreeHandle, cWorkFile, BMP_DEFAULT )
-   //    FREE_Save( nFif, nFreeHandle, cWorkFile, nFormat )
-   //    FREE_Unload( nFreeHandle )
 
    SetProperty( "ImageEdit", "Width", nFormWidth )
    SetProperty( "ImageEdit", "Height", nFormHeight )
    //    SetProperty( "ImageEdit", "Image_Edit", "PICTURE", cWorkFile )
 
    ERASE WINDOW ImageEdit
-   // GetSystemMetrics (SM_CXSCREEN)
-   // GetSystemMetrics (SM_CYSCREEN)
-   // FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode )
    FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode, nFormWidth, nFormHeight )
    FREE_Unload( nFreeHandle )
 
@@ -476,6 +493,10 @@ STATIC lRunning := .F.
       ON KEY ESCAPE OF ImageEdit ACTION ImageEdit.Release
    ENDIF
 
+   ON KEY HOME OF ImageEdit ACTION Zoom( 0, nFreeHandle, nWidth, nHeight )
+   ON KEY PRIOR OF ImageEdit ACTION Zoom( - 1, nFreeHandle, nWidth, nHeight )
+   ON KEY NEXT OF ImageEdit ACTION Zoom( 1, nFreeHandle, nWidth, nHeight )
+
    CENTER WINDOW ImageEdit
    //    ImageEdit.Image_Edit.setfocus()
    ACTIVATE WINDOW ImageEdit
@@ -484,7 +505,6 @@ STATIC lRunning := .F.
    lActiveMain := .T.
 
    // closed in FmGrid.PRG
-   //
    // #IFDEF Use_FreeImage
    //    FREE_Deinitialise()
    // #ENDIF
@@ -498,23 +518,19 @@ STATIC lRunning := .F.
             FERASE( cOldFile + ".BAK" )
          ENDIF
 
-         RENAME( cPath + cFile ) TO ( cOldFile + ".BAK" )
-         IF FILE( cOldFile + ".BAK" )
-            RENAME( cWorkFile ) TO ( cPath + cFile )
+         IF FRENAME( cPath + cFile, cOldFile + ".BAK" ) = 0
+            IF FRENAME( cWorkFile, cPath + cFile ) = 0
+               //  AADD( acFiles, cWorkFile )
+               //  AADD( acTarget, cPath + cFile )
+               //  DoSH3func( "RENAME", .f., .f., .f., acFiles, acTarget )
 
-            // IF FERASE( cPath + cFile ) = 0
-            //  RENAME (cWorkFile) TO (cPath+cFile)
-            //  COPY FILE (cWorkFile) TO (cPath+cFile)
-            //  FERASE( cWorkFile )
-
-            //  AADD( acFiles, cWorkFile )
-            //  AADD( acTarget, cPath + cFile )
-            //  DoSH3func( "MOVE", .f., .f., .f., acFiles, acTarget )
-
-            SP_lDirWatch( .T. )
-            ReRead( nGridFocus )
+               SP_lDirWatch( .T. )
+               ReRead( nGridFocus )
+            ELSE
+               msgInfo( "Problem to rename file " + cWorkFile, "Error FRENAME" )
+            ENDIF
          ELSE
-            msgInfo( "Problem to move file,  ", "Error FERASE " )
+            msgInfo( "Problem to rename file " + cPath + cFile, "Error FRENAME" )
          ENDIF
       ELSE
          FERASE( cWorkFile )
@@ -536,7 +552,7 @@ RETURN nil
 *+
 STATIC PROCEDURE ImageRelease( cPath, cFile, cWorkFile )
 
-   //    SetProperty( "ImageEdit", "Image_Edit", "PICTURE", nil )
+   // SetProperty( "ImageEdit", "Image_Edit", "PICTURE", nil )
 RETURN
 
 *+--------------------------------------------------------------------
@@ -807,7 +823,7 @@ LOCAL nDeskHigh  := GETDESKTOPHEIGHT()
 
    ERASE WINDOW ImageEdit
    FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode, mainWidth, mainHeight )
-   //   PaintWindow( GetFormHandle( "ImageEdit" ), mainHeight, mainWidth)
+   //    FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode,nShowX,nShowY)
 
 RETURN
 
@@ -1510,5 +1526,62 @@ LOCAL pps, hDC
    InvalidateRect( ImageEdit.Handle, 0 )
 
 RETURN 0
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Function Zoom()
+*+
+*+    Called from ( viewer.prg )   3 - function image_edit()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION Zoom( nOp, nFreeHandle, nWidth, nHeight )
+
+LOCAL nPictWidth, nPictHeight
+
+   IF nFreeHandle == Nil
+      RETURN NIL
+   ENDIF
+
+   IF EMPTY( nOp ) .AND. nKoef == 1
+      RETURN NIL
+   ENDIF
+
+   IF INT( nKoef * 10 ) # ROUND( nKoef, 1 ) * 10
+      nKoef := INT( nKoef * 10 ) / 10
+   ELSE
+      nKoef := ROUND( nKoef, 1 )
+   ENDIF
+   IF nOp < 0 .AND. nKoef > 0.11
+      nKoef -= 0.1
+   ELSEIF nOp > 0 .AND. nKoef < 9.9
+      nKoef += 0.1
+   ELSE
+      nKoef := 1
+   ENDIF
+
+   nPictWidth := ROUND( nWidth * nKoef, 0 )
+   nPictHeight := ROUND( nHeight * nKoef, 0 )
+
+   //    nShowX := nPictWidth
+   //    nShowY := nPictHeight
+
+   ImageEdit.Width := nPictWidth + GetBorderWidth() + 4
+   ImageEdit.Height := nPictHeight + GetTitleHeight() + GetBorderHeight() + GetMenuBarHeight() + 60
+
+   IF ImageEdit.Width < 400
+      ImageEdit.Width := 400
+   ENDIF
+   IF ImageEdit.Height < 100
+      ImageEdit.Height := 100
+   ENDIF
+
+   //    ImageEdit.Title := cFileNoPath( cFile ) + ' - ' + PROGRAM + IF( nKoef # 1, " (Zoom: " + hb_ntos( nPictWidth ) + " x " + hb_ntos( nPictHeight ) + ")", "" )
+   //    ImageEdit.StatusBar.Item( 3 ) := STR( nKoef * 100, 4 ) + " %"
+   //    InvalidateRect( ImageEdit.Handle, 0 )
+
+   ImageEdit.Center
+
+RETURN NIL
 
 *+ EOF: VIEWER.PRG

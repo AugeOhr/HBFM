@@ -21,7 +21,7 @@
 *+               Static Procedure do_logfile()
 *+               Static Function IsRealDrive()
 *+
-*+    Reformatted by Click! 2.05.32 on Sep-10-2020 at  2:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -84,16 +84,16 @@ PUBLIC _HMG_SYSDATA
    //    MAIN ;
 
    DEFINE WINDOW IPHONE ;
-              AT 0, 0 ;
-              WIDTH 1024 ;
-              HEIGHT 768 ;
-              TITLE "Device " ;
-              ICON "A1MAIN" ;
-              NOSIZE ;
-              NOMAXIMIZE ;
-              NOMINIMIZE ;
-              BACKCOLOR SP_nColor1() ;
-              ON INIT BuildRoot()
+         AT 0, 0 ;
+         WIDTH 1024 ;
+         HEIGHT 768 ;
+         TITLE "Device " ;
+         ICON "A1MAIN" ;
+         NOSIZE ;
+         NOMAXIMIZE ;
+         NOMINIMIZE ;
+         BACKCOLOR SP_nColor1() ;
+         ON INIT BuildRoot()
 
       //              ON RELEASE do_logfile()
 
@@ -136,6 +136,7 @@ STATUSITEM ""
          DYNAMICFORECOLOR Nil
          BACKCOLOR SP_nColor9( )
          FONTCOLOR SP_nColor10()
+         NOLINES .T.
          SHOWHEADERS .T.
          CELLNAVIGATION .F.
       END GRID

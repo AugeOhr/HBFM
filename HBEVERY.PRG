@@ -16,7 +16,7 @@
 *+               Function hb_DirScanM()
 *+               Static Function Search_in_file()
 *+
-*+    Reformatted by Click! 2.05.30 on Aug-28-2020 at  1:52 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -32,8 +32,6 @@
 
 #xtranslate DllCall => HMG_CallDLL
 #xtranslate bor     => hb_BitOr
-
-#define CODE_ANSI .T.
 
 STATIC l_Every  := .F.
 STATIC l_InText := .F.
@@ -60,14 +58,14 @@ PRIVATE aItems := {}
    SP_lRunGoToDir( .T. )
 
    DEFINE WINDOW EVFORM ;
-              AT 0, 0 ;
-              WIDTH 700 - 20 HEIGHT 600 ;
-              TITLE "search" ;
-              ICON "ICOSEARCH" ;
-              BACKCOLOR SP_nColor1() ;
-              NOSIZE ;
-              NOMINIMIZE ;
-              NOMAXIMIZE
+         AT 0, 0 ;
+         WIDTH 700 - 20 HEIGHT 600 ;
+         TITLE "search" ;
+         ICON "ICOSEARCH" ;
+         BACKCOLOR SP_nColor1() ;
+         NOSIZE ;
+         NOMINIMIZE ;
+         NOMAXIMIZE
 
       DEFINE PROGRESSBAR MYPROGRESS
          ROW 1
@@ -343,11 +341,12 @@ LOCAL hGrid
       nDll := "Everything32.dll"
 
       // set thesearch
-#IFDEF CODE_ANSI
-      nRet := DllCall( nDLL,, "Everything_SetSearchA", cMask )
-#ELSE
-      nRet := DllCall( nDLL,, "Everything_SetSearchW", cMask )
-#ENDIF
+      IF hb_cdpSelect() = "UTF8"
+         nRet := DllCall( nDLL,, "Everything_SetSearchW", cMask )
+      ELSE
+         nRet := DllCall( nDLL,, "Everything_SetSearchA", cMask )
+      ENDIF
+
       // request name and size
       nRet := DllCall( nDLL,, "Everything_SetRequestFlags", bor( EVERYTHING_REQUEST_PATH, EVERYTHING_REQUEST_FILE_NAME, EVERYTHING_REQUEST_SIZE ) )
 
@@ -361,13 +360,13 @@ LOCAL hGrid
       nRet := DllCall( nDLL,, "Everything_SetSort", EVERYTHING_SORT_FILE_LIST_FILENAME_ASCENDING )
 
       // execute the query
-#IFDEF CODE_ANSI
-      nRet := DllCall( nDLL,, "Everything_QueryA", .T. )
-      nNum := DllCall( nDLL, HB_DYN_CTYPE_INT, "Everything_GetNumResults" )
-#ELSE
-      nRet := DllCall( nDLL,, "Everything_QueryW", .T. )
-      nNum := DllCall( nDLL, HB_DYN_CTYPE_LONG, "Everything_GetNumResults" )
-#ENDIF
+      IF hb_cdpSelect() = "UTF8"
+         nRet := DllCall( nDLL,, "Everything_QueryW", .T. )
+         nNum := DllCall( nDLL, HB_DYN_CTYPE_LONG, "Everything_GetNumResults" )
+      ELSE
+         nRet := DllCall( nDLL,, "Everything_QueryA", .T. )
+         nNum := DllCall( nDLL, HB_DYN_CTYPE_INT, "Everything_GetNumResults" )
+      ENDIF
 
       SetProperty( "EVFORM", "MYPROGRESS", "Value", 0 )
       nEvery := INT( ROUND( nNum / 100, 0 ) )
@@ -375,11 +374,11 @@ LOCAL hGrid
 
       FOR n := 1 TO nNum
          buf := SPACE( bufsize )
-#IFDEF CODE_ANSI
-         nRet := DllCall( nDLL,, "Everything_GetResultFullPathNameA", n, @buf, bufsize )
-#ELSE
-         nRet := DllCall( nDLL,, "Everything_GetResultFullPathNameW", n, @buf, bufsize )
-#ENDIF
+         IF hb_cdpSelect() = "UTF8"
+            nRet := DllCall( nDLL,, "Everything_GetResultFullPathNameW", n, @buf, bufsize )
+         ELSE
+            nRet := DllCall( nDLL,, "Everything_GetResultFullPathNameA", n, @buf, bufsize )
+         ENDIF
 
          AADD( aResult, UPPER( TRIM( buf ) ) )
 

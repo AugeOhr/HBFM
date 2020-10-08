@@ -9,7 +9,7 @@
 *+               Static Procedure GetNewDir()
 *+               Static Procedure SetSourceInfo()
 *+
-*+    Reformatted by Click! 2.05.34 on Sep-26-2020 at  5:14 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -76,194 +76,194 @@ LOCAL aItem      := GetSelectItem()
    ENDIF
 
    DEFINE WINDOW ASKFORM ;
-      AT 396, 469 ;
-      WIDTH 534 HEIGHT 270 ;
-      TITLE cAction ;
-      ICON "A1MAIN" ;
-      TOPMOST ;
-      NOMINIMIZE ;
-      NOMAXIMIZE ;
-      NOSIZE ;
-      ON PAINT Nil ;
-      BACKCOLOR SP_nColor1()
+         AT 396, 469 ;
+         WIDTH 534 HEIGHT 270 ;
+         TITLE cAction ;
+         ICON "A1MAIN" ;
+         TOPMOST ;
+         NOMINIMIZE ;
+         NOMAXIMIZE ;
+         NOSIZE ;
+         ON PAINT Nil ;
+         BACKCOLOR SP_nColor1()
 
-   DEFINE TEXTBOX Text_1
-      ROW 40
-      COL 10
-      WIDTH 500
-      HEIGHT 30
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TOOLTIP ""
-      TABSTOP .T.
-      VISIBLE .T.
-      READONLY .T.
-      RIGHTALIGN .F.
-      CASECONVERT NONE
-      BACKCOLOR SP_nColor5()
-      FONTCOLOR SP_nColor6()
-      INPUTMASK Nil
-      FORMAT Nil
-      VALUE cSourceDir
-   END TEXTBOX
+      DEFINE TEXTBOX Text_1
+         ROW 40
+         COL 10
+         WIDTH 500
+         HEIGHT 30
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TOOLTIP ""
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .T.
+         RIGHTALIGN .F.
+         CASECONVERT NONE
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         INPUTMASK Nil
+         FORMAT Nil
+         VALUE cSourceDir
+      END TEXTBOX
 
-   DEFINE TEXTBOX Text_2
-      ROW 110
-      COL 10
-      WIDTH 500
-      HEIGHT 30
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TOOLTIP ""
-      TABSTOP .T.
-      VISIBLE .T.
-      READONLY .F.
-      RIGHTALIGN .F.
-      CASECONVERT NONE
-      BACKCOLOR SP_nColor5()
-      FONTCOLOR SP_nColor6()
-      INPUTMASK Nil
-      FORMAT Nil
-      VALUE cTargetDir
-   END TEXTBOX
+      DEFINE TEXTBOX Text_2
+         ROW 110
+         COL 10
+         WIDTH 500
+         HEIGHT 30
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TOOLTIP ""
+         TABSTOP .T.
+         VISIBLE .T.
+         READONLY .F.
+         RIGHTALIGN .F.
+         CASECONVERT NONE
+         BACKCOLOR SP_nColor5()
+         FONTCOLOR SP_nColor6()
+         INPUTMASK Nil
+         FORMAT Nil
+         VALUE cTargetDir
+      END TEXTBOX
 
-   DEFINE LABEL Label_1
-      ROW 10
-      COL 10
-      WIDTH 60
-      HEIGHT 24
-      VALUE "Source"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TOOLTIP ""
-      VISIBLE .T.
-      TRANSPARENT .F.
-      AUTOSIZE .F.
-      BACKCOLOR SP_nColor1()
-      FONTCOLOR SP_nColor2()
-   END LABEL
+      DEFINE LABEL Label_1
+         ROW 10
+         COL 10
+         WIDTH 60
+         HEIGHT 24
+         VALUE "Source"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TOOLTIP ""
+         VISIBLE .T.
+         TRANSPARENT .F.
+         AUTOSIZE .F.
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+      END LABEL
 
-   DEFINE LABEL SourceInfo
-      ROW 10
-      COL 80
-      WIDTH 400
-      HEIGHT 24
-      VALUE ""
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TOOLTIP ""
-      VISIBLE .T.
-      TRANSPARENT .F.
-      AUTOSIZE .F.
-      BACKCOLOR SP_nColor1()
-      FONTCOLOR SP_nColor2()
-   END LABEL
+      DEFINE LABEL SourceInfo
+         ROW 10
+         COL 80
+         WIDTH 400
+         HEIGHT 24
+         VALUE ""
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TOOLTIP ""
+         VISIBLE .T.
+         TRANSPARENT .F.
+         AUTOSIZE .F.
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+      END LABEL
 
-   DEFINE LABEL Label_2
-      ROW 80
-      COL 10
-      WIDTH 60
-      HEIGHT 24
-      VALUE "Target"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TOOLTIP ""
-      VISIBLE .T.
-      TRANSPARENT .F.
-      AUTOSIZE .F.
-      BACKCOLOR SP_nColor1()
-      FONTCOLOR SP_nColor2()
-   END LABEL
+      DEFINE LABEL Label_2
+         ROW 80
+         COL 10
+         WIDTH 60
+         HEIGHT 24
+         VALUE "Target"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TOOLTIP ""
+         VISIBLE .T.
+         TRANSPARENT .F.
+         AUTOSIZE .F.
+         BACKCOLOR SP_nColor1()
+         FONTCOLOR SP_nColor2()
+      END LABEL
 
-   DEFINE CHECKBOX lAdjustTime
-      PARENT AskForm
-      ROW 80
-      COL 410
-      CAPTION "Adjust &Time"
-      VALUE .T.
-      WIDTH 100
-      HEIGHT 24
-      TABSTOP .F.
-   END CHECKBOX
+      DEFINE CHECKBOX lAdjustTime
+         PARENT AskForm
+         ROW 80
+         COL 410
+         CAPTION "Adjust &Time"
+         VALUE .T.
+         WIDTH 100
+         HEIGHT 24
+         TABSTOP .F.
+      END CHECKBOX
 
-   DEFINE CHECKBOX lConfirm
-      PARENT AskForm
-      ROW 80
-      COL 210
-      CAPTION "want &Confirm"
-      VALUE .F.
-      WIDTH 100
-      HEIGHT 24
-      TABSTOP .F.
-   END CHECKBOX
+      DEFINE CHECKBOX lConfirm
+         PARENT AskForm
+         ROW 80
+         COL 210
+         CAPTION "want &Confirm"
+         VALUE .F.
+         WIDTH 100
+         HEIGHT 24
+         TABSTOP .F.
+      END CHECKBOX
 
-   DEFINE CHECKBOX lPaperbin
-      PARENT AskForm
-      ROW 80
-      COL 210
-      CAPTION "to &Paperbin"
-      VALUE .T.
-      WIDTH 100
-      HEIGHT 24
-      TABSTOP .F.
-   END CHECKBOX
+      DEFINE CHECKBOX lPaperbin
+         PARENT AskForm
+         ROW 80
+         COL 210
+         CAPTION "to &Paperbin"
+         VALUE .T.
+         WIDTH 100
+         HEIGHT 24
+         TABSTOP .F.
+      END CHECKBOX
 
-   DEFINE BUTTON Button_Start
-      ROW 150
-      COL 10
-      WIDTH 100
-      HEIGHT 64
-      ACTION Start_SHfunc( cAction )
-      CAPTION "&OK"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TOOLTIP ""
-      FLAT .F.
-      TABSTOP .T.
-      VISIBLE .T.
-      TRANSPARENT .F.
-      MULTILINE .F.
-      PICTURE Nil
-      PICTALIGNMENT TOP
-   END BUTTON
+      DEFINE BUTTON Button_Start
+         ROW 150
+         COL 10
+         WIDTH 100
+         HEIGHT 64
+         ACTION Start_SHfunc( cAction )
+         CAPTION "&OK"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TOOLTIP ""
+         FLAT .F.
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         MULTILINE .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
 
-   DEFINE BUTTON Button_Tree
-      ROW 150
-      COL 210
-      WIDTH 100
-      HEIGHT 64
-      ACTION GetNewDir()
-      CAPTION "&Tree"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TOOLTIP ""
-      FLAT .F.
-      TABSTOP .T.
-      VISIBLE .T.
-      TRANSPARENT .F.
-      MULTILINE .F.
-      PICTURE Nil
-      PICTALIGNMENT TOP
-   END BUTTON
+      DEFINE BUTTON Button_Tree
+         ROW 150
+         COL 210
+         WIDTH 100
+         HEIGHT 64
+         ACTION GetNewDir()
+         CAPTION "&Tree"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TOOLTIP ""
+         FLAT .F.
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         MULTILINE .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
 
-   DEFINE BUTTON Button_Abort
-      ROW 150
-      COL 410
-      WIDTH 100
-      HEIGHT 64
-      ACTION ASKFORM.Release
-      CAPTION "&Abort"
-      FONTNAME SP_cFontName()
-      FONTSIZE SP_nFontSize()
-      TOOLTIP ""
-      FLAT .F.
-      TABSTOP .T.
-      VISIBLE .T.
-      TRANSPARENT .F.
-      MULTILINE .F.
-      PICTURE Nil
-      PICTALIGNMENT TOP
-   END BUTTON
+      DEFINE BUTTON Button_Abort
+         ROW 150
+         COL 410
+         WIDTH 100
+         HEIGHT 64
+         ACTION ASKFORM.Release
+         CAPTION "&Abort"
+         FONTNAME SP_cFontName()
+         FONTSIZE SP_nFontSize()
+         TOOLTIP ""
+         FLAT .F.
+         TABSTOP .T.
+         VISIBLE .T.
+         TRANSPARENT .F.
+         MULTILINE .F.
+         PICTURE Nil
+         PICTALIGNMENT TOP
+      END BUTTON
 
    END WINDOW
 

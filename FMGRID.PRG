@@ -1,6 +1,6 @@
 *+--------------------------------------------------------------------
 *+
-*+ Source Module => x:\hmg.3.4.4\0\HBFM\\FMGRID.PRG
+*+ Source Module => c:\hmg.3.4.4\0\HBFM\\FMGRID.PRG
 *+
 *+    Copyright(C) 1983-2020 by Auge & Ohr
 *+
@@ -89,9 +89,7 @@
 *+               Static Procedure SaveSetup()
 *+               Static Procedure RunWithParameter()
 *+               Static Procedure RestoreTab()
-*+               Static Procedure ShowOSK()
 *+               Static Procedure DoTouchEnter()
-*+               Static Function FindAndCloseProcress()
 *+               Static Function ChangeFAttr()
 *+               Static Procedure Slideshow()
 *+               Static Procedure SetLV_View()
@@ -114,10 +112,13 @@
 *+               Static Function HL_IsFolderExist()
 *+               Static Procedure ChangeFolder()
 *+               Static Procedure DoFolderSize()
+*+               Static Procedure DoRunAs()
+*+               Static Procedure DoRename()
+*+               Static Procedure GoLastmark()
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-3-2020 at  7:32 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -160,18 +161,20 @@
 
 #xtranslate aDir_Left      => Stack_Left\[nDimLeft, 1]
 #xtranslate cGrid_Left     => Stack_Left\[nDimLeft, 2]
-#xtranslate aColor_Left    => Stack_Left\[nDimLeft, 3]
-#xtranslate aImage_Left    => Stack_Left\[nDimLeft, 4]
-#xtranslate aFiles_Left    => Stack_Left\[nDimLeft, 5]
+#xtranslate nLast_Left     => Stack_Left\[nDimLeft, 3]
+//  #xtranslate aColor_Left    => Stack_Left\[nDimLeft, 3]
+//  #xtranslate aImage_Left    => Stack_Left\[nDimLeft, 4]
+//  #xtranslate aFiles_Left    => Stack_Left\[nDimLeft, 5]
 
 #xtranslate aDir_Right     => Stack_Right\[nDimRight, 1]
 #xtranslate cGrid_Right    => Stack_Right\[nDimRight, 2]
-#xtranslate aColor_Right   => Stack_Right\[nDimRight, 3]
-#xtranslate aImage_Right   => Stack_Right\[nDimRight, 4]
-#xtranslate aFiles_Right   => Stack_Right\[nDimRight, 5]
+#xtranslate nLast_Right    => Stack_Right\[nDimRight, 3]
+//  #xtranslate aColor_Right   => Stack_Right\[nDimRight, 3]
+//  #xtranslate aImage_Right   => Stack_Right\[nDimRight, 4]
+//  #xtranslate aFiles_Right   => Stack_Right\[nDimRight, 5]
 
-STATIC nLastUP       := 0
-STATIC nLastDN       := 0
+// STATIC nLastUP       := 0                       // unused
+// STATIC nLastDN       := 0                       // unused
 STATIC caItems       := {}                                            // for ComboBox
 STATIC acImage       := {}                                            // Image Combobox
 STATIC aBack_Left    := {}
@@ -206,6 +209,7 @@ MEMVAR aForeColorHBP, aBackColorHBP, aFontTypeHBP
 *+    Procedure DualGrid()
 *+
 *+    Called from ( hbfm.prg )   1 - function main()
+*+                ( hbfm64.prg )   1 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -266,22 +270,22 @@ PUBLIC aFontTypeHBP
    AADD( Stack_Left, ARRAY( 5 ) )
    nDimLeft := LEN( Stack_Left )
    cGrid_Left := "Grid_1"
-   aColor_Left := {}
-   aImage_Left := {}
-   aFiles_Left := {}
+   //    aColor_Left := {}
+   //    aImage_Left := {}
+   //    aFiles_Left := {}
 
    AADD( Stack_Right, ARRAY( 5 ) )
    nDimRight := LEN( Stack_Right )
    cGrid_Right := "Grid_1"
-   aColor_Right := {}
-   aImage_Right := {}
-   aFiles_Right := {}
+   //    aColor_Right := {}
+   //    aImage_Right := {}
+   //    aFiles_Right := {}
 
    aDir_Left := DIRECTORY( "*.*", "DHS" )
    aDir_Right := DIRECTORY( "*.*", "DHS" )
    IF SP_UseImage() = .T.
-      aFiles_Left := BT_DirectoryInfo( cAppFolder, BT_DIRECTORYINFO_LISTALL )
-      aFiles_Right := BT_DirectoryInfo( cAppFolder, BT_DIRECTORYINFO_LISTALL )
+      //       aFiles_Left := BT_DirectoryInfo( cAppFolder, BT_DIRECTORYINFO_LISTALL )
+      //       aFiles_Right := BT_DirectoryInfo( cAppFolder, BT_DIRECTORYINFO_LISTALL )
    ENDIF
    AADD( aWin, { "WinLeft", "Grid_1", SP_LWTextLeft(), 1, 1, F_NAME, .F. } )
    AADD( aWin, { "WinRight", "Grid_1", SP_LWTextRight(), 1, 1, F_NAME, .F. } )
@@ -758,9 +762,13 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
             MENUITEM "Send to DeskTop" ACTION SendToDeskTop( 1 )
             MENUITEM "Send to Startup" ACTION SendToStartup( 1 )
             SEPARATOR
-            MENUITEM "Attribut" IMAGE 'MYATTR16' ACTION ChangeFAttr( 1 )
+            MENUITEM "&rename file" ACTION DoRename( 1 )
             SEPARATOR
-            MENUITEM "Property" IMAGE 'MYRAMDISK16' ACTION ShowProperty( 1 )
+            MENUITEM "run&As Admin" IMAGE 'MYADMIN16' ACTION DoRunAs( 1 )
+            SEPARATOR
+            MENUITEM "A&ttribut" IMAGE 'MYATTR16' ACTION ChangeFAttr( 1 )
+            SEPARATOR
+            MENUITEM "&Property" IMAGE 'MYRAMDISK16' ACTION ShowProperty( 1 )
          END MENU
 
          DEFINE COMBOBOX ComboLeft
@@ -879,9 +887,13 @@ STATUSITEM "Hello" WIDTH aSize[ 1 ] - 300
             MENUITEM "Send to DeskTop" ACTION SendToDeskTop( 2 )
             MENUITEM "Send to Startup" ACTION SendToStartup( 2 )
             SEPARATOR
-            MENUITEM "Attribut" IMAGE 'MYATTR16' ACTION ChangeFAttr( 2 )
+            MENUITEM "&rename file" ACTION DoRename( 2 )
             SEPARATOR
-            MENUITEM "Property" IMAGE 'MYRAMDISK16' ACTION ShowProperty( 2 )
+            MENUITEM "run&As Admin" IMAGE 'MYADMIN16' ACTION DoRunAs( 2 )
+            SEPARATOR
+            MENUITEM "A&ttribut" IMAGE 'MYATTR16' ACTION ChangeFAttr( 2 )
+            SEPARATOR
+            MENUITEM "&Property" IMAGE 'MYRAMDISK16' ACTION ShowProperty( 2 )
          END MENU
 
          DEFINE COMBOBOX ComboRight
@@ -1005,6 +1017,7 @@ RETURN
 *+    Function MoreParaLeft()
 *+
 *+    Called from ( hbfm.prg )   1 - function main()
+*+                ( hbfm64.prg )   1 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1043,6 +1056,7 @@ RETURN cRet
 *+    Function MoreParaRight()
 *+
 *+    Called from ( hbfm.prg )   1 - function main()
+*+                ( hbfm64.prg )   1 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1098,6 +1112,9 @@ LOCAL hGrid
 
    cGrid_Left := "Grid_1"
    cGrid_Right := "Grid_1"
+
+   nLast_Left := 1
+   nLast_Right := 1
 
    FillWithDir( "WinLeft", cGrid_Left, SP_LWTextLeft(), "TREEDN" )
    FillWithDir( "WinRight", cGrid_Right, SP_LWTextRight(), "TREEDN" )
@@ -1180,7 +1197,7 @@ LOCAL cDrive, cVolume, nDrive, nType, ico, i
 
    caItems := {}
    aDrives := GetDrives()
-
+   ALTD()
    FOR i := 1 TO LEN( aDrives )
       nType := aDrives[ i ] [ 1 ]
       cDrive := aDrives[ i ] [ 2 ]
@@ -1425,23 +1442,23 @@ LOCAL bError, oError
 
    IF nGridFocus = 1
       aSourceNum := GetProperty( "WinLeft", cGrid_Left, "Value" )
-      nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinLeft" .AND. o[ 2 ] = cGrid_Left } )
+      nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinLeft" .AND. o[ AW_OBJ ] = cGrid_Left } )
       IF nPosi > 0
          cSourceDir := GridGetPath( "WinLeft", cGrid_Left )
       ENDIF
 
-      nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinRight" .AND. o[ 2 ] = cGrid_Right } )
+      nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinRight" .AND. o[ AW_OBJ ] = cGrid_Right } )
       IF nPosi > 0
          cTargetDir := GridGetPath( "WinRight", cGrid_Right )
       ENDIF
    ELSE
       aSourceNum := GetProperty( "WinRight", cGrid_Right, "Value" )
-      nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinRight" .AND. o[ 2 ] = cGrid_Right } )
+      nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinRight" .AND. o[ AW_OBJ ] = cGrid_Right } )
       IF nPosi > 0
          cSourceDir := GridGetPath( "WinRight", cGrid_Right )
       ENDIF
 
-      nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinLeft" .AND. o[ 2 ] = cGrid_Left } )
+      nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinLeft" .AND. o[ AW_OBJ ] = cGrid_Left } )
       IF nPosi > 0
          cTargetDir := GridGetPath( "WinLeft", cGrid_Left )
       ENDIF
@@ -1470,6 +1487,11 @@ LOCAL bError, oError
          cFile := aDir_Left[ nPosi ] [ F_NAME ]
       ELSE
          cFile := aDir_Right[ nPosi ] [ F_NAME ]
+      ENDIF
+
+      IF "?" $ cFile
+         MsgInfo( "unknown sign in " + CRLF + cFile, "Error " + cAction )
+         RETURN NIL
       ENDIF
 
       AADD( acFiles, cSourceDir + cFile )
@@ -1708,9 +1730,9 @@ RETURN ACLONE( aData )
 *+
 *+    Procedure GetPathAndFile()
 *+
-*+    Called from ( fmtool.prg )   1 - procedure showproperty()
-*+                                   1 - procedure sendtodesktop()
+*+    Called from ( fmtool.prg )   1 - procedure sendtodesktop()
 *+                                   1 - procedure sendtostartup()
+*+                ( hmgdll.prg )   1 - procedure showproperty()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1834,12 +1856,12 @@ LOCAL hGrid
       hGrid := GetControlHandle( cGrid_Left, "WinLeft" )
       aSourceNum := GetProperty( "WinLeft", cGrid_Left, "Value" )
 
-      nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinLeft" .AND. o[ 2 ] = cGrid_Left } )
+      nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinLeft" .AND. o[ AW_OBJ ] = cGrid_Left } )
       IF nPosi > 0
          cSourceDir := GridGetPath( "WinLeft", cGrid_Left )
       ENDIF
 
-      nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinRight" .AND. o[ 2 ] = cGrid_Right } )
+      nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinRight" .AND. o[ AW_OBJ ] = cGrid_Right } )
       IF nPosi > 0
          cTargetDir := GridGetPath( "WinRight", cGrid_Right )
       ENDIF
@@ -1849,12 +1871,12 @@ LOCAL hGrid
       hGrid := GetControlHandle( cGrid_Right, "WinRight" )
       aSourceNum := GetProperty( "WinRight", cGrid_Right, "Value" )
 
-      nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinRight" .AND. o[ 2 ] = cGrid_Right } )
+      nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinRight" .AND. o[ AW_OBJ ] = cGrid_Right } )
       IF nPosi > 0
          cSourceDir := GridGetPath( "WinRight", cGrid_Right )
       ENDIF
 
-      nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinLeft" .AND. o[ 2 ] = cGrid_Left } )
+      nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinLeft" .AND. o[ AW_OBJ ] = cGrid_Left } )
       IF nPosi > 0
          cTargetDir := GridGetPath( "WinLeft", cGrid_Left )
       ENDIF
@@ -1904,7 +1926,7 @@ STATIC PROCEDURE DoIt( cForm, cObj )
 
 LOCAL hGrid
 LOCAL nIndex   := 1
-LOCAL cPath, cText, cAttr
+LOCAL cPath, cFile, cAttr, cShort, cLong
 LOCAL cNewPath
 LOCAL i, iMax, nItem, aItem
 LOCAL cUser    := GETENV( "USERPROFILE" )
@@ -1912,8 +1934,11 @@ LOCAL cUser    := GETENV( "USERPROFILE" )
    DO CASE
       CASE cForm = "WinLeft"
          aItem := GetProperty( "WinLeft", cGrid_Left, "Value" )
+         nLast_Left := aItem[ 1 ]
+
       CASE cForm = "WinRight"
          aItem := GetProperty( "WinRight", cGrid_Right, "Value" )
+         nLast_Right := aItem[ 1 ]
    ENDCASE
 
    IF VALTYPE( aItem ) = "A"
@@ -1929,12 +1954,17 @@ LOCAL cUser    := GETENV( "USERPROFILE" )
    ENDIF
 
    cPath := GridGetPath( cForm, cObj )
-   cText := GetProperty( cForm, cObj, "CELL", nItem, F_NAME )
+   cFile := GetProperty( cForm, cObj, "CELL", nItem, F_NAME )
    cAttr := GetProperty( cForm, cObj, "CELL", nItem, F_ATTR )
 
-   IF cText = "." .AND. LEN( cText ) = 1
+   IF "?" $ cFile
+      MsgInfo( "file " + cPath + cFile + " not found" )
+      RETURN
+   ENDIF
 
-   ELSEIF cText = ".." .AND. "D" $ cAttr
+   IF cFile = "." .AND. LEN( cFile ) = 1
+
+   ELSEIF cFile = ".." .AND. "D" $ cAttr
       cNewPath := UpPath( cPath )
 
       FillWithDir( cForm, cObj, cNewPath, "TREEUP" )
@@ -1943,12 +1973,12 @@ LOCAL cUser    := GETENV( "USERPROFILE" )
 
       IF "D" $ cAttr
          IF "L" $ cAttr
-            // cNewPath := cUser +"\"+cText +"\"
+            // cNewPath := cUser +"\"+cFile +"\"
             // Userfolder(@cNewPath)
             Msginfo( "Hardlink not supported yet. use F2" )
             FillWithDir( cForm, cObj, cPath, "TREEDN" )
          ELSE
-            cNewPath := cPath + cText + "\"
+            cNewPath := cPath + cFile + "\"
             FillWithDir( cForm, cObj, cNewPath, "TREEDN" )
          ENDIF
       ELSE
@@ -1958,7 +1988,7 @@ LOCAL cUser    := GETENV( "USERPROFILE" )
             WinRight.Tab_Right.Caption( nDimRight ) := GetTabName( cPath )
          ENDIF
 
-         RunByExtension( cPath, cText )
+         RunByExtension( cPath, cFile )
       ENDIF
 
    ENDIF
@@ -2122,6 +2152,8 @@ RETURN nDescend
 *+                                   1 - static procedure slideshow()
 *+                                   1 - static procedure dodevice()
 *+                                   1 - static procedure dofoldersize()
+*+                                   1 - static procedure dorunas()
+*+                                   1 - static procedure dorename()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -2192,8 +2224,8 @@ LOCAL hWnd
 
    IF SP_DarkMode()
       hWnd := GetFormHandle( cForm )
-      BMP_FILL( hwnd, SP_nColor1() )
-      // PAINTBKGND( hwnd, SP_nColor1() )
+      //  BMP_FILL( hwnd, SP_nColor1() )
+      //  PAINTBKGND( hwnd, SP_nColor1() )
 
       Paint_Tab_Window( nNo )
    ENDIF
@@ -2213,8 +2245,9 @@ STATIC PROCEDURE Paint_Main_Background_Window( cForm )
 LOCAL hWnd
 
    IF SP_DarkMode()
-      //  hWnd := Win_1.Handle
+      hWnd := Win_1.Handle
       //  BMP_FILL( hwnd, SP_nColor1() )
+      //  PAINTBKGND( hwnd, SP_nColor1() )
    ENDIF
 
 RETURN
@@ -2250,7 +2283,7 @@ LOCAL i, iMax
       ELSE
          hWnd := GetProperty( "WinRight", "Tab_Right", STR( i ), "handle" )
       ENDIF
-      // BMP_FILL( hwnd, SP_nColor1() )
+      //  BMP_FILL( hwnd, SP_nColor1() )
       PAINTBKGND( hwnd, SP_nColor1() )
 
       aRect := TABCTRL_GETITEMRECT( hWnd, i - 1 )
@@ -2462,11 +2495,13 @@ RETURN
 *+
 STATIC PROCEDURE DoGridKey1( cForm, cObj )
 
-LOCAL nTab        := Getproperty( "WinLeft", "Tab_Left", "Value" )
-LOCAL xKey        := HMG_GetLastVirtualKeyDown()
+LOCAL nTab   := Getproperty( "WinLeft", "Tab_Left", "Value" )
+LOCAL xKey   := HMG_GetLastVirtualKeyDown()
 LOCAL nPosi
-LOCAL hGrid       := GetControlHandle( cObj, "WinLeft" )
-LOCAL aStart      := GetProperty( "WinLeft", cObj, "Value" )
+LOCAL hGrid  := GetControlHandle( cObj, "WinLeft" )
+LOCAL aStart := GetProperty( "WinLeft", cObj, "Value" )
+LOCAL nGoTo  := 1
+
 STATIC cInKeySeek := ""
 STATIC nLast      := 1
 
@@ -2475,6 +2510,8 @@ STATIC nLast      := 1
    ENDIF
 
    IF lActiveMain = .T.
+      nGoTo := aStart[ 1 ]
+
       DO CASE
          CASE xKey == VK_T .AND. HMG_VirtualKeyIsPressed( VK_CONTROL )
             NewTab()
@@ -2519,8 +2556,12 @@ STATIC nLast      := 1
             CreateNewFolder()
          CASE xKey == VK_F8 .AND. .NOT. IsKeyVK()
             ASKFORM( "DELETE" )
+            GoLastmark( 1, nGoTo )
+
          CASE xKey == VK_DELETE .AND. .NOT. IsKeyVK()
             ASKFORM( "DELETE" )
+            GoLastmark( 1, nGoTo )
+
          CASE xKey == VK_RETURN
             // it IS include as DblClick
             // DoDblClick()
@@ -2553,7 +2594,8 @@ STATIC nLast      := 1
 
             IF HMG_VirtualKeyIsPressed( VK_CONTROL ) .OR. HMG_VirtualKeyIsPressed( VK_SHIFT ) .OR. HMG_VirtualKeyIsPressed( VK_ALT )
             ELSE
-               nPosi := ASCAN( aGetVKkeys, { | x, i | x[ 3 ] = xKey } )
+               //  nPosi := ASCAN( aGetVKkeys, { | x, i | x[ 3 ] = xKey } )
+               nPosi := ASCAN( aGetVKkeys, { | x, i | &( [ 1 ] ) = xKey } )
                IF nPosi > 0
                ELSE
                   IF EMPTY( aStart )
@@ -2602,6 +2644,7 @@ LOCAL xKey   := HMG_GetLastVirtualKeyDown()
 LOCAL nPosi
 LOCAL hGrid  := GetControlHandle( cObj, "WinRight" )
 LOCAL aStart := GetProperty( "WinRight", cObj, "Value" )
+LOCAL nGoTo  := 1
 
 STATIC cInKeySeek := ""
 STATIC nLast      := 1
@@ -2610,6 +2653,8 @@ STATIC nLast      := 1
       RETURN
    ENDIF
    IF lActiveMain = .T.
+      nGoTo := aStart[ 1 ]
+
       DO CASE
          CASE xKey == VK_T .AND. HMG_VirtualKeyIsPressed( VK_CONTROL )
             NewTab()
@@ -2652,8 +2697,12 @@ STATIC nLast      := 1
             CreateNewFolder()
          CASE xKey == VK_F8 .AND. .NOT. IsKeyVK()
             ASKFORM( "DELETE" )
+            GoLastmark( 2, nGoTo )
+
          CASE xKey == VK_DELETE
             ASKFORM( "DELETE" )
+            GoLastmark( 2, nGoTo )
+
          CASE xKey == VK_RETURN
             // it IS include as DblClick
             // DoDblClick()
@@ -2685,7 +2734,8 @@ STATIC nLast      := 1
 
             IF HMG_VirtualKeyIsPressed( VK_CONTROL ) .OR. HMG_VirtualKeyIsPressed( VK_SHIFT ) .OR. HMG_VirtualKeyIsPressed( VK_ALT )
             ELSE
-               nPosi := ASCAN( aGetVKkeys, { | x, i | x[ 3 ] = xKey } )
+               //  nPosi := ASCAN( aGetVKkeys, { | x, i | x[ 3 ] = xKey } )
+               nPosi := ASCAN( aGetVKkeys, { | x, i | &( [ 1 ] ) = xKey } )
                IF nPosi > 0
                ELSE
                   IF EMPTY( aStart )
@@ -2934,7 +2984,7 @@ LOCAL hGrid
          nVALUE := GetProperty( "WinLeft", "ComboLeft", "VALUE" )
          aItem := GetProperty( "WinLeft", "ComboLeft", "ITEM", nVALUE )
 
-         nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinLeft" .AND. o[ 2 ] = cGrid_Left } )
+         nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinLeft" .AND. o[ AW_OBJ ] = cGrid_Left } )
          IF nPosi > 0
             cDir := SUBSTR( GridGetPath( "WinLeft", cGrid_Left ), 1, 1 )
          ENDIF
@@ -2962,7 +3012,7 @@ LOCAL hGrid
          nVALUE := GetProperty( "WinRight", "ComboRight", "VALUE" )
          aItem := GetProperty( "WinRight", "ComboRight", "ITEM", nVALUE )
 
-         nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinRight" .AND. o[ 2 ] = cGrid_Right } )
+         nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinRight" .AND. o[ AW_OBJ ] = cGrid_Right } )
          IF nPosi > 0
             cDir := SUBSTR( GridGetPath( "WinRight", cGrid_Right ), 1, 1 )
          ENDIF
@@ -3038,7 +3088,7 @@ LOCAL nPosi, cDir, aNewDir
    IF !EMPTY( cInput )
       SP_lDirWatch( .F. )
       IF nGridFocus = 1
-         nPosi := ASCAN( aWin, { | o | o[ 1 ] = "WinLeft" .AND. o[ 2 ] = cGrid_Left } )
+         nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinLeft" .AND. o[ AW_OBJ ] = cGrid_Left } )
          IF nPosi > 0
             cDir := GridGetPath( "WinLeft", cGrid_Left )
          ENDIF
@@ -3047,7 +3097,7 @@ LOCAL nPosi, cDir, aNewDir
          FillWithDir( "WinLeft", cGrid_Left, cdir, "TREEDN" )
 
       ELSE
-         nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinRight" .AND. o[ 2 ] = cGrid_Right } )
+         nPosi := ASCAN( aWin, { | o | o[ AW_FORM ] = "WinRight" .AND. o[ AW_OBJ ] = cGrid_Right } )
          IF nPosi > 0
             cDir := GridGetPath( "WinRight", cGrid_Right )
          ENDIF
@@ -3096,8 +3146,8 @@ LOCAL nMask      := hb_BitOr( LVIS_SELECTED, LVIS_FOCUSED )
 LOCAL nGoTo      := 1
 LOCAL nIndexRoot := 0
 LOCAL acDelete   := SP_JustDelete()
-LOCAL aTest      := { { 0, 0, 0 } }
-LOCAL xLast      := ""
+   // LOCAL aTest      := { { 0, 0, 0 } }
+LOCAL xLast    := ""
 LOCAL hIcon, nFileHandle
 LOCAL cSeek, cFile, cAttr
 LOCAL aNewDir
@@ -3105,7 +3155,7 @@ LOCAL hGrid
 LOCAL nIndex
 LOCAL nPosi, cDir
 LOCAL i, iMax, nDimStack, aInfoDir, nIcoHandle, j, jMax
-LOCAL xRet
+LOCAL lLastPos := .F.
 
 STATIC lIsrunning := .F.
 
@@ -3129,6 +3179,7 @@ STATIC lIsrunning := .F.
       ENDIF
 
       IF !EMPTY( acDelete )
+         lLastPos := .T.
          iMax := LEN( acDelete )
          FOR i := 1 TO iMax
             nPosi := ASCAN( aNewDir, { | o | o[ F_NAME ] = acDelete[ i ] } )
@@ -3150,9 +3201,6 @@ STATIC lIsrunning := .F.
             aDir_Left := {}
             aDir_Left := ACLONE( aNewDir )
             iMax := LEN( aNewDir )
-#IFDEF Use_Virtual
-            SetProperty( "WinLeft", cObj, "ITEMCOUNT", LEN( aDir_Left ) )
-#ELSE
             xLast := ""
             FOR i := 1 TO iMax
                IF xLast <> aNewDir[ i ] [ F_NAME ]
@@ -3161,15 +3209,14 @@ STATIC lIsrunning := .F.
                ENDIF
             NEXT
             IF SP_UseImage() = .T.
-               aFiles_Left := BT_DirectoryInfo( cNewPath, BT_DIRECTORYINFO_LISTALL )
                DirImageColor( cNewPath, aNewDir, "WinLeft", cObj )
             ENDIF
-#ENDIF
             GridChangePath( "WinLeft", cObj, cNewPath, cUpDn )
             Domethod( "WinLeft", cObj, "EnableUpdate" )
-            Domethod( "WinLeft", cObj, "Refresh" )
+            //             Domethod( "WinLeft", cObj, "Refresh" ) // do NOT refresh here
             Domethod( "WinLeft", cObj, "SetFocus" )
             hGrid := GetControlHandle( cObj, "WinLeft" )
+
             AddBackLog( 1, cNewPath )
 
          CASE cForm = "WinRight"
@@ -3179,9 +3226,6 @@ STATIC lIsrunning := .F.
             aDir_Right := {}
             aDir_Right := ACLONE( aNewDir )
             iMax := LEN( aNewDir )
-#IFDEF Use_Virtual
-            SetProperty( "WinRight", cObj, "ITEMCOUNT", LEN( aDir_Right ) )
-#ELSE
             xLast := ""
             FOR i := 1 TO iMax
                IF xLast <> aNewDir[ i ] [ F_NAME ]
@@ -3190,13 +3234,11 @@ STATIC lIsrunning := .F.
                ENDIF
             NEXT
             IF SP_UseImage() = .T.
-               aFiles_Right := BT_DirectoryInfo( cNewPath, BT_DIRECTORYINFO_LISTALL )
                DirImageColor( cNewPath, aNewDir, "WinRight", cObj )
             ENDIF
-#ENDIF
             GridChangePath( "WinRight", cObj, cNewPath, cUpDn )
             Domethod( "WinRight", cObj, "EnableUpdate" )
-            Domethod( "WinRight", cObj, "Refresh" )
+            //             Domethod( "WinRight", cObj, "Refresh" ) // do NOT refresh here
             Domethod( "WinRight", cObj, "SetFocus" )
             hGrid := GetControlHandle( cObj, "WinRight" )
 
@@ -3207,10 +3249,17 @@ STATIC lIsrunning := .F.
       DO CASE
          CASE cUpDn = "TREEDN"
             nGoTo := 1
+
             DO CASE
                CASE cForm = "WinLeft"
+                  IF lLastPos = .T.
+                     nGoTo := nLast_Left
+                  ENDIF
                   SetProperty( "WinLeft", cObj, "Value", { nGoTo } )
                CASE cForm = "WinRight"
+                  IF lLastPos = .T.
+                     nGoTo := nLast_Right
+                  ENDIF
                   SetProperty( "WinRight", cObj, "Value", { nGoTo } )
             ENDCASE
 
@@ -3419,9 +3468,8 @@ STATIC nPageRight := 1
       AADD( Stack_Left, ARRAY( 5 ) )
       nDimLeft := LEN( Stack_Left )
       cGrid_Left := cObj
-      aColor_Left := {}
-      aImage_Left := {}
-      aFiles_Left := {}
+      //       aColor_Left := {}
+      //       aImage_Left := {}
 
       aDir_Left := ACLONE( aDirTemp )
       AADD( aWin, { "WinLeft", cObj, cDir, 1, 1, F_NAME, .F. } )
@@ -3466,9 +3514,8 @@ STATIC nPageRight := 1
       AADD( Stack_Right, ARRAY( 5 ) )
       nDimRight := LEN( Stack_Right )
       cGrid_Right := cObj
-      aColor_Right := {}
-      aImage_Right := {}
-      aFiles_Right := {}
+      //       aColor_Right := {}
+      //       aImage_Right := {}
 
       aDir_Right := ACLONE( aDirTemp )
       AADD( aWin, { "WinRight", cObj, cDir, 1, 1, F_NAME, .F. } )
@@ -4288,6 +4335,7 @@ LOCAL cForm, cObj, cStart, aDir
    ELSE
       SP_cGoToDir( "" )
       HBEVERY( cStart )
+
       cPath := SP_cGoToDir()
       IF !EMPTY( cPath )
          nPosi := RAT( "\", cPath )
@@ -4637,6 +4685,7 @@ RETURN
 *+                                   8 - static procedure comparedir()
 *+                                   1 - static procedure domarkfiles()
 *+                                   1 - static procedure searchform()
+*+                                   1 - static procedure golastmark()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -5219,48 +5268,6 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
-*+    Static Procedure ShowOSK()
-*+
-*+    Called from ( fmgrid.prg )   1 - procedure dualgrid()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC PROCEDURE ShowOSK()
-
-LOCAL windir := GETENV( "windir" )
-
-STATIC lOpen := .F.
-
-   IF lOpen = .F.
-      lOpen := .T.
-
-      IF Is64Bit()
-         HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "Wow64EnableWow64FsRedirection", FALSE )                                                   // disable bevor API Call
-      ENDIF
-
-      //  IF .NOT. FILE (VirtualKeyboard.FULLFILENAME)
-      IF .NOT. FILE( windir + "\System32\osk.exe" )
-         msgInfo( "file OSK.EXE not found ?" )
-         RETURN
-      ENDIF
-
-      _EXECUTE( 0,, VirtualKeyboard.FULLFILENAME, "ON",, 5 )
-      INKEY( 1 )                                                      // Wait until the application is loaded
-
-      IF Is64Bit()
-         HMG_CallDLL( "Kernel32.dll", DLL_OSAPI, "Wow64EnableWow64FsRedirection", TRUE )                                                    // enable again
-      ENDIF
-
-      RETURN
-   ELSE
-      lOpen := .F.
-      FindAndCloseProcress( "OSK.EXE" )
-   ENDIF
-
-RETURN
-
-*+--------------------------------------------------------------------
-*+
 *+    Static Procedure DoTouchEnter()
 *+
 *+    Called from ( fmgrid.prg )   1 - procedure dualgrid()
@@ -5283,50 +5290,6 @@ LOCAL cForm, cObj
    Doit( cForm, cObj )
 
 RETURN
-
-*+--------------------------------------------------------------------
-*+
-*+    Static Function FindAndCloseProcress()
-*+
-*+    Called from ( fmgrid.prg )   1 - static procedure showosk()
-*+
-*+--------------------------------------------------------------------
-*+
-STATIC FUNCTION FindAndCloseProcress( cApp )
-
-LOCAL oProcesses, oProcess, oWMI, oLocator
-LOCAL lRet       := .F.
-
-   oLocator := CreateObject( "wbemScripting.SwbemLocator" )
-   IF EMPTY( oLocator )
-      msginfo( "can not create wbemScripting.SwbemLocator" )
-      RETURN .F.
-   ELSE
-      oWMI := oLocator:ConnectServer()
-   ENDIF
-
-   IF EMPTY( oWMI )
-      msginfo( "can not connect oLocator:ConnectServer()" )
-      RETURN .F.
-   ELSE
-      oProcesses = oWMI:ExecQuery( "SELECT * FROM Win32_Process" )
-
-      IF oProcesses:Count > 0
-         FOR EACH oProcess in oProcesses
-            IF UPPER( TRIM( oProcess:Name ) ) = cApp
-               //  msginfo( "terminate " + cApp )
-               oProcess:Terminate( 0 )
-               lRet := .T.
-               EXIT
-            ENDIF
-         NEXT
-      ENDIF
-   ENDIF
-
-   oProcesses := NIL
-   oWMI := NIL
-   oLocator := NIL
-RETURN lRet
 
 *+--------------------------------------------------------------------
 *+
@@ -6298,6 +6261,142 @@ LOCAL cForm, cObj
          ShowProperty( nForm )
       ENDIF
    ENDIF
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure DoRunAs()
+*+
+*+    Called from ( fmgrid.prg )   2 - procedure dualgrid()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE DoRunAs( nNo )
+
+LOCAL cForm, cObj, aItem, iMax, nItem
+LOCAL cPath, cName, cFile
+
+   DO CASE
+      CASE nNo = 1
+         cForm := "WinLeft"
+         cObj := cGrid_Left
+         aItem := GetProperty( "WinLeft", cGrid_Left, "Value" )
+
+      CASE nNo = 2
+         cForm := "WinRight"
+         cObj := cGrid_Right
+         aItem := GetProperty( "WinRight", cGrid_Right, "Value" )
+   ENDCASE
+
+   IF VALTYPE( aItem ) = "A"
+      iMax := LEN( aItem )
+      IF EMPTY( iMax )
+         SetProperty( cForm, cObj, "Value", { 1 } )
+         RETURN
+      ELSE
+         nItem := aItem[ 1 ]
+      ENDIF
+   ELSEIF VALTYPE( aItem ) = "N"
+      nItem := aItem
+   ENDIF
+
+   cPath := GridGetPath( cForm, cObj )
+   cName := GetProperty( cForm, cObj, "CELL", nItem, F_NAME )
+   cFile := cPath + cName
+
+   ShellExecute( 0, "runas", cFile,,, SW_SHOW )
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure DoRename()
+*+
+*+    Called from ( fmgrid.prg )   2 - procedure dualgrid()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE DoRename( nNo )
+
+LOCAL cForm, cObj, aItem, iMax, nItem, nGoTo := 1
+LOCAL cPath, cName, cInput
+LOCAL hGrid
+
+   DO CASE
+      CASE nNo = 1
+         cForm := "WinLeft"
+         cObj := cGrid_Left
+         aItem := GetProperty( "WinLeft", cGrid_Left, "Value" )
+         hGrid := GetControlHandle( cObj, "WinLeft" )
+
+      CASE nNo = 2
+         cForm := "WinRight"
+         cObj := cGrid_Right
+         aItem := GetProperty( "WinRight", cGrid_Right, "Value" )
+         hGrid := GetControlHandle( cObj, "WinRight" )
+   ENDCASE
+
+   IF VALTYPE( aItem ) = "A"
+      iMax := LEN( aItem )
+      IF EMPTY( iMax )
+         SetProperty( cForm, cObj, "Value", { 1 } )
+         RETURN
+      ELSE
+         nItem := aItem[ 1 ]
+      ENDIF
+   ELSEIF VALTYPE( aItem ) = "N"
+      nItem := aItem
+   ENDIF
+   nGoTo := nItem
+
+   cPath := GridGetPath( cForm, cObj )
+   cName := GetProperty( cForm, cObj, "CELL", nItem, F_NAME )
+
+   cInput := GetInPut( "New File Name:", "rename File", cName, 1 )
+   IF !EMPTY( cInput )
+      SP_lDirWatch( .F. )                                             // disable Watch Dir
+      IF FRENAME( cPath + cName, cPath + cInput ) = 0
+         SetProperty( cForm, cObj, "CELL", nItem, F_NAME, cInput )
+         GoLastmark( nNo, nGoTo )
+      ELSE
+         MsgInfo( "Error rename file " + CRLF + cName + CRLF + "to" + CRLF + cInput, "rename fail" )
+      ENDIF
+      SP_lDirWatch( .T. )                                             // enable Watch Dir
+   ENDIF
+
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Static Procedure GoLastmark()
+*+
+*+    Called from ( fmgrid.prg )   2 - static procedure dogridkey1()
+*+                                   2 - static procedure dogridkey2()
+*+                                   1 - static procedure dorename()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC PROCEDURE GoLastmark( nNo, nGoTo )
+
+LOCAL cForm, cObj
+LOCAL hGrid
+
+   DO CASE
+      CASE nNo = 1
+         cForm := "WinLeft"
+         cObj := cGrid_Left
+         hGrid := GetControlHandle( cObj, "WinLeft" )
+
+      CASE nNo = 2
+         cForm := "WinRight"
+         cObj := cGrid_Right
+         hGrid := GetControlHandle( cObj, "WinRight" )
+   ENDCASE
+
+   ItemMark( hGrid, nGoTo )
+   ListView_EnsureVisible( hGrid, nGoTo )
+   ListView_RedrawItems( hGrid, nGoTo, nGoTo )
+   Domethod( cForm, cObj, "setfocus" )
 RETURN
 
 *+ EOF: FMGRID.PRG

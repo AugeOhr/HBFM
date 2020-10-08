@@ -65,7 +65,7 @@
 *+               Function SP_cMainPath()
 *+               Function DebugStack()
 *+
-*+    Reformatted by Click! 2.05.33 on Sep-18-2020 at  1:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
 *+
 *+--------------------------------------------------------------------
 
@@ -139,6 +139,7 @@ STATIC SP    := 0
 *+    Function SP_INIT()
 *+
 *+    Called from ( hbfm.prg )   1 - function main()
+*+                ( hbfm64.prg )   1 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -217,165 +218,61 @@ RETURN NIL
 FUNCTION GetVKkeys()
 
 LOCAL aRet := {}
-   AADD( aRet, { "VK_LBUTTON            ", 0x01, - 1 } )
-   AADD( aRet, { "VK_RBUTTON            ", 0x02, - 1 } )
-   AADD( aRet, { "VK_CANCEL             ", 0x03, - 1 } )
-   AADD( aRet, { "VK_MBUTTON            ", 0x04, - 1 } )
-   AADD( aRet, { "VK_XBUTTON1           ", 0x05, - 1 } )
-   AADD( aRet, { "VK_XBUTTON2           ", 0x06, - 1 } )
-   AADD( aRet, { "VK_BACK               ", 0x08, xbeK_BS } )
-   AADD( aRet, { "VK_TAB                ", 0x09, xbeK_TAB } )
-   AADD( aRet, { "VK_CLEAR              ", 0x0C, - 1 } )
-   AADD( aRet, { "VK_RETURN             ", 0x0D, xbeK_RETURN } )
-   AADD( aRet, { "VK_SHIFT              ", 0x10, xbeK_SHIFT } )
-   AADD( aRet, { "VK_CONTROL            ", 0x11, xbeK_CTRL } )
-   AADD( aRet, { "VK_MENU               ", 0x12, xbeK_ALT } )
-   AADD( aRet, { "VK_PAUSE              ", 0x13, 65555 } )
-   AADD( aRet, { "VK_CAPITAL            ", 0x14, xbeK_CAPS_LOCK } )
-   AADD( aRet, { "VK_KANA               ", 0x15, - 1 } )
-   AADD( aRet, { "VK_HANGUL             ", 0x15, - 1 } )
-   AADD( aRet, { "VK_JUNJA              ", 0x17, - 1 } )
-   AADD( aRet, { "VK_FINAL              ", 0x18, - 1 } )
-   AADD( aRet, { "VK_HANJA              ", 0x19, - 1 } )
-   AADD( aRet, { "VK_KANJI              ", 0x19, - 1 } )
-   AADD( aRet, { "VK_ESCAPE             ", 0x1B, xbeK_ESC } )
-   AADD( aRet, { "VK_CONVERT            ", 0x1C, - 1 } )
-   AADD( aRet, { "VK_NONCONVERT         ", 0x1D, - 1 } )
-   AADD( aRet, { "VK_ACCEPT             ", 0x1E, - 1 } )
-   AADD( aRet, { "VK_MODECHANGE         ", 0x1F, - 1 } )
-   AADD( aRet, { "VK_SPACE              ", 0x20, xbeK_SPACE } )
-   AADD( aRet, { "VK_PRIOR              ", 0x21, xbeK_PGUP } )
-   AADD( aRet, { "VK_NEXT               ", 0x22, xbeK_PGDN } )
-   AADD( aRet, { "VK_END                ", 0x23, xbeK_END } )
-   AADD( aRet, { "VK_HOME               ", 0x24, xbeK_HOME } )
-   AADD( aRet, { "VK_LEFT               ", 0x25, xbeK_LEFT } )
-   AADD( aRet, { "VK_UP                 ", 0x26, xbeK_UP } )
-   AADD( aRet, { "VK_RIGHT              ", 0x27, xbeK_RIGHT } )
-   AADD( aRet, { "VK_DOWN               ", 0x28, xbeK_DOWN } )
-   AADD( aRet, { "VK_SELECT             ", 0x29, - 1 } )
-   AADD( aRet, { "VK_PRINT              ", 0x2A, - 1 } )
-   AADD( aRet, { "VK_EXECUTE            ", 0x2B, - 1 } )
-   AADD( aRet, { "VK_SNAPSHOT           ", 0x2C, 99999 } )
-   AADD( aRet, { "VK_INSERT             ", 0x2D, xbeK_INS } )
-   AADD( aRet, { "VK_DELETE             ", 0x2E, xbeK_DEL } )
-   AADD( aRet, { "VK_HELP               ", 0x2F, - 1 } )
-   AADD( aRet, { "VK_LWIN               ", 0x5B, 65627 } )
-   AADD( aRet, { "VK_RWIN               ", 0x5C, 65628 } )
-   AADD( aRet, { "VK_APPS               ", 0x5D, xbeK_CMENU } )
-   AADD( aRet, { "VK_SLEEP              ", 0x5F, - 1 } )
-   AADD( aRet, { "VK_NUMPAD0            ", 0x60, - 1 } )
-   AADD( aRet, { "VK_NUMPAD1            ", 0x61, - 1 } )
-   AADD( aRet, { "VK_NUMPAD2            ", 0x62, - 1 } )
-   AADD( aRet, { "VK_NUMPAD3            ", 0x63, - 1 } )
-   AADD( aRet, { "VK_NUMPAD4            ", 0x64, - 1 } )
-   AADD( aRet, { "VK_NUMPAD5            ", 0x65, - 1 } )
-   AADD( aRet, { "VK_NUMPAD6            ", 0x66, - 1 } )
-   AADD( aRet, { "VK_NUMPAD7            ", 0x67, - 1 } )
-   AADD( aRet, { "VK_NUMPAD8            ", 0x68, - 1 } )
-   AADD( aRet, { "VK_NUMPAD9            ", 0x69, - 1 } )
-   AADD( aRet, { "VK_MULTIPLY           ", 0x6A, 42 } )
-   AADD( aRet, { "VK_ADD                ", 0x6B, 43 } )
-   AADD( aRet, { "VK_SEPARATOR          ", 0x6C, - 1 } )
-   AADD( aRet, { "VK_SUBTRACT           ", 0x6D, 45 } )
-   AADD( aRet, { "VK_DECIMAL            ", 0x6E, 44 } )
-   AADD( aRet, { "VK_DIVIDE             ", 0x6F, 47 } )
-   AADD( aRet, { "VK_F1                 ", 0x70, xbeK_F1 } )
-   AADD( aRet, { "VK_F2                 ", 0x71, xbeK_F2 } )
-   AADD( aRet, { "VK_F3                 ", 0x72, xbeK_F3 } )
-   AADD( aRet, { "VK_F4                 ", 0x73, xbeK_F4 } )
-   AADD( aRet, { "VK_F5                 ", 0x74, xbeK_F5 } )
-   AADD( aRet, { "VK_F6                 ", 0x75, xbeK_F6 } )
-   AADD( aRet, { "VK_F7                 ", 0x76, xbeK_F7 } )
-   AADD( aRet, { "VK_F8                 ", 0x77, xbeK_F8 } )
-   AADD( aRet, { "VK_F9                 ", 0x78, xbeK_F9 } )
-   AADD( aRet, { "VK_F10                ", 0x79, xbeK_F10 } )
-   AADD( aRet, { "VK_F11                ", 0x7A, xbeK_F11 } )
-   AADD( aRet, { "VK_F12                ", 0x7B, xbeK_F12 } )
-   AADD( aRet, { "VK_F13                ", 0x7C, xbeK_SH_F1 } )
-   AADD( aRet, { "VK_F14                ", 0x7D, xbeK_SH_F2 } )
-   AADD( aRet, { "VK_F15                ", 0x7E, xbeK_SH_F3 } )
-   AADD( aRet, { "VK_F16                ", 0x7F, xbeK_SH_F4 } )
-   AADD( aRet, { "VK_F17                ", 0x80, xbeK_SH_F5 } )
-   AADD( aRet, { "VK_F18                ", 0x81, xbeK_SH_F6 } )
-   AADD( aRet, { "VK_F19                ", 0x82, xbeK_SH_F7 } )
-   AADD( aRet, { "VK_F20                ", 0x83, xbeK_SH_F8 } )
-   AADD( aRet, { "VK_F21                ", 0x84, xbeK_SH_F9 } )
-   AADD( aRet, { "VK_F22                ", 0x85, xbeK_SH_F10 } )
-   AADD( aRet, { "VK_F23                ", 0x86, xbeK_SH_F11 } )
-   AADD( aRet, { "VK_F24                ", 0x87, xbeK_SH_F12 } )
-   AADD( aRet, { "VK_NUMLOCK            ", 0x90, xbeK_NUM_LOCK } )
-   AADD( aRet, { "VK_SCROLL             ", 0x91, xbeK_SCROLL_LOCK } )
-   AADD( aRet, { "VK_OEM_NEC_EQUAL      ", 0x92, - 1 } )
-   AADD( aRet, { "VK_OEM_FJ_JISHO       ", 0x92, - 1 } )
-   AADD( aRet, { "VK_OEM_FJ_MASSHOU     ", 0x93, - 1 } )
-   AADD( aRet, { "VK_OEM_FJ_TOUROKU     ", 0x94, - 1 } )
-   AADD( aRet, { "VK_OEM_FJ_LOYA        ", 0x95, - 1 } )
-   AADD( aRet, { "VK_OEM_FJ_ROYA        ", 0x96, - 1 } )
-   AADD( aRet, { "VK_LSHIFT             ", 0xA0, - 1 } )
-   AADD( aRet, { "VK_RSHIFT             ", 0xA1, - 1 } )
-   AADD( aRet, { "VK_LCONTROL           ", 0xA2, - 1 } )
-   AADD( aRet, { "VK_RCONTROL           ", 0xA3, - 1 } )
-   AADD( aRet, { "VK_LMENU              ", 0xA4, - 1 } )
-   AADD( aRet, { "VK_RMENU              ", 0xA5, - 1 } )
-   AADD( aRet, { "VK_BROWSER_BACK       ", 0xA6, - 1 } )
-   AADD( aRet, { "VK_BROWSER_FORWARD    ", 0xA7, - 1 } )
-   AADD( aRet, { "VK_BROWSER_REFRESH    ", 0xA8, - 1 } )
-   AADD( aRet, { "VK_BROWSER_STOP       ", 0xA9, - 1 } )
-   AADD( aRet, { "VK_BROWSER_SEARCH     ", 0xAA, - 1 } )
-   AADD( aRet, { "VK_BROWSER_FAVORITES  ", 0xAB, - 1 } )
-   AADD( aRet, { "VK_BROWSER_HOME       ", 0xAC, - 1 } )
-   AADD( aRet, { "VK_VOLUME_MUTE        ", 0xAD, - 1 } )
-   AADD( aRet, { "VK_VOLUME_DOWN        ", 0xAE, - 1 } )
-   AADD( aRet, { "VK_VOLUME_UP          ", 0xAF, - 1 } )
-   AADD( aRet, { "VK_MEDIA_NEXT_TRACK   ", 0xB0, - 1 } )
-   AADD( aRet, { "VK_MEDIA_PREV_TRACK   ", 0xB1, - 1 } )
-   AADD( aRet, { "VK_MEDIA_STOP         ", 0xB2, - 1 } )
-   AADD( aRet, { "VK_MEDIA_PLAY_PAUSE   ", 0xB3, - 1 } )
-   AADD( aRet, { "VK_LAUNCH_MAIL        ", 0xB4, - 1 } )
-   AADD( aRet, { "VK_LAUNCH_MEDIA_SELECT", 0xB5, - 1 } )
-   AADD( aRet, { "VK_LAUNCH_APP1        ", 0xB6, - 1 } )
-   AADD( aRet, { "VK_LAUNCH_APP2        ", 0xB7, - 1 } )
-   AADD( aRet, { "VK_OEM_1              ", 0xBA, - 1 } )
-   AADD( aRet, { "VK_OEM_PLUS           ", 0xBB, - 1 } )
-   AADD( aRet, { "VK_OEM_COMMA          ", 0xBC, - 1 } )
-   AADD( aRet, { "VK_OEM_MINUS          ", 0xBD, - 1 } )
-   AADD( aRet, { "VK_OEM_PERIOD         ", 0xBE, - 1 } )
-   AADD( aRet, { "VK_OEM_2              ", 0xBF, - 1 } )
-   AADD( aRet, { "VK_OEM_3              ", 0xC0, - 1 } )
-   AADD( aRet, { "VK_OEM_4              ", 0xDB, - 1 } )
-   AADD( aRet, { "VK_OEM_5              ", 0xDC, - 1 } )
-   AADD( aRet, { "VK_OEM_6              ", 0xDD, - 1 } )
-   AADD( aRet, { "VK_OEM_7              ", 0xDE, - 1 } )
-   AADD( aRet, { "VK_OEM_8              ", 0xDF, - 1 } )
-   AADD( aRet, { "VK_OEM_AX             ", 0xE1, - 1 } )
-   AADD( aRet, { "VK_OEM_102            ", 0xE2, - 1 } )
-   AADD( aRet, { "VK_ICO_HELP           ", 0xE3, - 1 } )
-   AADD( aRet, { "VK_ICO_00             ", 0xE4, - 1 } )
-   AADD( aRet, { "VK_PROCESSKEY         ", 0xE5, - 1 } )
-   AADD( aRet, { "VK_ICO_CLEAR          ", 0xE6, - 1 } )
-   AADD( aRet, { "VK_PACKET             ", 0xE7, - 1 } )
-   AADD( aRet, { "VK_OEM_RESET          ", 0xE9, - 1 } )
-   AADD( aRet, { "VK_OEM_JUMP           ", 0xEA, - 1 } )
-   AADD( aRet, { "VK_OEM_PA1            ", 0xEB, - 1 } )
-   AADD( aRet, { "VK_OEM_PA2            ", 0xEC, - 1 } )
-   AADD( aRet, { "VK_OEM_PA3            ", 0xED, - 1 } )
-   AADD( aRet, { "VK_OEM_WSCTRL         ", 0xEE, - 1 } )
-   AADD( aRet, { "VK_OEM_CUSEL          ", 0xEF, - 1 } )
-   AADD( aRet, { "VK_OEM_ATTN           ", 0xF0, - 1 } )
-   AADD( aRet, { "VK_OEM_FINISH         ", 0xF1, - 1 } )
-   AADD( aRet, { "VK_OEM_COPY           ", 0xF2, - 1 } )
-   AADD( aRet, { "VK_OEM_AUTO           ", 0xF3, - 1 } )
-   AADD( aRet, { "VK_OEM_ENLW           ", 0xF4, - 1 } )
-   AADD( aRet, { "VK_OEM_BACKTAB        ", 0xF5, - 1 } )
-   AADD( aRet, { "VK_ATTN               ", 0xF6, - 1 } )
-   AADD( aRet, { "VK_CRSEL              ", 0xF7, - 1 } )
-   AADD( aRet, { "VK_EXSEL              ", 0xF8, - 1 } )
-   AADD( aRet, { "VK_EREOF              ", 0xF9, - 1 } )
-   AADD( aRet, { "VK_PLAY               ", 0xFA, - 1 } )
-   AADD( aRet, { "VK_ZOOM               ", 0xFB, - 1 } )
-   AADD( aRet, { "VK_NONAME             ", 0xFC, - 1 } )
-   AADD( aRet, { "VK_PA1                ", 0xFD, - 1 } )
-   AADD( aRet, { "VK_OEM_CLEAR          ", 0xFE, - 1 } )
+   AADD( aRet, { VK_BACK, 0x08, xbeK_BS } )
+   AADD( aRet, { VK_TAB, 0x09, xbeK_TAB } )
+   AADD( aRet, { VK_RETURN, 0x0D, xbeK_RETURN } )
+   AADD( aRet, { VK_SHIFT, 0x10, xbeK_SHIFT } )
+   AADD( aRet, { VK_CONTROL, 0x11, xbeK_CTRL } )
+   AADD( aRet, { VK_MENU, 0x12, xbeK_ALT } )
+   AADD( aRet, { VK_PAUSE, 0x13, 65555 } )
+   AADD( aRet, { VK_CAPITAL, 0x14, xbeK_CAPS_LOCK } )
+   AADD( aRet, { VK_ESCAPE, 0x1B, xbeK_ESC } )
+   AADD( aRet, { VK_SPACE, 0x20, xbeK_SPACE } )
+   AADD( aRet, { VK_PRIOR, 0x21, xbeK_PGUP } )
+   AADD( aRet, { VK_NEXT, 0x22, xbeK_PGDN } )
+   AADD( aRet, { VK_END, 0x23, xbeK_END } )
+   AADD( aRet, { VK_HOME, 0x24, xbeK_HOME } )
+   AADD( aRet, { VK_LEFT, 0x25, xbeK_LEFT } )
+   AADD( aRet, { VK_UP, 0x26, xbeK_UP } )
+   AADD( aRet, { VK_RIGHT, 0x27, xbeK_RIGHT } )
+   AADD( aRet, { VK_DOWN, 0x28, xbeK_DOWN } )
+   AADD( aRet, { VK_SNAPSHOT, 0x2C, 99999 } )
+   AADD( aRet, { VK_INSERT, 0x2D, xbeK_INS } )
+   AADD( aRet, { VK_DELETE, 0x2E, xbeK_DEL } )
+   AADD( aRet, { VK_LWIN, 0x5B, 65627 } )
+   AADD( aRet, { VK_RWIN, 0x5C, 65628 } )
+   AADD( aRet, { VK_APPS, 0x5D, xbeK_CMENU } )
+   AADD( aRet, { VK_MULTIPLY, 0x6A, 42 } )
+   AADD( aRet, { VK_ADD, 0x6B, 43 } )
+   AADD( aRet, { VK_SUBTRACT, 0x6D, 45 } )
+   AADD( aRet, { VK_DECIMAL, 0x6E, 44 } )
+   AADD( aRet, { VK_DIVIDE, 0x6F, 47 } )
+   AADD( aRet, { VK_F1, 0x70, xbeK_F1 } )
+   AADD( aRet, { VK_F2, 0x71, xbeK_F2 } )
+   AADD( aRet, { VK_F3, 0x72, xbeK_F3 } )
+   AADD( aRet, { VK_F4, 0x73, xbeK_F4 } )
+   AADD( aRet, { VK_F5, 0x74, xbeK_F5 } )
+   AADD( aRet, { VK_F6, 0x75, xbeK_F6 } )
+   AADD( aRet, { VK_F7, 0x76, xbeK_F7 } )
+   AADD( aRet, { VK_F8, 0x77, xbeK_F8 } )
+   AADD( aRet, { VK_F9, 0x78, xbeK_F9 } )
+   AADD( aRet, { VK_F10, 0x79, xbeK_F10 } )
+   AADD( aRet, { VK_F11, 0x7A, xbeK_F11 } )
+   AADD( aRet, { VK_F12, 0x7B, xbeK_F12 } )
+   AADD( aRet, { VK_F13, 0x7C, xbeK_SH_F1 } )
+   AADD( aRet, { VK_F14, 0x7D, xbeK_SH_F2 } )
+   AADD( aRet, { VK_F15, 0x7E, xbeK_SH_F3 } )
+   AADD( aRet, { VK_F16, 0x7F, xbeK_SH_F4 } )
+   AADD( aRet, { VK_F17, 0x80, xbeK_SH_F5 } )
+   AADD( aRet, { VK_F18, 0x81, xbeK_SH_F6 } )
+   AADD( aRet, { VK_F19, 0x82, xbeK_SH_F7 } )
+   AADD( aRet, { VK_F20, 0x83, xbeK_SH_F8 } )
+   AADD( aRet, { VK_F21, 0x84, xbeK_SH_F9 } )
+   AADD( aRet, { VK_F22, 0x85, xbeK_SH_F10 } )
+   AADD( aRet, { VK_F23, 0x86, xbeK_SH_F11 } )
+   AADD( aRet, { VK_F24, 0x87, xbeK_SH_F12 } )
+   AADD( aRet, { VK_NUMLOCK, 0x90, xbeK_NUM_LOCK } )
+   AADD( aRet, { VK_SCROLL, 0x91, xbeK_SCROLL_LOCK } )
 
 RETURN aRet
 
@@ -442,6 +339,7 @@ RETURN cNewPath
 *+                                   1 - static procedure doresizemain()
 *+                                   1 - static procedure setlv_view()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -460,6 +358,7 @@ RETURN aColLeft
 *+                                   1 - static procedure doresizemain()
 *+                                   1 - static procedure setlv_view()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -480,6 +379,8 @@ RETURN aColRight
 *+                                   1 - procedure docomboimage()
 *+                                   2 - static procedure changeleftright()
 *+                ( hbfm.prg )   1 - function main()
+*+                                   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - function main()
 *+                                   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
@@ -503,6 +404,8 @@ RETURN cTextLeft
 *+                                   1 - procedure docomboimage()
 *+                                   2 - static procedure changeleftright()
 *+                ( hbfm.prg )   1 - function main()
+*+                                   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - function main()
 *+                                   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
@@ -532,7 +435,6 @@ RETURN cTextRight
 *+                ( export.prg )   4 - procedure exportdbf()
 *+                ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   8 - procedure dualgrid()
-*+                                   1 - static procedure paint_background_window()
 *+                                   2 - static procedure paint_tab_window()
 *+                                   1 - static procedure showhistory()
 *+                                   1 - static procedure savesetup()
@@ -549,6 +451,8 @@ RETURN cTextRight
 *+                ( hbevery.prg )   1 - procedure hbevery()
 *+                ( hbfilter.prg )   1 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   3 - static procedure ftpform()
 *+                                   1 - static procedure siteform()
@@ -598,6 +502,8 @@ RETURN nColor1
 *+                ( hbeject.prg )   2 - procedure hbeject()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
 *+                                   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
@@ -629,6 +535,8 @@ RETURN nColor2
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -654,6 +562,8 @@ RETURN nColor3
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -673,7 +583,7 @@ RETURN nColor4
 *+
 *+    Called from ( askform.prg )   2 - function askform()
 *+                ( auswahl.prg )   1 - function auswahl()
-*+                ( browser.prg )   8 - static procedure editdetail()
+*+                ( browser.prg )  10 - static procedure editdetail()
 *+                ( export.prg )   4 - procedure exportdbf()
 *+                ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - procedure dualgrid()
@@ -687,6 +597,8 @@ RETURN nColor4
 *+                ( hbevery.prg )   3 - procedure hbevery()
 *+                ( hbfilter.prg )   4 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
@@ -715,7 +627,7 @@ RETURN nColor5
 *+
 *+    Called from ( askform.prg )   2 - function askform()
 *+                ( auswahl.prg )   1 - function auswahl()
-*+                ( browser.prg )   8 - static procedure editdetail()
+*+                ( browser.prg )  10 - static procedure editdetail()
 *+                ( export.prg )   4 - procedure exportdbf()
 *+                ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - procedure dualgrid()
@@ -729,6 +641,8 @@ RETURN nColor5
 *+                ( hbevery.prg )   3 - procedure hbevery()
 *+                ( hbfilter.prg )   4 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   6 - static procedure editform()
 *+                ( hbinput.prg )   1 - function getinput()
@@ -763,6 +677,8 @@ RETURN nColor6
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -787,6 +703,8 @@ RETURN nColor7
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
@@ -827,6 +745,8 @@ RETURN nColor8
 *+                ( hbeject.prg )   1 - procedure hbeject()
 *+                ( hbevery.prg )   1 - procedure hbevery()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
 *+                                   1 - static procedure siteform()
@@ -873,6 +793,8 @@ RETURN nColor9
 *+                ( hbevery.prg )   1 - procedure hbevery()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
 *+                ( hbftp.prg )   2 - static procedure ftpform()
 *+                                   1 - static procedure siteform()
 *+                ( modistru.prg )   1 - function showarraystru()
@@ -904,6 +826,8 @@ RETURN nColor10
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -930,6 +854,8 @@ RETURN nColor11
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -947,7 +873,7 @@ RETURN nColor12
 *+
 *+    Function SP_nColor13()
 *+
-*+    Called from ( browser.prg )   4 - static procedure editdetail()
+*+    Called from ( browser.prg )   5 - static procedure editdetail()
 *+                ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
@@ -956,6 +882,8 @@ RETURN nColor12
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbeject.prg )   1 - procedure hbeject()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
 *+                ( viewer.prg )   1 - procedure txt_edit()
 *+                                   1 - procedure rtf_edit()
@@ -976,7 +904,7 @@ RETURN nColor13
 *+
 *+    Function SP_nColor14()
 *+
-*+    Called from ( browser.prg )   4 - static procedure editdetail()
+*+    Called from ( browser.prg )   5 - static procedure editdetail()
 *+                ( fmcolor.prg )   2 - function resetcolor()
 *+                ( fmgrid.prg )   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - procedure paintdisplay_fmse()
@@ -984,6 +912,8 @@ RETURN nColor13
 *+                                   2 - procedure colorpicker()
 *+                                   2 - static procedure preresetcolor()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                                   1 - static function cre_fmsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                                   1 - static function cre_fmsetup()
 *+                ( viewer.prg )   1 - procedure txt_edit()
 *+                                   1 - procedure rtf_edit()
@@ -1013,6 +943,7 @@ RETURN nColor14
 *+                                   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - static procedure switchdark()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1156,6 +1087,7 @@ RETURN lRunGoToDir
 *+                                   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - static procedure switchcolresize()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1174,7 +1106,7 @@ RETURN lColumnResize
 *+                ( askform.prg )   8 - function askform()
 *+                ( auswahl.prg )   3 - function auswahl()
 *+                ( browser.prg )  13 - procedure browseview()
-*+                                   4 - static procedure editdetail()
+*+                                   5 - static procedure editdetail()
 *+                                   1 - static procedure setnewindex()
 *+                                   1 - static procedure doswitchtags()
 *+                                   2 - static procedure do_modi_stru()
@@ -1197,6 +1129,7 @@ RETURN lColumnResize
 *+                ( hbevery.prg )   8 - procedure hbevery()
 *+                ( hbfilter.prg )  13 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                ( hbftp.prg )  18 - static procedure ftpform()
 *+                                   6 - static procedure siteform()
 *+                                  17 - static procedure editform()
@@ -1227,7 +1160,7 @@ RETURN cFontName
 *+                ( askform.prg )   8 - function askform()
 *+                ( auswahl.prg )   3 - function auswahl()
 *+                ( browser.prg )  11 - procedure browseview()
-*+                                   4 - static procedure editdetail()
+*+                                   5 - static procedure editdetail()
 *+                                   1 - static procedure setnewindex()
 *+                                   1 - static procedure doswitchtags()
 *+                                   1 - function wincodepage()
@@ -1239,6 +1172,7 @@ RETURN cFontName
 *+                ( hbevery.prg )   7 - procedure hbevery()
 *+                ( hbfilter.prg )  13 - procedure hbfilter()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                ( hbftp.prg )  18 - static procedure ftpform()
 *+                                   6 - static procedure siteform()
 *+                                  17 - static procedure editform()
@@ -1263,7 +1197,7 @@ RETURN nFontSize
 *+    Called from ( ado.prg )   2 - procedure ado_view()
 *+                ( browser.prg )   3 - procedure browseview()
 *+                                   2 - static procedure doresize()
-*+                                   4 - static procedure editdetail()
+*+                                   5 - static procedure editdetail()
 *+                                   2 - static procedure do_modi_stru()
 *+                                   8 - static procedure docreateindex()
 *+                ( fmgrid.prg )   1 - static procedure defgridleft()
@@ -1277,6 +1211,7 @@ RETURN nFontSize
 *+                                   1 - procedure funcmscfolder()
 *+                ( hbevery.prg )   1 - procedure hbevery()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+                ( modistru.prg )   2 - function showarraystru()
 *+                                   9 - procedure editstrurec()
 *+                                  14 - procedure createnewdbf()
@@ -1300,6 +1235,7 @@ RETURN nFontlarge
 *+                                  76 - procedure paintdisplay_fmse()
 *+                                   1 - static procedure precolorpick()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1350,6 +1286,7 @@ RETURN lOEM2ANSI
 *+
 *+    Called from ( fmgrid.prg )   1 - static procedure restoretab()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1366,6 +1303,7 @@ RETURN aTabLeft
 *+
 *+    Called from ( fmgrid.prg )   1 - static procedure restoretab()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1382,6 +1320,7 @@ RETURN aTabRight
 *+
 *+    Called from ( fmgrid.prg )   1 - static procedure restoretab()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1398,6 +1337,7 @@ RETURN nViewLeft
 *+
 *+    Called from ( fmgrid.prg )   1 - static procedure restoretab()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1419,6 +1359,7 @@ RETURN nViewRight
 *+                                   1 - static procedure savesetup()
 *+                ( fmsetup.prg )   1 - static procedure switchuseimage()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1464,7 +1405,7 @@ RETURN lDropfiles := .F.
 *+
 *+    Function SP_nSlideShow()
 *+
-*+    Called from ( fmgrid.prg )   1 - static procedure slideshow()
+*+    Called from ( fmgrid.prg )   2 - static procedure slideshow()
 *+                ( viewer.prg )   1 - procedure slideshowend()
 *+
 *+--------------------------------------------------------------------
@@ -1491,6 +1432,8 @@ RETURN nSlideShow
 *+                                   1 - static function netdisconnect()
 *+                                   1 - function watchdirleft()
 *+                                   1 - function watchdirright()
+*+                                   2 - static procedure dorename()
+*+                ( viewer.prg )   2 - function image_edit()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1542,6 +1485,7 @@ RETURN cFindExt
 *+    Function SP_lFreeImage()
 *+
 *+    Called from ( hbfm.prg )   1 - function main()
+*+                ( hbfm64.prg )   1 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1655,6 +1599,7 @@ RETURN aADOStruct
 *+    Called from ( fmsetup.prg )   1 - procedure saverecord_fmse()
 *+                ( fm_func.prg )   1 - procedure wintans()
 *+                ( hbfm.prg )   1 - static function loadsetup()
+*+                ( hbfm64.prg )   1 - static function loadsetup()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1688,6 +1633,7 @@ RETURN lModiStruct
 *+    Called from ( browser.prg )   1 - procedure browseview()
 *+                                   1 - static procedure savecreate()
 *+                ( fmgrid.prg )   1 - procedure dualgrid()
+*+                ( fmregdb.prg )   1 - procedure regdbform()
 *+                ( thumbs.prg )   1 - procedure changedbfstructur()
 *+
 *+--------------------------------------------------------------------
