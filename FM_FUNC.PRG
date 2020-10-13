@@ -35,7 +35,7 @@
 *+               Static Procedure TestBreak()
 *+               Procedure StopSplash()
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-13-2020 at  4:43 am
 *+
 *+--------------------------------------------------------------------
 
@@ -343,6 +343,7 @@ RETURN IF( FILE( "C:\WINDOWS\SysWOW64\Format.COM" ), .T., .F. )
 *+                                   1 - static procedure querytest()
 *+                ( export.prg )   2 - static function mywritesdf()
 *+                ( fmgrid.prg )   2 - function ondummy()
+*+                                   1 - procedure dotestsign()
 *+                ( fm_func.prg )   2 - procedure diffcompare()
 *+                ( hbeject.prg )   3 - function ejectmedia()
 *+                ( hbftp.prg )   2 - static function ondummy()
@@ -364,7 +365,6 @@ RETURN STRTRAN( cOut, '"', '' )
 *+
 *+    Called from ( hbevery.prg )   1 - static function domore()
 *+                ( hbfm.prg )   2 - function main()
-*+                ( hbfm64.prg )   2 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -782,6 +782,7 @@ PROCEDURE StopSplash()
    lStop := .T.
 RETURN
 
+//
 //
 
 *+ EOF: FM_FUNC.PRG

@@ -24,7 +24,7 @@
 *+               Function StoreLastFocus()
 *+               Procedure RestoreLastFocus()
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-13-2020 at  4:43 am
 *+
 *+--------------------------------------------------------------------
 
@@ -365,9 +365,8 @@ PUBLIC _HMG_SYSDATA
                   FREE_Unload( clone )
 
                   FREE_Save( FIF_BMP, FI_hBitmap1, cThumbsFile, BMP_DEFAULT )
-                  //                   FREE_Save(nFIF, FI_hBitmap1, cThumbsFile, nFormat )
+                  //  FREE_Save(nFIF, FI_hBitmap1, cThumbsFile, nFormat )
                   SetProperty( "THUMBSWIN", cImage, "PICTURE", cThumbsFile )
-                  //   FREE_DRAWPICTURE( GetControlHandle( cImage,"THUMBSWIN" ), cThumbsFile,2,128,128)
                   FREE_Unload( FI_hBitmap1 )
                ENDIF
 #ELSE

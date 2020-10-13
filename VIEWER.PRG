@@ -12,6 +12,7 @@
 *+               Static Procedure ImageRelease()
 *+               Procedure SlideshowEnd()
 *+               Static Procedure ViewRotate()
+*+               Static Function SaveView()
 *+               Function Get_FIF()
 *+               Static Procedure DoTXTResize()
 *+               Static Procedure DoRTFResize()
@@ -37,7 +38,7 @@
 *+               Static Function PaintWindow()
 *+               Static Function Zoom()
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-13-2020 at  4:43 am
 *+
 *+--------------------------------------------------------------------
 
@@ -99,6 +100,11 @@ LOCAL cMemo  := " "
 STATIC lRunning := .F.
 
    DEFAULT lEdit TO .F.
+
+   IF CHR( 204 ) $ cFile
+      MsgInfo( "unknow sign in file " + CRLF + cFile, "Error CHR(204)" )
+      RETURN
+   ENDIF
 
    IF lRunning = .T.
       RETURN
@@ -208,6 +214,11 @@ LOCAL nIndex := 0
 STATIC lRunning := .F.
 
    DEFAULT lEdit TO .F.
+
+   IF CHR( 204 ) $ cFile
+      MsgInfo( "unknow sign in file " + CRLF + cFile, "Error CHR(204)" )
+      RETURN
+   ENDIF
 
    IF lRunning = .T.
       RETURN
@@ -321,6 +332,7 @@ LOCAL acFiles     := {}
 LOCAL acTarget    := {}
 LOCAL nFormWidth, nFormHeight
 LOCAL bError
+LOCAL cLoad
 
 STATIC lRunning := .F.
 
@@ -328,13 +340,16 @@ STATIC lRunning := .F.
    DEFAULT lEdit TO .F.
 
    IF "?" $ cFile
-      MsgInfo( "file " + cPath + cFile + " not found" )
+      MsgInfo( "file " + cPath + cFile + " not found", "Error ? sign" )
       RETURN .F.
    ENDIF
 
-   //    cFile := HMG_UNICODE_TO_ANSI(cFile)
+   IF CHR( 204 ) $ cFile
+      MsgInfo( "unknow sign in file " + CRLF + cPath + cFile, "Error CHR(204)" )
+      RETURN .F.
+   ENDIF
+
    IF !FILE( cPath + cFile )
-      //       MsgInfo( "ANSI file " + cPath + cFile + " not found" )
       MsgInfo( "File not found !" + CRLF + cFile, "Error File" )
       RETURN .F.
    ENDIF
@@ -360,8 +375,15 @@ STATIC lRunning := .F.
 
    bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
    BEGIN SEQUENCE
-      nType := FREE_GetFileType( cPath + cFile, 0 )
-      nFreeHandle := FREE_Load( nType, cPath + cFile, 0 )
+
+      IF HMG_IsUTF8( cFile )
+         cLoad := HMG_UNICODE_TO_ANSI( cFile )
+      ELSE
+         cLoad := cFile
+      ENDIF
+
+      nType := FREE_GetFileType( cPath + cLoad, 0 )
+      nFreeHandle := FREE_Load( nType, cPath + cLoad, 0 )
       // nFreeHandle := FREE_Load( nFif, cPath + cFile, 0 )
    END SEQUENCE
    ERRORBLOCK( bError )
@@ -403,17 +425,12 @@ STATIC lRunning := .F.
          ON RELEASE ImageRelease( cPath, cFile, cWorkFile ) ;
          BACKCOLOR SP_nColor1()
 
-      // VIRTUAL WIDTH nWidth+1   ;
-      // VIRTUAL HEIGHT nHeight+1 ;
-      // ON MAXIMIZE DoBMPResize( ThisWindow.Name, "Image_Edit" ) ;
-      // ON GOTFOCUS ImageEdit.Image_Edit.setfocus() ;
-
       DEFINE CONTEXT MENU OF ImageEdit
          IF lEdit = .T.
-            MENUITEM "rotate &right" IMAGE "MYROTATER16" ACTION ViewRotate( - 90, cWorkFile, cFile, nType )
-            MENUITEM "rotate &left" IMAGE "MYROTATEL16" ACTION ViewRotate( 90, cWorkFile, cFile, nType )
+            MENUITEM "rotate &right" IMAGE "MYROTATER16" ACTION ViewRotate( - 90, cWorkFile, cPath, cFile, nType )
+            MENUITEM "rotate &left" IMAGE "MYROTATEL16" ACTION ViewRotate( 90, cWorkFile, cPath, cFile, nType )
             SEPARATOR
-            MENUITEM "rotate 180" ACTION ViewRotate( 180, cWorkFile, cFile, nType )
+            MENUITEM "rotate 180" ACTION ViewRotate( 180, cWorkFile, cPath, cFile, nType )
             SEPARATOR
          ENDIF
          MENUITEM "Pic Info" IMAGE "MYINFO16" ACTION PictInfo( cPath, cFile, nWidthOrig, nHeightOrig, nFreeHandle )
@@ -439,15 +456,14 @@ STATIC lRunning := .F.
    //  nMode := 1
    nMode := 2
 
-   IF nWidth > nScrWidth .OR. nHeight > nScrHeight                    // .OR. nWidthOrig >= nScrWidth .OR. nHeightOrig >= nScrHeight
+   IF nWidth > nScrWidth .OR. nHeight > nScrHeight                    //
       DO WHILE .T.
-         nFormWidth := ROUND( nWidth * nKoef, 0 )                     // + GetBorderWidth() + 4
+         nFormWidth := ROUND( nWidth * nKoef, 0 ) + GetBorderWidth() + 4
          nFormHeight := ROUND( nHeight * nKoef, 0 ) + GetTitleHeight() + ( 3 * GetBorderHeight() )                                          //  + GetMenuBarHeight() // + IF( HMG_IsWinVistaOrLater(), 60, 56 )
          IF nFormWidth <= nScrWidth .OR. nKoef < 0.11
             IF nFormHeight <= nScrHeight .OR. nKoef < 0.11
-               nWidth := nFormWidth                                   // - (GetBorderWidth() + 4 )
+               nWidth := nFormWidth - ( GetBorderWidth() + 4 )
                nHeight := nFormHeight - ( GetTitleHeight() + ( 3 * GetBorderHeight() ) )                                                    //  + GetMenuBarHeight() ) // + IF( HMG_IsWinVistaOrLater(), 60, 56 ) )
-               // Msginfo( str(nWidth)+"/"+STR(nHeight),STR(nKoef))
                EXIT
             ENDIF
          ENDIF
@@ -466,17 +482,13 @@ STATIC lRunning := .F.
    // MUST be Bitmap for FREE_DRAWPICTURE()
    FREE_Save( FIF_BMP, nFreeHandle, cWorkFile, BMP_DEFAULT )
 
-   SetProperty( "ImageEdit", "Width", nFormWidth )
-   SetProperty( "ImageEdit", "Height", nFormHeight )
+   SetProperty( "ImageEdit", "Width", nFormWidth + GetBorderWidth() + 4 )
+   SetProperty( "ImageEdit", "Height", nFormHeight + GetTitleHeight() + 4 )
    //    SetProperty( "ImageEdit", "Image_Edit", "PICTURE", cWorkFile )
 
    ERASE WINDOW ImageEdit
    FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode, nFormWidth, nFormHeight )
    FREE_Unload( nFreeHandle )
-
-   //  SetCursorWait( "WinLeft", .F. )
-   //  SetCursorWait( "WinRight", .F. )
-   //  DO EVENTS
 
    IF !EMPTY( nTimeout )
 
@@ -519,11 +531,8 @@ STATIC lRunning := .F.
          ENDIF
 
          IF FRENAME( cPath + cFile, cOldFile + ".BAK" ) = 0
-            IF FRENAME( cWorkFile, cPath + cFile ) = 0
-               //  AADD( acFiles, cWorkFile )
-               //  AADD( acTarget, cPath + cFile )
-               //  DoSH3func( "RENAME", .f., .f., .f., acFiles, acTarget )
-
+            IF SaveView( cPath, cFile )
+               FERASE( cWorkFile )
                SP_lDirWatch( .T. )
                ReRead( nGridFocus )
             ELSE
@@ -581,7 +590,7 @@ RETURN
 *+
 *+--------------------------------------------------------------------
 *+
-STATIC PROCEDURE ViewRotate( nRad, cWorkFile, cFile, nType )
+STATIC PROCEDURE ViewRotate( nRad, cWorkFile, cPath, cFile, nType )
 
 LOCAL cThumbsFile
 LOCAL nFreeHandle, nClone, new_handle
@@ -590,18 +599,19 @@ LOCAL nFormat     := 0                                                // 0 = DEF
 LOCAL nFif        := Get_FIF( cExt, @nFormat )
 LOCAL nWidth
 LOCAL nHeight
-LOCAL bError      := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+LOCAL bError
 
 #IFDEF Use_FreeImage
 
-   bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
-   BEGIN SEQUENCE
-      // nFreeHandle := FREE_Load( nType, cWorkFile, 0 )
-      nFreeHandle := FREE_Load( nFif, cWorkFile, 0 )
-   END SEQUENCE
-   ERRORBLOCK( bError )
+   //    bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+   //    BEGIN SEQUENCE
+   nFreeHandle := FREE_Load( FIF_BMP, cWorkFile, 0 )
+   //    END SEQUENCE
+   //    ERRORBLOCK( bError )
 
-   IF !EMPTY( nFreeHandle )
+   IF EMPTY( nFreeHandle )
+      MsgInfo( "Error loading file " + CRLF + cWorkFile, cFile )
+   ELSE
       nClone := FREE_Clone( nFreeHandle )
       FREE_Unload( nFreeHandle )
       IF !( ( new_handle := FREE_RotateClassic( nClone, nRad ) ) == Nil )
@@ -611,7 +621,9 @@ LOCAL bError      := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
          IF FILE( cWorkFile )
             FERASE( cWorkFile )
          ENDIF
-         FREE_Save( nFif, nFreeHandle, cWorkFile, nFormat )           // BMP_DEFAULT )
+         // MUST be Bitmap for FREE_DRAWPICTURE()
+         FREE_Save( FIF_BMP, nFreeHandle, cWorkFile, BMP_DEFAULT )
+
          nWidth := FREE_GetWidth( nFreeHandle )
          nHeight := FREE_GetHeight( nFreeHandle )
 
@@ -619,7 +631,6 @@ LOCAL bError      := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
 
          ERASE WINDOW ImageEdit
          FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, 2, nWidth, nHeight )
-
          FREE_Unload( nFreeHandle )
 
          lChanged := .T.
@@ -631,12 +642,51 @@ RETURN
 
 *+--------------------------------------------------------------------
 *+
+*+    Static Function SaveView()
+*+
+*+    Called from ( viewer.prg )   1 - function image_edit()
+*+
+*+--------------------------------------------------------------------
+*+
+STATIC FUNCTION SaveView( cPath, cFile )
+
+LOCAL cWorkFile, nFreeHandle, lRet := .F.
+LOCAL cExt, nFif, nFormat := 0
+LOCAL cLoad
+
+   cExt := LOWER( cFileExt( cFile ) )
+   nFif := Get_FIF( cExt, @nFormat )
+
+   cWorkFile := GetTempFolder() + "FI_" + cFile                       // + ".bmp"
+   nFreeHandle := FREE_Load( FIF_BMP, cWorkFile, 0 )
+
+   IF !EMPTY( nFreeHandle )
+      IF FILE( cPath + cFile )
+         FERASE( cPath + cFile )
+      ENDIF
+
+      IF HMG_IsUTF8( cFile )
+         cLoad := HMG_UNICODE_TO_ANSI( cFile )
+      ELSE
+         cLoad := cFile
+      ENDIF
+
+      FREE_Save( nFif, nFreeHandle, cPath + cLoad, nFormat )          //  BMP_DEFAULT
+      FREE_Unload( nFreeHandle )
+      lRet := .T.
+   ENDIF
+
+RETURN lRet
+
+*+--------------------------------------------------------------------
+*+
 *+    Function Get_FIF()
 *+
 *+    Called from ( thumbs.prg )   1 - procedure thumbs()
 *+                                   1 - static procedure thumbsrotate()
 *+                ( viewer.prg )   1 - function image_edit()
 *+                                   1 - static procedure viewrotate()
+*+                                   1 - static function saveview()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -814,15 +864,15 @@ LOCAL nDeskHigh  := GETDESKTOPHEIGHT()
       mainHeight := nDeskHigh
    ENDIF
 
-   //    IF !EMPTY(cObj)
-   //       Setproperty( cForm, cObj, "Width", mainWidth - ( 2 * nBorder ) )
-   //       Setproperty( cForm, cObj, "Height", mainHeight - nTitlebar - ( 2 * nBorder ) )
-   //    ENDIF
+   // IF !EMPTY(cObj)
+   //    Setproperty( cForm, cObj, "Width", mainWidth - ( 2 * nBorder ) )
+   //    Setproperty( cForm, cObj, "Height", mainHeight - nTitlebar - ( 2 * nBorder ) )
+   // ENDIF
 
    Domethod( cForm, "show" )
 
    ERASE WINDOW ImageEdit
-   FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode, mainWidth, mainHeight )
+   FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode, mainWidth, mainHeight - nTitlebar )
    //    FREE_DRAWPICTURE( GetFormHandle( "ImageEdit" ), cWorkFile, nMode,nShowX,nShowY)
 
 RETURN

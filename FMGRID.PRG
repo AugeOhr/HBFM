@@ -115,10 +115,12 @@
 *+               Static Procedure DoRunAs()
 *+               Static Procedure DoRename()
 *+               Static Procedure GoLastmark()
+*+               Procedure DoTestSign()
+*+               Procedure TestforUmlaute()
 *+
 *+       Tables: USE (cFile) VIA "DBFCDX" NEW EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-13-2020 at  4:43 am
 *+
 *+--------------------------------------------------------------------
 
@@ -162,16 +164,16 @@
 #xtranslate aDir_Left      => Stack_Left\[nDimLeft, 1]
 #xtranslate cGrid_Left     => Stack_Left\[nDimLeft, 2]
 #xtranslate nLast_Left     => Stack_Left\[nDimLeft, 3]
-//  #xtranslate aColor_Left    => Stack_Left\[nDimLeft, 3]
-//  #xtranslate aImage_Left    => Stack_Left\[nDimLeft, 4]
-//  #xtranslate aFiles_Left    => Stack_Left\[nDimLeft, 5]
+//  #xtranslate aColor_Left    => Stack_Left\[nDimLeft, 4]
+//  #xtranslate aImage_Left    => Stack_Left\[nDimLeft, 5]
+//  #xtranslate aFiles_Left    => Stack_Left\[nDimLeft, 6]
 
 #xtranslate aDir_Right     => Stack_Right\[nDimRight, 1]
 #xtranslate cGrid_Right    => Stack_Right\[nDimRight, 2]
 #xtranslate nLast_Right    => Stack_Right\[nDimRight, 3]
-//  #xtranslate aColor_Right   => Stack_Right\[nDimRight, 3]
-//  #xtranslate aImage_Right   => Stack_Right\[nDimRight, 4]
-//  #xtranslate aFiles_Right   => Stack_Right\[nDimRight, 5]
+//  #xtranslate aColor_Right   => Stack_Right\[nDimRight, 4]
+//  #xtranslate aImage_Right   => Stack_Right\[nDimRight, 5]
+//  #xtranslate aFiles_Right   => Stack_Right\[nDimRight, 6]
 
 // STATIC nLastUP       := 0                       // unused
 // STATIC nLastDN       := 0                       // unused
@@ -209,7 +211,6 @@ MEMVAR aForeColorHBP, aBackColorHBP, aFontTypeHBP
 *+    Procedure DualGrid()
 *+
 *+    Called from ( hbfm.prg )   1 - function main()
-*+                ( hbfm64.prg )   1 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1017,7 +1018,6 @@ RETURN
 *+    Function MoreParaLeft()
 *+
 *+    Called from ( hbfm.prg )   1 - function main()
-*+                ( hbfm64.prg )   1 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1056,7 +1056,6 @@ RETURN cRet
 *+    Function MoreParaRight()
 *+
 *+    Called from ( hbfm.prg )   1 - function main()
-*+                ( hbfm64.prg )   1 - function main()
 *+
 *+--------------------------------------------------------------------
 *+
@@ -1431,6 +1430,7 @@ LOCAL cTargetDir := ""
 LOCAL acDelete   := {}
 LOCAL aSourceNum
 LOCAL bError, oError
+LOCAL nHandle
 
    DEFAULT lConfirm TO .F.
    DEFAULT lPaperbin TO .F.
@@ -1475,13 +1475,16 @@ LOCAL bError, oError
    acTarget := {}
    SP_JustDelete( {} )
 
+   //    SET CODEPAGE TO GERMAN
+   SET( _SET_CODEPAGE, "UTF8" )
+
    aSourceNum := ASORT( aSourceNum )
    iMax := LEN( aSourceNum )
    FOR i := 1 TO iMax
       nPosi := aSourceNum[ i ]
 
-      //       bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
-      //       BEGIN SEQUENCE
+      // bError := ERRORBLOCK( { | oErr | BREAK( oErr ) } )
+      // BEGIN SEQUENCE
 
       IF nGridFocus = 1
          cFile := aDir_Left[ nPosi ] [ F_NAME ]
@@ -1494,6 +1497,27 @@ LOCAL bError, oError
          RETURN NIL
       ENDIF
 
+      IF CHR( 204 ) $ cFile
+         msgInfo( "found chr(204)" )
+         //  DoTestSign(cFile)
+         //  TestforUmlaute(@cFile)
+      ENDIF
+
+      IF FILE( cSourceDir + cFile )
+         nHandle := FOPEN( cSourceDir + cFile )
+         IF FERROR() <> 0
+            MsgInfo( "Error open File :" + CRLF + cSourceDir + cFile, STR( FERROR() ) )
+         ELSE
+            FCLOSE( nHandle )
+         ENDIF
+      ELSE
+         Msginfo( "File " + CRLF + cSourceDir + cFile + " not found", cAction )
+      ENDIF
+
+      IF HMG_IsUTF8( cFile )
+         cFile := HMG_UNICODE_TO_ANSI( cFile )
+      ENDIF
+
       AADD( acFiles, cSourceDir + cFile )
       IF cAction = "DELETE"
          AADD( acTarget, "" + CHR( 0 ) )
@@ -1502,11 +1526,11 @@ LOCAL bError, oError
          AADD( acTarget, cTargetDir + cFile )
       ENDIF
 
-      //       RECOVER USING oError
-      //          ERRORBLOCK( bError )
-      //          MsgInfo( oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
-      //       END SEQUENCE
-      //       ERRORBLOCK( bError )
+      // RECOVER USING oError
+      //    ERRORBLOCK( bError )
+      //    MsgInfo( oError:description + CRLF + oError:operation, "Error " + HB_VALTOSTR( oError:osCode ) )
+      // END SEQUENCE
+      // ERRORBLOCK( bError )
 
    NEXT
 
@@ -1934,11 +1958,19 @@ LOCAL cUser    := GETENV( "USERPROFILE" )
    DO CASE
       CASE cForm = "WinLeft"
          aItem := GetProperty( "WinLeft", cGrid_Left, "Value" )
-         nLast_Left := aItem[ 1 ]
+         IF EMPTY( aItem )
+            nLast_Left := 1
+         ELSE
+            nLast_Left := aItem[ 1 ]
+         ENDIF
 
       CASE cForm = "WinRight"
          aItem := GetProperty( "WinRight", cGrid_Right, "Value" )
-         nLast_Right := aItem[ 1 ]
+         IF EMPTY( aItem )
+            nLast_Right := 1
+         ELSE
+            nLast_Right := aItem[ 1 ]
+         ENDIF
    ENDCASE
 
    IF VALTYPE( aItem ) = "A"
@@ -2510,7 +2542,11 @@ STATIC nLast      := 1
    ENDIF
 
    IF lActiveMain = .T.
-      nGoTo := aStart[ 1 ]
+      IF EMPTY( aStart )
+         nGoTo := 1
+      ELSE
+         nGoTo := aStart[ 1 ]
+      ENDIF
 
       DO CASE
          CASE xKey == VK_T .AND. HMG_VirtualKeyIsPressed( VK_CONTROL )
@@ -2653,7 +2689,11 @@ STATIC nLast      := 1
       RETURN
    ENDIF
    IF lActiveMain = .T.
-      nGoTo := aStart[ 1 ]
+      IF EMPTY( aStart )
+         nGoTo := 1
+      ELSE
+         nGoTo := aStart[ 1 ]
+      ENDIF
 
       DO CASE
          CASE xKey == VK_T .AND. HMG_VirtualKeyIsPressed( VK_CONTROL )
@@ -3153,7 +3193,7 @@ LOCAL cSeek, cFile, cAttr
 LOCAL aNewDir
 LOCAL hGrid
 LOCAL nIndex
-LOCAL nPosi, cDir
+LOCAL nPosi, cDir, nLast_Vaild
 LOCAL i, iMax, nDimStack, aInfoDir, nIcoHandle, j, jMax
 LOCAL lLastPos := .F.
 
@@ -3186,6 +3226,7 @@ STATIC lIsrunning := .F.
             IF nPosi > 0
                ADEL( aNewDir, nPosi )
                ASIZE( aNewDir, LEN( aNewDir ) - 1 )
+               nLast_Vaild := nPosi
             ENDIF
          NEXT
       ENDIF
@@ -3219,6 +3260,8 @@ STATIC lIsrunning := .F.
 
             AddBackLog( 1, cNewPath )
 
+            nLast_Left := nLast_Vaild
+
          CASE cForm = "WinRight"
             Domethod( "WinRight", cObj, "DisableUpdate" )
             Domethod( "WinRight", cObj, "DeleteAllItems" )
@@ -3244,6 +3287,7 @@ STATIC lIsrunning := .F.
 
             AddBackLog( 2, cNewPath )
 
+            nLast_Right := nLast_Vaild
       ENDCASE
 
       DO CASE
@@ -3253,12 +3297,18 @@ STATIC lIsrunning := .F.
             DO CASE
                CASE cForm = "WinLeft"
                   IF lLastPos = .T.
-                     nGoTo := nLast_Left
+                     IF EMPTY( nLast_Left )
+                        nLast_Left := 1
+                     ENDIF
+                     nGoTo := MIN( nLast_Left, LEN( aDir_Left ) )
                   ENDIF
                   SetProperty( "WinLeft", cObj, "Value", { nGoTo } )
                CASE cForm = "WinRight"
                   IF lLastPos = .T.
-                     nGoTo := nLast_Right
+                     IF EMPTY( nLast_Right )
+                        nLast_Right := 1
+                     ENDIF
+                     nGoTo := MIN( nLast_Right, LEN( aDir_Right ) )
                   ENDIF
                   SetProperty( "WinRight", cObj, "Value", { nGoTo } )
             ENDCASE
@@ -6248,7 +6298,11 @@ LOCAL cForm, cObj
    ENDCASE
 
    aItem := GetProperty( cForm, cObj, "Value" )
-   nItem := aItem[ 1 ]
+   IF EMPTY( aItem )
+      nItem := 1
+   ELSE
+      nItem := aItem[ 1 ]
+   ENDIF
 
    cPath := GridGetPath( cForm, cObj )
    cText := GetProperty( cForm, cObj, "CELL", nItem, F_NAME )
@@ -6397,6 +6451,90 @@ LOCAL hGrid
    ListView_EnsureVisible( hGrid, nGoTo )
    ListView_RedrawItems( hGrid, nGoTo, nGoTo )
    Domethod( cForm, cObj, "setfocus" )
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Procedure DoTestSign()
+*+
+*+--------------------------------------------------------------------
+*+
+PROCEDURE DoTestSign( cUTF8 )
+
+LOCAL nSign, i, iMax, aSign := {}
+
+   iMax := LEN( cUTF8 )
+   FOR i := 1 TO iMax
+      nSign := ASC( SUBSTR( cUTF8, i, 1 ) )
+      IF EMPTY( nSign )
+         nSign := 0
+      ENDIF
+      AADD( aSign, nSign )
+   NEXT
+   MsgInfo( Var2Char( aSign ), cUTF8 )
+RETURN
+
+*+--------------------------------------------------------------------
+*+
+*+    Procedure TestforUmlaute()
+*+
+*+--------------------------------------------------------------------
+*+
+PROCEDURE TestforUmlaute( cUTF8 )
+
+LOCAL nPosi
+
+   IF CHR( 97 ) + CHR( 204 ) $ cUTF8
+      //       cUTF8 := STRTRAN(cUTF8,CHR(97),"ae")
+      cUTF8 := STRTRAN( cUTF8, CHR( 97 ) + CHR( 204 ), CHR( 132 ) )
+   ENDIF
+   IF CHR( 65 ) + CHR( 204 ) $ cUTF8
+      //       cUTF8 := STRTRAN(cUTF8,CHR(65),"Ae")
+      cUTF8 := STRTRAN( cUTF8, CHR( 65 ) + CHR( 204 ), CHR( 142 ) )
+   ENDIF
+
+   IF CHR( 117 ) + CHR( 204 ) $ cUTF8
+      //       cUTF8 := STRTRAN(cUTF8,CHR(117),"ue")
+      cUTF8 := STRTRAN( cUTF8, CHR( 117 ) + CHR( 204 ), CHR( 129 ) )
+   ENDIF
+   IF CHR( 85 ) + CHR( 204 ) $ cUTF8
+      //       cUTF8 := STRTRAN(cUTF8,CHR(85),"Ue")
+      cUTF8 := STRTRAN( cUTF8, CHR( 85 ) + CHR( 204 ), CHR( 154 ) )
+   ENDIF
+
+   IF CHR( 111 ) + CHR( 204 ) $ cUTF8
+      //       cUTF8 := STRTRAN(cUTF8,CHR(111),"oe")
+      cUTF8 := STRTRAN( cUTF8, CHR( 111 ) + CHR( 204 ), CHR( 148 ) )
+   ENDIF
+   IF CHR( 79 ) + CHR( 204 ) $ cUTF8
+      //       cUTF8 := STRTRAN(cUTF8,CHR(79),"Oe")
+      cUTF8 := STRTRAN( cUTF8, CHR( 79 ) + CHR( 204 ), CHR( 153 ) )
+   ENDIF
+
+   IF AT( CHR( 34 ), cUTF8 ) > 0
+      cUTF8 := STRTRAN( cUTF8, CHR( 34 ), CHR( 39 ) )
+   ENDIF
+
+   //  IF AT("á",cUTF8) > 0
+   //     cUTF8 := STRTRAN(cUTF8,"á","ss")
+   //  ENDIF
+   //  IF AT("e) > 0
+   //     cUTF8 := STRTRAN(cUTF8,"DIF
+   //  IF AT("e) > 0
+   //     cUTF8 := STRTRAN(cUTF8,"DIF
+
+   //    // this is need to delete Square in CMD Box
+   //    nPosi := AT(CHR(204),cUTF8)
+   //    IF nPosi > 0
+   // *      cUTF8 := SUBSTR(cUTF8,1,nPosi-1)+SUBSTR(cUTF8,nPosi+1)
+   //       msginfo("still chr(204)" )
+   //    ENDIF
+
+   DO WHILE ( nPosi := AT( CHR( 0xCC ), cUTF8 ) ) > 0
+      cUTF8 := LEFT( cUTF8, nPosi - 1 ) + SUBSTR( cUTF8, nPosi + 2 )
+   ENDDO
+   //    msginfo(cUTF8)
+
 RETURN
 
 *+ EOF: FMGRID.PRG

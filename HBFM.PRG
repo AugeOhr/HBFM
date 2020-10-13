@@ -14,7 +14,7 @@
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+               USE (cAppData+"\"+cFile) VIA "DBFCDX" EXCLUSIVE
 *+
-*+    Reformatted by Click! 2.05.35 on Oct-8-2020 at  3:10 am
+*+    Reformatted by Click! 2.05.35 on Oct-13-2020 at  4:43 am
 *+
 *+--------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ REQUEST HB_CODEPAGE_RU1251
 REQUEST HB_CODEPAGE_SRWIN
 REQUEST HB_CODEPAGE_SLWIN
 
-STATIC cVersion     := "v1.37"
+STATIC cVersion     := "v1.38"
 MEMVAR _HMG_SYSDATA
 
 *+--------------------------------------------------------------------
@@ -443,6 +443,7 @@ LOCAL aStructure
 RETURN
 
 // ***************************************************************
+//  v.1.38 13.10.2020 German "umlaute" from Apple Email CHR(204)
 //  v.1.37 07.10.2020 enhance HMG_Calldll() "A" and "W"
 //  v.1.36 06.10.2020 change to Codepage UTF8
 //  v.1.35 03.10.2020 BUG DestroyIcon() for HMG_*
